@@ -4,36 +4,36 @@ set -e
 COMMAND=${1:-"help"}
 
 case "$COMMAND" in
-  # Показать что накопилось в [Unreleased] с момента последнего тега
+  # Preview what is batched in [Unreleased] since the last tag
   "preview")
     echo "=== Unreleased changes ==="
     git cliff --unreleased --strip header
     ;;
 
-  # Обновить CHANGELOG.md — добавить/обновить секцию [Unreleased]
+  # Update CHANGELOG.md -> add/update section [Unreleased]
   "update")
     git cliff --unreleased --prepend CHANGELOG.md
     echo "✓ CHANGELOG.md updated with unreleased commits"
     ;;
 
-  # Выпустить релиз: обновить CHANGELOG.md с версией и создать тег
-  # Использование: ./scripts/changelog.sh release 1.0.0
+  # Roll a release: update CHANGELOG.md with version and create a tag.
+  # Usage: ./scripts/changelog.sh release 1.0.0
   "release")
     VERSION=${2:?"Usage: $0 release <version>"}
 
-    # 1. Обновляем gradle.properties
+    # 1. Updating gradle.properties
     sed -i '' "s/^pluginVersion=.*/pluginVersion=$VERSION/" gradle.properties
     echo "✓ pluginVersion=$VERSION in gradle.properties"
 
-    # 2. git-cliff генерирует финальный changelog для этой версии
+    # 2. git-cliff generates the final changelog for the current version
     git cliff --tag "v$VERSION" --prepend CHANGELOG.md
     echo "✓ CHANGELOG.md updated for v$VERSION"
 
-    # 3. Коммитим изменения
+    # 3. Commit changes
     git add CHANGELOG.md gradle.properties
     git commit -m "chore: release v$VERSION"
 
-    # 4. Создаём тег
+    # 4. Create a tag
     git tag -a "v$VERSION" -m "Release v$VERSION"
     echo "✓ Tag v$VERSION created"
 
