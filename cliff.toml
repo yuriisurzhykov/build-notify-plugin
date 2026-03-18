@@ -1,0 +1,59 @@
+[changelog]
+# Header above all versions
+header = "# Changelog\n\n"
+
+# Template for each version block.
+# Matches "keep a changelog" format that gradle-changelog-plugin expects.
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}\
+- {{ commit.message | upper_first | trim }}\
+{% if commit.breaking %} ⚠️ BREAKING{% endif %}
+
+{% endfor %}\
+{% endfor %}\n
+"""
+
+# Remove trailing whitespace from each line
+trim = true
+
+# Footer — link section (keep a changelog style)
+footer = ""
+
+[git]
+# Parse conventional commits
+conventional_commits = true
+filter_unconventional = true  # Skip commits that don't follow the format
+
+# Map conventional commit types → changelog groups
+commit_parsers = [
+    { message = "^feat", group = "Added" },
+    { message = "^fix", group = "Fixed" },
+    { message = "^perf", group = "Changed" },
+    { message = "^refactor", group = "Changed" },
+    { message = "^docs", skip = true },
+    { message = "^chore", skip = true },
+    { message = "^ci", skip = true },
+    { message = "^test", skip = true },
+    { message = "^style", skip = true },
+    { message = "^build", skip = true },
+]
+
+# Only commits with these prefixes are processed
+filter_commits = true
+
+# Tag format: v1.0.0
+tag_pattern = "v[0-9].*"
+
+# Don't include merge commits
+ignore_tags = "^v.*-rc"
+skip_tags = ""
+
+# Sort commits within a group
+sort_commits = "oldest"

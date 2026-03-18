@@ -1,0 +1,62 @@
+<!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN, cannot be changed between the plugin versions. -->
+    <id>me.yuriisoft.buildnotify.bulid-notify-plugin</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <name>Build Notifier</name>
+    <version>1.0.0</version>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://www.yuriisoft.me">YuriiSoft</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
+    <description><![CDATA[
+        Sends build results to your Android phone over local Wi-Fi.
+        Supports multiple devices simultaneously.
+        Zero configuration - auto-discovered via mDNS.
+    ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <idea-version since-build="252"/>
+
+    <!--
+        Declare K2 Kotlin mode compatibility.
+        Required for Android Studio Narwhal (252.*) where K2 is the default.
+        "COMPATIBLE" means this plugin does not use any K1-only APIs.
+    -->
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK2="true"/>
+    </extensions>
+
+    <depends>com.intellij.gradle</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>org.jetbrains.android</depends>
+    <depends>com.intellij.properties</depends>
+    <depends>org.intellij.plugins.markdown</depends>
+    <resource-bundle>messages.BuildNotifyBundle</resource-bundle>
+
+
+    <!-- Extensions defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="me.yuriisoft.buildnotify.BuildNotifyProjectActivity"/>
+        <applicationService serviceImplementation="me.yuriisoft.buildnotify.settings.PluginSettings"/>
+
+        <!--
+            ExternalSystemTaskNotificationListener registered as EP.
+            The IDE instantiates and calls it directly for every Gradle task.
+            The Adapter class is deprecated — implementing the interface directly is correct.
+        -->
+        <externalSystemTaskNotificationListener implementation="me.yuriisoft.buildnotify.build.GradleTaskListener"/>
+
+        <applicationConfigurable parentId="tools"
+                                 instance="me.yuriisoft.buildnotify.settings.PluginSettingsConfigurable"
+                                 id="me.yuriisoft.buildnotify.settings"
+                                 displayName="Build Notifier"/>
+    </extensions>
+
+</idea-plugin>
