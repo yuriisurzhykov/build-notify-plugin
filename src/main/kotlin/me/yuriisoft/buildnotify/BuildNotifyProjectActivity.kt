@@ -1,9 +1,14 @@
 package me.yuriisoft.buildnotify
 
+import com.intellij.build.BuildProgressListener
+import com.intellij.build.BuildViewManager
+import com.intellij.build.SyncViewManager
+import com.intellij.build.events.BuildEvent
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
+import me.yuriisoft.buildnotify.build.BuildMonitorService
 import me.yuriisoft.buildnotify.discovery.MdnsAdvertiser
 import me.yuriisoft.buildnotify.server.BuildWebSocketServer
 
@@ -24,11 +29,29 @@ class BuildNotifyProjectActivity : ProjectActivity {
         val server = service<BuildWebSocketServer>()
         val mdns = service<MdnsAdvertiser>()
 
-        // APP-level services start only once, even when multiple projects are open.
         if (!server.isActive()) {
             server.start()
             mdns.start()
         }
+
+        val disposable = BuildNotifyPluginDisposable.getInstance(project)
+
+        val buildProgressListener = BuildProgressListener { buildId, event: BuildEvent ->
+            service<BuildMonitorService>().onBuildProgressEvent(
+                buildId,
+                event
+            )
+        }
+
+        runCatching {
+            project.getService(BuildViewManager::class.java)
+                ?.addListener(buildProgressListener, disposable)
+        }.onFailure { logger.warn("Failed to attach to BuildViewManager", it) }
+
+        runCatching {
+            project.getService(SyncViewManager::class.java)
+                ?.addListener(buildProgressListener, disposable)
+        }.onFailure { logger.warn("Failed to attach to SyncViewManager", it) }
 
         logger.info("BuildNotify ready for project '${project.name}', server active=${server.isActive()}")
     }

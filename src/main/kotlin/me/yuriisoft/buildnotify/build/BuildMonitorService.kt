@@ -66,8 +66,8 @@ class BuildMonitorService {
         session.externalProgressEvents.add(title)
     }
 
-    fun onBuildProgressEvent(taskId: ExternalSystemTaskId, event: BuildEvent) {
-        val session = sessionsByTaskId[taskId] ?: return
+    fun onBuildProgressEvent(buildId: Any, event: BuildEvent) {
+        val session = sessionsByBuildId[buildId.toString()] ?: return
 
         event.toIssueOrNull()?.let(session.issues::add)
 
@@ -80,63 +80,8 @@ class BuildMonitorService {
             }
         }
 
-        logBuildEvent(event)
-        BuildGraphEventMapper.map(taskId, event)
+        BuildGraphEventMapper.map(buildId, event)
             ?.let(publisher()::publishGraphEvent)
-    }
-
-    private fun logBuildEvent(event: BuildEvent) {
-        when (event) {
-            is FinishEvent -> {
-                val result = event.result
-                logger.warn(
-                    """
-                FINISH:
-                class=${event.javaClass.name}
-                message=${event.message}
-                hint=${event.hint}
-                description=${event.description}
-                resultClass=${result?.javaClass?.name}
-                failures=${(result as? FailureResult)?.failures?.size ?: 0}
-                """.trimIndent()
-                )
-
-                if (result is FailureResult) {
-                    result.failures.forEach { failure ->
-                        logFailure(failure, 0)
-                    }
-                }
-            }
-
-            else -> {
-                logger.warn(
-                    """
-                EVENT:
-                class=${event.javaClass.name}
-                message=${event.message}
-                hint=${event.hint}
-                description=${event.description}
-                """.trimIndent()
-                )
-            }
-        }
-    }
-
-    private fun logFailure(failure: Failure, depth: Int) {
-        val indent = "  ".repeat(depth)
-        logger.warn(
-            """
-        ${indent}FAILURE:
-        ${indent}class=${failure.javaClass.name}
-        ${indent}message=${failure.message}
-        ${indent}description=${failure.description}
-        ${indent}causes=${failure.causes.size}
-        """.trimIndent()
-        )
-
-        failure.causes.forEach { cause ->
-            logFailure(cause, depth + 1)
-        }
     }
 
     fun onSuccess(taskId: ExternalSystemTaskId) {
@@ -173,6 +118,7 @@ class BuildMonitorService {
         val collectedIssues = session.issues
             .toList()
             .take(settings.maxIssuesPerNotification)
+            .filter { if (!settings.sendWarnings) it.severity == BuildIssue.Severity.ERROR else true }
 
         val finalStatus = resolveFinalStatus(
             treeResult = session.treeResult,
@@ -207,8 +153,7 @@ class BuildMonitorService {
         }
     }
 
-    private fun publisher(): BuildNotificationPublisher =
-        service()
+    private fun publisher(): BuildNotificationPublisher = service()
 
     private fun ExternalSystemTaskId.isSupportedGradleTask(): Boolean =
         projectSystemId == GradleConstants.SYSTEM_ID &&
@@ -297,7 +242,6 @@ class BuildMonitorService {
         when (result) {
             is FailureResult -> {
                 val failure = result.failures.firstOrNull()
-                // Достаем description из FailureResult — там может лежать StackTrace
                 val failureMessage = failure?.let { buildDetailedMessage(it.message, it.description) }
                     ?.takeIf { it.isNotBlank() }
                     ?: fallbackMessage
