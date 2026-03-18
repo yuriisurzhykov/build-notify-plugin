@@ -5,12 +5,10 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskType
 import com.intellij.openapi.externalSystem.model.task.event.ExternalSystemTaskExecutionEvent
 import me.yuriisoft.buildnotify.build.model.BuildIssue
 import me.yuriisoft.buildnotify.build.model.BuildStatus
 import me.yuriisoft.buildnotify.settings.PluginSettingsState
-import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -20,32 +18,34 @@ class BuildMonitorService {
 
     private val logger = thisLogger()
 
-    private val sessionsByTaskId = ConcurrentHashMap<ExternalSystemTaskId, BuildSession>()
     private val sessionsByBuildId = ConcurrentHashMap<String, BuildSession>()
 
     fun onStart(projectPath: String, taskId: ExternalSystemTaskId) {
-        if (!taskId.isSupportedGradleTask()) return
-
-        val buildId = taskId.toString()
-        val session = BuildSession(
-            buildId = buildId,
+        getOrCreateSession(
+            buildId = taskId.toString(),
             projectName = projectNameFrom(projectPath),
-            startedAt = System.currentTimeMillis(),
-        )
-
-        sessionsByTaskId[taskId] = session
-        sessionsByBuildId[buildId] = session
-
-        publisher().publishStarted(
-            projectName = session.projectName,
-            buildId = session.buildId,
+            startedAt = System.currentTimeMillis()
         )
     }
 
-    fun onTaskOutput(taskId: ExternalSystemTaskId, text: String) {
-        if (!taskId.isSupportedGradleTask()) return
+    private fun getOrCreateSession(buildId: String, projectName: String, startedAt: Long): BuildSession {
+        return sessionsByBuildId.getOrPut(buildId) {
+            val newSession = BuildSession(
+                buildId = buildId,
+                projectName = projectName,
+                startedAt = startedAt
+            )
+            // Отправляем событие о старте только в момент фактического создания сессии
+            publisher().publishStarted(
+                projectName = newSession.projectName,
+                buildId = newSession.buildId,
+            )
+            newSession
+        }
+    }
 
-        val session = sessionsByTaskId[taskId] ?: return
+    fun onTaskOutput(taskId: ExternalSystemTaskId, text: String) {
+        val session = sessionsByBuildId[taskId.toString()] ?: return
         val lines = normalizeOutput(text)
         if (lines.isEmpty()) return
 
@@ -55,7 +55,7 @@ class BuildMonitorService {
     }
 
     fun onTaskExecutionProgress(event: ExternalSystemTaskExecutionEvent) {
-        val session = sessionsByTaskId[event.id] ?: return
+        val session = sessionsByBuildId[event.id.toString()] ?: return
 
         val title = event.progressEvent.displayName
             .takeIf { it.isNotBlank() }
@@ -67,7 +67,16 @@ class BuildMonitorService {
     }
 
     fun onBuildProgressEvent(buildId: Any, event: BuildEvent) {
-        val session = sessionsByBuildId[buildId.toString()] ?: return
+        val buildIdStr = buildId.toString()
+
+        // ВАЖНО: Если мы запустили сборку через Run (кнопка Play),
+        // onStart мог не сработать. Мы ловим старт прямо из UI окна сборки!
+        if (event is StartBuildEvent) {
+            val title = event.buildDescriptor.title.takeIf { !it.isNullOrBlank() } ?: "Android Build"
+            getOrCreateSession(buildIdStr, title, event.eventTime)
+        }
+
+        val session = sessionsByBuildId[buildIdStr] ?: return
 
         event.toIssueOrNull()?.let(session.issues::add)
 
@@ -80,18 +89,76 @@ class BuildMonitorService {
             }
         }
 
-        BuildGraphEventMapper.map(buildId, event)
+        logBuildEvent(event)
+        BuildGraphEventMapper.map(buildIdStr, event)
             ?.let(publisher()::publishGraphEvent)
+
+        // Автоматически завершаем сессию, если пришло финальное событие всего дерева сборки
+        if (event is FinishBuildEvent || (event is FinishEvent && event.parentId == null)) {
+            finalizeSession(buildIdStr)
+        }
+    }
+
+    private fun logBuildEvent(event: BuildEvent) {
+        when (event) {
+            is FinishEvent -> {
+                val result = event.result
+                logger.warn(
+                    """
+                FINISH:
+                class=${event.javaClass.name}
+                message=${event.message}
+                hint=${event.hint}
+                description=${event.description}
+                resultClass=${result?.javaClass?.name}
+                failures=${(result as? FailureResult)?.failures?.size ?: 0}
+                """.trimIndent()
+                )
+
+                if (result is FailureResult) {
+                    result.failures.forEach { failure ->
+                        logFailure(failure, 0)
+                    }
+                }
+            }
+
+            else -> {
+                logger.warn(
+                    """
+                EVENT:
+                class=${event.javaClass.name}
+                message=${event.message}
+                hint=${event.hint}
+                description=${event.description}
+                """.trimIndent()
+                )
+            }
+        }
+    }
+
+    private fun logFailure(failure: Failure, depth: Int) {
+        val indent = "  ".repeat(depth)
+        logger.warn(
+            """
+        ${indent}FAILURE:
+        ${indent}class=${failure.javaClass.name}
+        ${indent}message=${failure.message}
+        ${indent}description=${failure.description}
+        ${indent}causes=${failure.causes.size}
+        """.trimIndent()
+        )
+
+        failure.causes.forEach { cause ->
+            logFailure(cause, depth + 1)
+        }
     }
 
     fun onSuccess(taskId: ExternalSystemTaskId) {
-        if (!taskId.isSupportedGradleTask()) return
-        sessionsByTaskId[taskId]?.reportedStatus = BuildStatus.SUCCESS
+        sessionsByBuildId[taskId.toString()]?.reportedStatus = BuildStatus.SUCCESS
     }
 
     fun onFailure(taskId: ExternalSystemTaskId, exception: Exception) {
-        if (!taskId.isSupportedGradleTask()) return
-        val session = sessionsByTaskId[taskId] ?: return
+        val session = sessionsByBuildId[taskId.toString()] ?: return
         session.reportedStatus = BuildStatus.FAILED
 
         session.issues.add(
@@ -104,21 +171,23 @@ class BuildMonitorService {
     }
 
     fun onCancel(taskId: ExternalSystemTaskId) {
-        if (!taskId.isSupportedGradleTask()) return
-        sessionsByTaskId[taskId]?.reportedStatus = BuildStatus.CANCELLED
+        sessionsByBuildId[taskId.toString()]?.reportedStatus = BuildStatus.CANCELLED
     }
 
     fun onEnd(taskId: ExternalSystemTaskId) {
-        if (!taskId.isSupportedGradleTask()) return
+        // Вызов на случай, если сборка завершилась, но FinishBuildEvent почему-то не пришел
+        finalizeSession(taskId.toString())
+    }
 
-        val session = sessionsByTaskId.remove(taskId) ?: return
-        sessionsByBuildId.remove(session.buildId)
+    @Synchronized
+    private fun finalizeSession(buildId: String) {
+        // Удаляем сессию. Если её уже нет (закрыли по FinishBuildEvent), просто выходим
+        val session = sessionsByBuildId.remove(buildId) ?: return
 
         val settings = service<PluginSettingsState>().snapshot()
         val collectedIssues = session.issues
             .toList()
             .take(settings.maxIssuesPerNotification)
-            .filter { if (!settings.sendWarnings) it.severity == BuildIssue.Severity.ERROR else true }
 
         val finalStatus = resolveFinalStatus(
             treeResult = session.treeResult,
@@ -153,11 +222,8 @@ class BuildMonitorService {
         }
     }
 
-    private fun publisher(): BuildNotificationPublisher = service()
-
-    private fun ExternalSystemTaskId.isSupportedGradleTask(): Boolean =
-        projectSystemId == GradleConstants.SYSTEM_ID &&
-                type == ExternalSystemTaskType.EXECUTE_TASK
+    private fun publisher(): BuildNotificationPublisher =
+        service()
 
     private fun projectNameFrom(projectPath: String): String =
         runCatching {

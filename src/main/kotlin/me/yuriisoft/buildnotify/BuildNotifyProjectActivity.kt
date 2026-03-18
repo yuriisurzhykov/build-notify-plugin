@@ -43,15 +43,21 @@ class BuildNotifyProjectActivity : ProjectActivity {
             )
         }
 
+        @Suppress("UnstableApiUsage")
         runCatching {
             project.getService(BuildViewManager::class.java)
                 ?.addListener(buildProgressListener, disposable)
-        }.onFailure { logger.warn("Failed to attach to BuildViewManager", it) }
+        }.onFailure {
+            logger.warn("Failed to attach to BuildViewManager", it)
+        }
 
+        @Suppress("UnstableApiUsage")
         runCatching {
             project.getService(SyncViewManager::class.java)
                 ?.addListener(buildProgressListener, disposable)
-        }.onFailure { logger.warn("Failed to attach to SyncViewManager", it) }
+        }.onFailure {
+            logger.warn("Failed to attach to SyncViewManager", it)
+        }
 
         logger.info("BuildNotify ready for project '${project.name}', server active=${server.isActive()}")
     }

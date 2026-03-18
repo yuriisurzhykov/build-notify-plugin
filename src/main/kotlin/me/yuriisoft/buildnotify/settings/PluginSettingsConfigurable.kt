@@ -17,7 +17,7 @@ import javax.swing.JComponent
  * inherits the current IDE Look & Feel (Light / Darcula / High Contrast) automatically.
  *
  * Jewel/Compose was intentionally dropped: it requires complex bundledModule wiring
- * for AS builds and is not officially supported for third-party plugins as of 2025.
+ * for AS builds and is not officially supported for third-party plugins.
  */
 class PluginSettingsConfigurable : Configurable {
 
