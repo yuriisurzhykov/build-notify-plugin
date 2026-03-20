@@ -1,12 +1,66 @@
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M32.0845 7.94025V4H24.0203V7.9896H16.029V4H7.91553V7.94025H4V36H16.0044V32.0045C16.0058 30.9457 16.4274 29.9308 17.1766 29.1826C17.9258 28.4345 18.9412 28.0143 20 28.0143C21.0588 28.0143 22.0743 28.4345 22.8234 29.1826C23.5726 29.9308 23.9942 30.9457 23.9956 32.0045V36H36V7.94025H32.0845Z"
-          fill="url(#paint0_linear)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40">
     <defs>
-        <linearGradient id="paint0_linear" x1="2.94192" y1="4.89955" x2="37.7772" y2="39.7345"
-                        gradientUnits="userSpaceOnUse">
-            <stop offset="0.15937" stop-color="#3BEA62"/>
-            <stop offset="0.5404" stop-color="#3C99CC"/>
-            <stop offset="0.93739" stop-color="#6B57FF"/>
+        <!-- Gradient for the gear (Kotlin / IntelliJ Theme) -->
+        <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#9C73FF"/>
+            <stop offset="100%" stop-color="#5522FF"/>
         </linearGradient>
+
+        <!-- Gradient for the phone (Android Theme) -->
+        <linearGradient id="phoneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3DDC84"/>
+            <stop offset="100%" stop-color="#1DA855"/>
+        </linearGradient>
+
+        <!-- Drop shadow to visually separate the phone from the background and gear -->
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-1" dy="2" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.35"/>
+        </filter>
     </defs>
+
+    <!-- ========================================== -->
+    <!-- 1. GEAR (Build Process / Gradle)           -->
+    <!-- ========================================== -->
+    <g transform="translate(30, 34)">
+        <!-- Main gear ring -->
+        <circle cx="0" cy="0" r="16" fill="none" stroke="url(#gearGrad)" stroke-width="10"/>
+
+        <!-- Gear teeth (mathematically calculated pattern for 8 rounded teeth) -->
+        <circle cx="0" cy="0" r="23" fill="none" stroke="url(#gearGrad)" stroke-width="6"
+                stroke-dasharray="3.032 15.032" stroke-linecap="round" transform="rotate(11.25)"/>
+    </g>
+
+    <!-- ========================================== -->
+    <!-- 2. SIGNAL (mDNS / Local Network / WS)      -->
+    <!-- ========================================== -->
+    <g>
+        <!-- Source point (shifted slightly down) -->
+        <circle cx="75" cy="36" r="3.5" fill="#00CFFF"/>
+        <!-- Wave arcs (recalculated circle sections to prevent clipping at the top) -->
+        <path d="M 68 29 A 9 9 0 0 1 82 29" stroke="#00CFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 61 22 A 17 17 0 0 1 89 22" stroke="#00CFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 54 15 A 25 25 0 0 1 96 15" stroke="#00CFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- ========================================== -->
+    <!-- 3. SMARTPHONE (Android device / UI)        -->
+    <!-- ========================================== -->
+    <g filter="url(#shadow)">
+        <!-- Phone body -->
+        <rect x="42" y="42" width="38" height="52" rx="6" fill="url(#phoneGrad)"/>
+
+        <!-- Phone screen (Dark IDE theme) -->
+        <rect x="46" y="46" width="30" height="40" rx="3" fill="#2B2D30"/>
+
+        <!-- Mini-logs (Task Started/Finished) -->
+        <line x1="50" y1="52" x2="66" y2="52" stroke="#4A4D51" stroke-width="2" stroke-linecap="round"/>
+        <line x1="50" y1="57" x2="60" y2="57" stroke="#4A4D51" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Notification: Successful build (SUCCESS) -->
+        <path d="M 52 70 L 58 76 L 70 62" fill="none" stroke="#3DDC84" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Speaker / Bottom swipe indicator -->
+        <line x1="57" y1="90" x2="65" y2="90" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    </g>
+
 </svg>
