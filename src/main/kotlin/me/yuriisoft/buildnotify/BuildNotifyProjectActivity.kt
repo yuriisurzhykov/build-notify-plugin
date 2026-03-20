@@ -9,8 +9,8 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
 import me.yuriisoft.buildnotify.build.BuildMonitorService
-import me.yuriisoft.buildnotify.discovery.MdnsAdvertiser
-import me.yuriisoft.buildnotify.server.BuildWebSocketServer
+import me.yuriisoft.buildnotify.network.discovery.MdnsAdvertiser
+import me.yuriisoft.buildnotify.network.server.BuildWebSocketServer
 
 /**
  * Entry point — runs once per project open.

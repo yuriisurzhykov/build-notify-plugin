@@ -53,6 +53,11 @@ class PluginSettingsConfigurable : Configurable {
                         .bindIntText(uiState::heartbeatIntervalSec)
                     comment(BuildNotifyBundle.message("settings.field.heartbeat.interval.comment"))
                 }
+                row(BuildNotifyBundle.message("settings.field.connection.lost.timeout")) {
+                    intTextField(range = 5..300)
+                        .bindIntText(uiState::connectionLostTimeoutSec)
+                    comment(BuildNotifyBundle.message("settings.field.connection.lost.timeout.comment"))
+                }
             }
 
             group(BuildNotifyBundle.message("settings.group.notifications")) {

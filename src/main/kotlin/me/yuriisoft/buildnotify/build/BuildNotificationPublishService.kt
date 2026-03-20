@@ -5,10 +5,10 @@ import com.intellij.openapi.components.service
 import me.yuriisoft.buildnotify.build.model.BuildGraphEvent
 import me.yuriisoft.buildnotify.build.model.BuildResult
 import me.yuriisoft.buildnotify.serialization.WsMessage
-import me.yuriisoft.buildnotify.server.BuildWebSocketServer
+import me.yuriisoft.buildnotify.network.server.BuildWebSocketServer
 
 @Service(Service.Level.APP)
-class BuildNotificationPublisher {
+class BuildNotificationPublishService {
 
     fun publishStarted(projectName: String, buildId: String) {
         publish(

@@ -15,6 +15,7 @@ class PluginSettingsState : PersistentStateComponent<PluginSettingsState.State> 
         var sendWarnings: Boolean = true,
         var maxIssuesPerNotification: Int = 20,
         var heartbeatIntervalSec: Int = 30,
+        var connectionLostTimeoutSec: Int = 30,
     )
 
     private var _state: State = State()

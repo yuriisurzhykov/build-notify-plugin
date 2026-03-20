@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.server
+package me.yuriisoft.buildnotify.network.server
 
 import com.intellij.openapi.diagnostic.thisLogger
 import kotlinx.coroutines.*
@@ -51,6 +51,12 @@ class HeartbeatScheduler(
         tickJob = null
         scope?.cancel()
         scope = null
+    }
+
+    fun resetTick() {
+        tickJob?.cancel()
+        tickJob = null
+        start()
     }
 
     private fun tick() {

@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.server
+package me.yuriisoft.buildnotify.network.server
 
 import com.intellij.openapi.components.Service
 import com.jetbrains.rd.util.ConcurrentHashMap

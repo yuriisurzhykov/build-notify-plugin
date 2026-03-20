@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.build
+package me.yuriisoft.buildnotify.build.mapper
 
 import me.yuriisoft.buildnotify.build.model.BuildIssue
 import me.yuriisoft.buildnotify.build.model.BuildResult

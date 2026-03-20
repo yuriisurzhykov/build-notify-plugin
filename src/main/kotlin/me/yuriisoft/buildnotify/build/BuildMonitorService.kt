@@ -6,6 +6,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId
 import com.intellij.openapi.externalSystem.model.task.event.ExternalSystemTaskExecutionEvent
+import me.yuriisoft.buildnotify.build.mapper.BuildGraphEventMapper
+import me.yuriisoft.buildnotify.build.mapper.BuildResultMapper
 import me.yuriisoft.buildnotify.build.model.BuildIssue
 import me.yuriisoft.buildnotify.build.model.BuildStatus
 import me.yuriisoft.buildnotify.settings.PluginSettingsState
@@ -35,7 +37,6 @@ class BuildMonitorService {
                 projectName = projectName,
                 startedAt = startedAt
             )
-            // Отправляем событие о старте только в момент фактического создания сессии
             publisher().publishStarted(
                 projectName = newSession.projectName,
                 buildId = newSession.buildId,
@@ -69,10 +70,10 @@ class BuildMonitorService {
     fun onBuildProgressEvent(buildId: Any, event: BuildEvent) {
         val buildIdStr = buildId.toString()
 
-        // ВАЖНО: Если мы запустили сборку через Run (кнопка Play),
-        // onStart мог не сработать. Мы ловим старт прямо из UI окна сборки!
+        // IMPRTANT: If we launch a build through "Run" (play button)
+        // onStart may not work, so we catch a start right from the UI build view.
         if (event is StartBuildEvent) {
-            val title = event.buildDescriptor.title.takeIf { !it.isNullOrBlank() } ?: "Android Build"
+            val title = event.buildDescriptor.title.takeIf { it.isNotBlank() } ?: "Android Build"
             getOrCreateSession(buildIdStr, title, event.eventTime)
         }
 
@@ -94,6 +95,7 @@ class BuildMonitorService {
             ?.let(publisher()::publishGraphEvent)
 
         // Автоматически завершаем сессию, если пришло финальное событие всего дерева сборки
+        // Automatically finish session, if the finish event comes
         if (event is FinishBuildEvent || (event is FinishEvent && event.parentId == null)) {
             finalizeSession(buildIdStr)
         }
@@ -222,7 +224,7 @@ class BuildMonitorService {
         }
     }
 
-    private fun publisher(): BuildNotificationPublisher =
+    private fun publisher(): BuildNotificationPublishService =
         service()
 
     private fun projectNameFrom(projectPath: String): String =

@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.build
+package me.yuriisoft.buildnotify.build.mapper
 
 import com.intellij.build.events.BuildEvent
 import com.intellij.build.events.FileMessageEvent

@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.server
+package me.yuriisoft.buildnotify.network.server
 
 import org.java_websocket.WebSocket
 import kotlin.uuid.ExperimentalUuidApi
