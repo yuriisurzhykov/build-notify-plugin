@@ -1,6 +1,6 @@
 [changelog]
 # Header above all versions
-header = "# Changelog\n\n"
+header = "# Build Notifier Changelog\n\n"
 
 # Template for each version block.
 # Matches "keep a changelog" format that gradle-changelog-plugin expects.
@@ -15,7 +15,6 @@ body = """
 {% for commit in commits %}\
 - {{ commit.message | upper_first | trim }}\
 {% if commit.breaking %} ⚠️ BREAKING{% endif %}
-
 {% endfor %}\
 {% endfor %}\n
 """
@@ -30,6 +29,8 @@ footer = ""
 # Parse conventional commits
 conventional_commits = true
 filter_unconventional = true  # Skip commits that don't follow the format
+# Keeps all braking commints no matter of the parser's configuration.
+protect_breaking_commits = true
 
 # Map conventional commit types → changelog groups
 commit_parsers = [
@@ -62,3 +63,8 @@ skip_tags = ""
 
 # Sort commits within a group
 sort_commits = "oldest"
+
+# Makes link clickable
+link_parsers = [
+    { pattern = "#(\\d+)", href = "https://github.com/yuriisurzhykov/build-notify-plugin/issues/$1" },
+]
