@@ -1,0 +1,73 @@
+[changelog]
+# Header above all versions
+header = "# Build Notifier Changelog\n\n"
+
+# Template for each version block.
+# Matches "keep a changelog" format that gradle-changelog-plugin expects.
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="plugin/v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}\
+- {{ commit.message | upper_first | trim }}\
+{% if commit.breaking %} ⚠️ BREAKING{% endif %}
+{% endfor %}\
+{% endfor %}\n
+"""
+
+# Remove trailing whitespace from each line
+trim = true
+
+# Footer — link section (keep a changelog style)
+footer = ""
+
+[git]
+# Parse conventional commits
+conventional_commits = true
+filter_unconventional = true  # Skip commits that don't follow the format
+# Keeps all braking commints no matter of the parser's configuration.
+protect_breaking_commits = true
+
+# Map conventional commit types → changelog groups
+commit_parsers = [
+    { message = "^feat", group = "<!-- 0 -->🚀 Features" },
+    { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
+    { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^style", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^test", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^chore\\(release\\): prepare for", skip = true },
+    { message = "^chore\\(deps.*\\)", skip = true },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
+    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+    { message = ".*", group = "<!-- 10 -->💼 Other" },
+]
+
+# Only commits with these prefixes are processed
+filter_commits = true
+
+# Only process commits that touch ide-plugin/
+include_path = ["ide-plugin/**"]
+
+# Tag format: plugin/v1.0.0
+tag_pattern = "plugin/v[0-9].*"
+
+# Don't include release candidates
+ignore_tags = "^plugin/v.*-rc"
+skip_tags = ""
+
+# Sort commits within a group
+sort_commits = "oldest"
+
+# Makes link clickable
+link_parsers = [
+    { pattern = "#(\\d+)", href = "https://github.com/ArtSurzworking/build-notify-plugin/issues/$1" },
+]

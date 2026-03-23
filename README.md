@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/main/resources/META-INF/pluginIcon.svg" width="80" height="80" alt="Build Notifier icon"/>
+  <img src="media/pluginIcon.svg" width="80" height="80" alt="Build Notifier icon"/>
 </p>
 
 <h1 align="center">Build Notifier</h1>
@@ -132,6 +132,7 @@ Plugin --> Mobile : build.result (status, duration, issues)
 ---
 
 ## Architecture
+
 ```plantuml
 @startuml
 ' Define packages (layers) for architectural separation
@@ -204,8 +205,22 @@ The plugin follows a layered architecture with clear separation of concerns:
 
 ## Project Structure
 
+This repository is a Git monorepo with two independent Gradle roots:
+
 ```
-src/main/kotlin/me/yuriisoft/buildnotify/
+bulid-notify-plugin/         ← repo root
+├── ide-plugin/              ← IntelliJ Platform plugin (this README)
+│   ├── cliff.toml           ← git-cliff config (tags: plugin/v*)
+│   ├── CHANGELOG.md
+│   └── scripts/changelog.sh
+└── mobile-app/              ← KMM + Compose Multiplatform companion app
+    └── cliff.toml           ← git-cliff config (tags: mobile/v*)
+```
+
+### ide-plugin source layout
+
+```
+ide-plugin/src/main/kotlin/me/yuriisoft/buildnotify/
 ├── BuildNotifyProjectActivity.kt      Post-startup: starts server, mDNS, wires listeners
 ├── BuildNotifyPluginDisposable.kt     Project-level disposable for cleanup
 ├── BuildNotifyBundle.kt               i18n resource bundle
@@ -259,6 +274,7 @@ src/main/kotlin/me/yuriisoft/buildnotify/
     ├── PluginSettingsState.kt          Persistent settings (port, intervals, keystore, etc.)
     └── PluginSettingsConfigurable.kt   Settings UI: Settings → Tools → Build Notifier
 ```
+
 
 ---
 
@@ -479,7 +495,7 @@ Set this environment variable **before** starting the IDE. The password is never
 
 ```bash
 git clone https://github.com/ArtSurzworking/build-notify-plugin.git
-cd build-notify-plugin
+cd build-notify-plugin/ide-plugin
 ```
 
 ```bash
@@ -496,7 +512,7 @@ cd build-notify-plugin
 ./gradlew verifyPlugin
 ```
 
-The built plugin ZIP is located at `build/distributions/`.
+The built plugin ZIP is located at `ide-plugin/build/distributions/`.
 
 ### Pre-configured run configurations
 
