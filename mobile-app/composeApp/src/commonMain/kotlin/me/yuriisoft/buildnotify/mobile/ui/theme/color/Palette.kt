@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.mobile.ui.theme
+package me.yuriisoft.buildnotify.mobile.ui.theme.color
 
 import androidx.compose.ui.graphics.Color
 

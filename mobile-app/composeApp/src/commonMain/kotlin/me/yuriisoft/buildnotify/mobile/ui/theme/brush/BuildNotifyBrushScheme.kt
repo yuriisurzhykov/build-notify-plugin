@@ -1,7 +1,7 @@
 package me.yuriisoft.buildnotify.mobile.ui.theme.brush
 
-import me.yuriisoft.buildnotify.mobile.ui.theme.Palette
-import me.yuriisoft.buildnotify.mobile.ui.theme.gradient.GradientSpec
+import me.yuriisoft.buildnotify.mobile.ui.theme.brush.semantic.GradientSpec
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.Palette
 
 val LightBrushScheme = BrushScheme(
     actionGradient = GradientSpec.Linear(

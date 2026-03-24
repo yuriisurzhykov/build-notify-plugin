@@ -1,14 +1,30 @@
-package me.yuriisoft.buildnotify.mobile.ui.theme
+package me.yuriisoft.buildnotify.mobile.ui.theme.color
 
 import androidx.compose.material.Colors
-import me.yuriisoft.buildnotify.mobile.ui.theme.semantic.ColorRole
-import me.yuriisoft.buildnotify.mobile.ui.theme.semantic.ContentColors
-import me.yuriisoft.buildnotify.mobile.ui.theme.semantic.DiffColors
-import me.yuriisoft.buildnotify.mobile.ui.theme.semantic.StatusColors
-import me.yuriisoft.buildnotify.mobile.ui.theme.semantic.StatusRole
-import me.yuriisoft.buildnotify.mobile.ui.theme.semantic.SurfaceColors
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.Color
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.ColorRole
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.ContentColors
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.DiffColors
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.StatusColors
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.StatusRole
+import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.SurfaceColors
 
-val LightColorScheme = BuildNotifyColorScheme(
+@Immutable
+data class ColorScheme(
+    val surface: SurfaceColors,
+    val content: ContentColors,
+    val primary: ColorRole,
+    val secondary: ColorRole,
+    val tertiary: ColorRole,
+    val highlight: Color,
+    val status: StatusColors,
+    val diff: DiffColors,
+    val outline: Color,
+    val divider: Color,
+)
+
+val LightColorScheme = ColorScheme(
     surface = SurfaceColors(
         background = Palette.Gray50,
         primary = Palette.White,
@@ -84,7 +100,7 @@ val LightColorScheme = BuildNotifyColorScheme(
     divider = Palette.Gray200,
 )
 
-val DarkColorScheme = BuildNotifyColorScheme(
+val DarkColorScheme = ColorScheme(
     surface = SurfaceColors(
         background = Palette.DarkContent,
         primary = Palette.CodeSurface,
@@ -160,7 +176,7 @@ val DarkColorScheme = BuildNotifyColorScheme(
     divider = Palette.Gray700,
 )
 
-fun BuildNotifyColorScheme.toMaterialColors(): Colors = Colors(
+fun ColorScheme.toMaterialColors(): Colors = Colors(
     primary = primary.main,
     primaryVariant = primary.variant,
     secondary = secondary.main,

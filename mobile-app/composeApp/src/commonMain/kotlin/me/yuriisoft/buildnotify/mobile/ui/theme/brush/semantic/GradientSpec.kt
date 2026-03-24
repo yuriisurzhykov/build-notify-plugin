@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.mobile.ui.theme.gradient
+package me.yuriisoft.buildnotify.mobile.ui.theme.brush.semantic
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
