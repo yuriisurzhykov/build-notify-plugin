@@ -31,5 +31,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "build-notify-mobile"
 
-include(":shared")
-include(":composeApp")
+include(":core:domain")
+include(":core:data")
+include(":core:navigation")
+include(":core:ui")
+include(":core:testing")
+include(":feature:discovery")
+include(":feature:build-status")
+include(":feature:history")
+include(":app")
