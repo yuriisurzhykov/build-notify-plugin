@@ -23,6 +23,8 @@ kotlin {
             implementation(project(":feature:discovery"))
             implementation(project(":feature:build-status"))
             implementation(project(":feature:history"))
+            // TODO: This is just a temporary dependency to view all components catalog.
+            implementation(project(":feature:ui-catalog"))
             implementation(libs.jetbrains.compose.runtime)
             implementation(libs.jetbrains.compose.ui)
             implementation(libs.jetbrains.compose.material)
@@ -33,7 +35,7 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(compose.preview)
+            implementation(libs.jetbrains.compose.tooling.preview)
             implementation(libs.activity.compose)
         }
     }

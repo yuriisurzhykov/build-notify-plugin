@@ -2,13 +2,16 @@ package me.yuriisoft.buildnotify.mobile.feature.discovery
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import me.yuriisoft.buildnotify.mobile.domain.model.DiscoveredHost
+import me.yuriisoft.buildnotify.mobile.feature.discovery.domain.ObserveHostsUseCase
+import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryEvent
+import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryUiState
+import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryViewModel
 import me.yuriisoft.buildnotify.mobile.testing.FakeNsdRepository
+import me.yuriisoft.buildnotify.mobile.testing.RecordingEventCommunication
+import me.yuriisoft.buildnotify.mobile.testing.RecordingStateCommunication
 import me.yuriisoft.buildnotify.mobile.testing.TestAppDispatchers
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -22,6 +25,8 @@ class DiscoveryViewModelTest {
     private val repository = FakeNsdRepository()
     private val dispatchers = TestAppDispatchers()
     private val useCase = ObserveHostsUseCase(repository)
+    private val state = RecordingStateCommunication<DiscoveryUiState>(DiscoveryUiState.Loading)
+    private val events = RecordingEventCommunication<DiscoveryEvent>()
 
     @BeforeTest
     fun setUp() {
@@ -33,13 +38,13 @@ class DiscoveryViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel() = DiscoveryViewModel(useCase, dispatchers)
+    private fun createViewModel() = DiscoveryViewModel(useCase, dispatchers, state, events)
 
     @Test
     fun collectsFromRepositoryImmediatelyOnCreation() {
         val vm = createViewModel()
 
-        assertIs<DiscoveryUiState.Content>(vm.state.value)
+        assertIs<DiscoveryUiState.Content>(vm.uiState.value)
     }
 
     @Test
@@ -50,10 +55,10 @@ class DiscoveryViewModelTest {
         repository.emit(hosts)
 
         val vm = createViewModel()
-        val state = vm.state.value
+        val currentState = vm.uiState.value
 
-        assertIs<DiscoveryUiState.Content>(state)
-        assertEquals(hosts, state.hosts)
+        assertIs<DiscoveryUiState.Content>(currentState)
+        assertEquals(hosts, currentState.hosts)
     }
 
     @Test
@@ -66,11 +71,11 @@ class DiscoveryViewModelTest {
         repository.emit(hosts)
 
         val vm = createViewModel()
-        val state = vm.state.value
+        val currentState = vm.uiState.value
 
-        assertIs<DiscoveryUiState.Content>(state)
-        assertEquals(3, state.hosts.size)
-        assertEquals(hosts, state.hosts)
+        assertIs<DiscoveryUiState.Content>(currentState)
+        assertEquals(3, currentState.hosts.size)
+        assertEquals(hosts, currentState.hosts)
     }
 
     @Test
@@ -88,9 +93,9 @@ class DiscoveryViewModelTest {
         )
         repository.emit(updated)
 
-        val state = vm.state.value
-        assertIs<DiscoveryUiState.Content>(state)
-        assertEquals(updated, state.hosts)
+        val currentState = vm.uiState.value
+        assertIs<DiscoveryUiState.Content>(currentState)
+        assertEquals(updated, currentState.hosts)
     }
 
     @Test
@@ -98,32 +103,49 @@ class DiscoveryViewModelTest {
         repository.emit(emptyList())
 
         val vm = createViewModel()
-        val state = vm.state.value
+        val currentState = vm.uiState.value
 
-        assertIs<DiscoveryUiState.Content>(state)
-        assertEquals(emptyList(), state.hosts)
+        assertIs<DiscoveryUiState.Content>(currentState)
+        assertEquals(emptyList(), currentState.hosts)
     }
 
     @Test
-    fun `emits NavigateToBuild Event On Host Selection`() = runTest {
+    fun emitsNavigateToBuildEventOnHostSelection() {
         val host = DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765)
         repository.emit(listOf(host))
 
         val vm = createViewModel()
-
-        val events = mutableListOf<DiscoveryEvent>()
-        val collectJob = launch(UnconfinedTestDispatcher(testScheduler)) {
-            vm.events.collect { events.add(it) }
-        }
-
         vm.selectHost(host)
 
-        assertEquals(1, events.size)
-        val event = events.first()
+        assertEquals(1, events.history.size)
+        val event = events.history.first()
         assertIs<DiscoveryEvent.NavigateToBuild>(event)
         assertEquals("192.168.1.5", event.host)
         assertEquals(8765, event.port)
+    }
 
-        collectJob.cancel()
+    @Test
+    fun verifyStateTransitionOrder() {
+        val hosts1 = listOf(
+            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
+        )
+        val hosts2 = listOf(
+            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
+            DiscoveredHost(name = "Desktop", host = "192.168.1.10", port = 8766),
+        )
+        repository.emit(hosts1)
+
+        createViewModel()
+
+        repository.emit(hosts2)
+
+        assertEquals(
+            listOf(
+                DiscoveryUiState.Loading,
+                DiscoveryUiState.Content(hosts1),
+                DiscoveryUiState.Content(hosts2),
+            ),
+            state.history,
+        )
     }
 }

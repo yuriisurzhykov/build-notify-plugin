@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import me.yuriisoft.buildnotify.mobile.core.usecase.NoParams
 import me.yuriisoft.buildnotify.mobile.domain.model.DiscoveredHost
+import me.yuriisoft.buildnotify.mobile.feature.discovery.domain.ObserveHostsUseCase
 import me.yuriisoft.buildnotify.mobile.testing.FakeNsdRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals

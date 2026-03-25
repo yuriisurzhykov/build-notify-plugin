@@ -1,5 +1,6 @@
 package me.yuriisoft.buildnotify.mobile
 
+import com.yuriisurzhykov.buildnotifier.feature.catalog.CatalogScreen
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
@@ -8,9 +9,9 @@ import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
 import me.yuriisoft.buildnotify.mobile.data.discovery.INsdDiscovery
 import me.yuriisoft.buildnotify.mobile.data.repository.NsdRepository
 import me.yuriisoft.buildnotify.mobile.domain.repository.INsdRepository
-import me.yuriisoft.buildnotify.mobile.feature.discovery.DiscoveryScreen
-import me.yuriisoft.buildnotify.mobile.feature.discovery.DiscoveryViewModel
-import me.yuriisoft.buildnotify.mobile.feature.discovery.ObserveHostsUseCase
+import me.yuriisoft.buildnotify.mobile.feature.discovery.domain.ObserveHostsUseCase
+import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryScreen
+import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryViewModel
 
 /**
  * Composition Root — the only place in the project that sees every module.
@@ -41,9 +42,13 @@ abstract class AppComponent(
         dispatchers: AppDispatchers,
     ): DiscoveryViewModel = DiscoveryViewModel(observeHosts, dispatchers)
 
-    @Provides
     @IntoSet
+    @Provides
     protected fun discoveryScreen(screen: DiscoveryScreen): Screen = screen
+
+    @IntoSet
+    @Provides
+    protected fun catalogScreen(screen: CatalogScreen): Screen = screen
 
     companion object
 }
