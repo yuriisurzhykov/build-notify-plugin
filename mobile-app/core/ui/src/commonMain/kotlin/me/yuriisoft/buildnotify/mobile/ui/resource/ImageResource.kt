@@ -12,12 +12,12 @@ import org.jetbrains.compose.resources.painterResource
 interface ImageResource {
     @Composable
     fun resolve(): StableImage
-}
 
-@Immutable
-data class VectorImage(val imageVector: ImageVector) : ImageResource {
-    @Composable
-    override fun resolve(): StableImage = VectorStableImage(imageVector)
+    @Immutable
+    data class VectorImage(val imageVector: ImageVector) : ImageResource {
+        @Composable
+        override fun resolve(): StableImage = VectorStableImage(imageVector)
+    }
 }
 
 @Immutable

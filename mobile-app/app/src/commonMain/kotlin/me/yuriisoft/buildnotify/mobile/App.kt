@@ -2,8 +2,8 @@ package me.yuriisoft.buildnotify.mobile
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
-import com.yuriisurzhykov.buildnotifier.feature.catalog.CatalogDestination
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
+import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryDestination
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -14,7 +14,7 @@ fun App(screens: Set<Screen>) {
         AppNavGraph(
             navController = navController,
             screens = screens,
-            startRoute = CatalogDestination.route,
+            startRoute = DiscoveryDestination.route,
         )
     }
 }

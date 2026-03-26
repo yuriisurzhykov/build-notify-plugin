@@ -32,11 +32,15 @@ kotlin {
             implementation(libs.jetbrains.compose.navigation)
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.kotlin.inject.runtime)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.websockets)
+            implementation(libs.kotlinx.serialization.json)
         }
 
         androidMain.dependencies {
             implementation(libs.jetbrains.compose.tooling.preview)
             implementation(libs.activity.compose)
+            implementation(libs.ktor.client.okhttp)
         }
     }
 }
@@ -60,6 +64,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

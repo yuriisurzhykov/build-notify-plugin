@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import me.yuriisoft.buildnotify.mobile.data.discovery.AndroidNsdDiscovery
+import androidx.lifecycle.lifecycleScope
+import me.yuriisoft.buildnotify.mobile.service.ConnectionServiceManager
 
 class MainActivity : ComponentActivity() {
 
@@ -12,7 +13,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val component = AppComponent::class.create(AndroidNsdDiscovery())
+        val component = (application as BuildNotifyApp).component
+
+        ConnectionServiceManager(this, component.connectionRepository)
+            .bind(lifecycleScope)
 
         setContent {
             App(screens = component.screens)

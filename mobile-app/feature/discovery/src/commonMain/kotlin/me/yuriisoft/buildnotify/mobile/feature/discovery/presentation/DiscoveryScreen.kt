@@ -14,6 +14,7 @@ import me.yuriisoft.buildnotify.mobile.core.navigation.BuildStatusDestination
 import me.yuriisoft.buildnotify.mobile.core.navigation.Navigator
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
 import me.yuriisoft.buildnotify.mobile.core.navigation.ScreenTransitions
+import me.yuriisoft.buildnotify.mobile.domain.model.AppVersionProvider
 import me.yuriisoft.buildnotify.mobile.domain.model.DiscoveredHost
 import me.yuriisoft.buildnotify.mobile.feature.discovery.ui.DiscoveryContent
 
@@ -21,6 +22,7 @@ import me.yuriisoft.buildnotify.mobile.feature.discovery.ui.DiscoveryContent
 @Immutable
 class DiscoveryScreen(
     private val viewModelFactory: () -> DiscoveryViewModel,
+    private val appVersionProvider: AppVersionProvider,
 ) : Screen() {
 
     override val destination = DiscoveryDestination
@@ -43,13 +45,28 @@ class DiscoveryScreen(
         }
 
         val onHostSelected = remember(vm) {
-            { discoveredHost: DiscoveredHost ->
-                vm.selectHost(discoveredHost)
-            }
+            { discoveredHost: DiscoveredHost -> vm.selectHost(discoveredHost) }
         }
+
+        val onRetry = remember(vm) {
+            { vm.retry() }
+        }
+
+        val onCancel = remember(vm) {
+            { vm.cancel() }
+        }
+
+        val onStartScan = remember(vm) {
+            { vm.retry() }
+        }
+
         DiscoveryContent(
             state = state,
-            onHostSelected = onHostSelected
+            appVersion = appVersionProvider.versionName,
+            onHostSelected = onHostSelected,
+            onRetry = onRetry,
+            onCancel = onCancel,
+            onStartScan = onStartScan,
         )
     }
 

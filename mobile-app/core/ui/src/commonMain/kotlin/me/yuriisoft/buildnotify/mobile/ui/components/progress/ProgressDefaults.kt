@@ -42,4 +42,18 @@ object ProgressDefaults {
     val MultiRingSpacing = 3.dp
 
     const val ArcStartAngleDegrees = -90f
+
+    const val DotCount = 3
+    const val DotBounceDurationMillis = 600
+    const val DotStaggerDelayMillis = 150
+    const val DotBounceRatio = 0.4f
+    val DotBounceEasing: Easing = FastOutSlowInEasing
+
+    const val PulsingRingCount = 3
+    const val PulsingRingDurationMillis = 1500
+    const val PulsingRingStaggerDelayMillis = 300
+    const val PulsingRingMinAlpha = 0.0f
+    const val PulsingRingMaxAlpha = 0.3f
+    const val PulsingRingMinScale = 0.5f
+    const val PulsingRingMaxScale = 1.0f
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- DiscoveryContent -->
+    <string name="discovery_title">BuildMonitor</string>
+    <string name="discovery_subtitle">Android Studio Companion</string>
+    <string name="discovery_version_footer">BuildMonitor v%1$s</string>
+
+    <!-- IdleBody -->
+    <string name="idle_title">Ready to Scan</string>
+    <string name="idle_body">Tap below to discover Build Notify instances on your network</string>
+    <string name="idle_start_scan">Start Scan</string>
+
+    <!-- ScanningBody -->
+    <string name="scanning_title">Scanning network\u2026</string>
+    <string name="scanning_body">Looking for Build Notify instances</string>
+
+    <!-- Shared actions -->
+    <string name="action_cancel">Cancel</string>
+
+    <!-- ConnectingBody -->
+    <string name="connecting_title">Connecting to %1$s\u2026</string>
+
+    <!-- ConnectedBody -->
+    <string name="connected_title">Connected to %1$s</string>
+
+    <!-- ConnectionFailedBody -->
+    <string name="connection_failed_title">Connection Failed</string>
+    <string name="action_try_again">Try Again</string>
+
+    <!-- EmptyBody -->
+    <string name="empty_title">No devices found</string>
+    <string name="empty_body">Make sure the Build Notify plugin is running in your IDE</string>
+    <string name="empty_scan_again">Scan Again</string>
+
+    <!-- ErrorBody -->
+    <string name="error_title">Something went wrong</string>
+    <string name="action_retry">Retry</string>
+
+    <!-- NetworkUnavailableBody -->
+    <string name="network_unavailable_title">No Network Connection</string>
+    <string name="network_unavailable_body">Connect to a Wi-Fi or Ethernet network to discover IDE instances</string>
+
+    <!-- DiscoveryViewModel error reasons -->
+    <string name="error_connection_failed">Connection failed</string>
+    <string name="error_timeout">Connection timed out (%1$sms)</string>
+    <string name="error_refused">Connection refused: %1$s</string>
+    <string name="error_handshake">Handshake failed: %1$s</string>
+    <string name="error_lost">Connection lost: %1$s</string>
+</resources>

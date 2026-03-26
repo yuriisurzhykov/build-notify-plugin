@@ -15,13 +15,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathFillType
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.ui.components.button.Fab
+import me.yuriisoft.buildnotify.mobile.ui.components.button.GhostButton
 import me.yuriisoft.buildnotify.mobile.ui.components.button.IconButton
 import me.yuriisoft.buildnotify.mobile.ui.components.button.PrimaryButton
 import me.yuriisoft.buildnotify.mobile.ui.components.button.SecondaryButton
@@ -35,11 +31,19 @@ import me.yuriisoft.buildnotify.mobile.ui.components.layout.CodeSurface
 import me.yuriisoft.buildnotify.mobile.ui.components.layout.ElevatedSurface
 import me.yuriisoft.buildnotify.mobile.ui.components.layout.Surface
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.CircularProgress
+import me.yuriisoft.buildnotify.mobile.ui.components.progress.DotProgress
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.LinearProgress
+import me.yuriisoft.buildnotify.mobile.ui.components.progress.RingProgress
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.circular.CircularProgressMode
+import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.dot.DotProgressMode
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.linear.LinearProgressMode
-import me.yuriisoft.buildnotify.mobile.ui.resource.RawText
-import me.yuriisoft.buildnotify.mobile.ui.resource.VectorImage
+import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.ring.RingProgressMode
+import me.yuriisoft.buildnotify.mobile.ui.icons.CheckIcon
+import me.yuriisoft.buildnotify.mobile.ui.icons.CloseIcon
+import me.yuriisoft.buildnotify.mobile.ui.icons.InfoIcon
+import me.yuriisoft.buildnotify.mobile.ui.icons.PlusIcon
+import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -77,6 +81,12 @@ fun CatalogContent(modifier: Modifier = Modifier) {
         SectionHeader("Progress — Circular")
         CircularProgressSection()
 
+        SectionHeader("Progress — Dot")
+        DotProgressSection()
+
+        SectionHeader("Progress — Ring")
+        RingProgressSection()
+
         SectionHeader("Surfaces")
         SurfacesSection()
 
@@ -87,7 +97,7 @@ fun CatalogContent(modifier: Modifier = Modifier) {
 @Composable
 private fun SectionHeader(title: String) {
     Text(
-        text = RawText(title),
+        text = TextResource.RawText(title),
         style = BuildNotifyTheme.typography.headingMedium,
         color = BuildNotifyTheme.colors.content.primary,
     )
@@ -117,19 +127,19 @@ private fun TypographySection() {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items.forEach { (name, style) ->
             Text(
-                text = RawText(name),
+                text = TextResource.RawText(name),
                 style = style,
                 color = BuildNotifyTheme.colors.content.primary,
             )
         }
         Divider()
         Text(
-            text = RawText("code.regular: val x = 42"),
+            text = TextResource.RawText("code.regular: val x = 42"),
             style = typography.code.regular,
             color = BuildNotifyTheme.colors.content.primary,
         )
         Text(
-            text = RawText("code.small: fun main() {}"),
+            text = TextResource.RawText("code.small: fun main() {}"),
             style = typography.code.small,
             color = BuildNotifyTheme.colors.content.secondary,
         )
@@ -138,7 +148,7 @@ private fun TypographySection() {
 
 @Composable
 private fun ButtonsSection() {
-    val icon = VectorImage(PlusIcon)
+    val icon = ImageResource.VectorImage(PlusIcon)
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(
@@ -147,13 +157,13 @@ private fun ButtonsSection() {
         ) {
             PrimaryButton(onClick = {}) {
                 Text(
-                    text = RawText("Primary"),
+                    text = TextResource.RawText("Primary"),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }
             PrimaryButton(onClick = {}, enabled = false) {
                 Text(
-                    text = RawText("Disabled"),
+                    text = TextResource.RawText("Disabled"),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }
@@ -164,13 +174,30 @@ private fun ButtonsSection() {
         ) {
             SecondaryButton(onClick = {}) {
                 Text(
-                    text = RawText("Secondary"),
+                    text = TextResource.RawText("Secondary"),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }
             SecondaryButton(onClick = {}, enabled = false) {
                 Text(
-                    text = RawText("Disabled"),
+                    text = TextResource.RawText("Disabled"),
+                    style = BuildNotifyTheme.typography.labelLarge,
+                )
+            }
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            GhostButton(onClick = {}) {
+                Text(
+                    text = TextResource.RawText("Ghost"),
+                    style = BuildNotifyTheme.typography.labelLarge,
+                )
+            }
+            GhostButton(onClick = {}, enabled = false) {
+                Text(
+                    text = TextResource.RawText("Disabled"),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }
@@ -188,9 +215,9 @@ private fun ButtonsSection() {
 
 @Composable
 private fun IconsSection() {
-    val checkIcon = VectorImage(CheckIcon)
-    val closeIcon = VectorImage(CloseIcon)
-    val infoIcon = VectorImage(InfoIcon)
+    val checkIcon = ImageResource.VectorImage(CheckIcon)
+    val closeIcon = ImageResource.VectorImage(CloseIcon)
+    val infoIcon = ImageResource.VectorImage(InfoIcon)
     val status = BuildNotifyTheme.colors.status
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -245,25 +272,25 @@ private fun StatusDotsSection() {
     ) {
         StatusDot(color = status.success.main)
         Text(
-            text = RawText("Success"),
+            text = TextResource.RawText("Success"),
             style = BuildNotifyTheme.typography.bodySmall,
             color = BuildNotifyTheme.colors.content.secondary,
         )
         StatusDot(color = status.error.main)
         Text(
-            text = RawText("Error"),
+            text = TextResource.RawText("Error"),
             style = BuildNotifyTheme.typography.bodySmall,
             color = BuildNotifyTheme.colors.content.secondary,
         )
         StatusDot(color = status.warning.main)
         Text(
-            text = RawText("Warning"),
+            text = TextResource.RawText("Warning"),
             style = BuildNotifyTheme.typography.bodySmall,
             color = BuildNotifyTheme.colors.content.secondary,
         )
         StatusDot(color = status.info.main)
         Text(
-            text = RawText("Info"),
+            text = TextResource.RawText("Info"),
             style = BuildNotifyTheme.typography.bodySmall,
             color = BuildNotifyTheme.colors.content.secondary,
         )
@@ -282,7 +309,7 @@ private fun BadgeSection() {
             contentColor = status.success.onContainer,
         ) {
             Text(
-                text = RawText("SUCCESS"),
+                text = TextResource.RawText("SUCCESS"),
                 style = BuildNotifyTheme.typography.labelSmall,
             )
         }
@@ -291,7 +318,7 @@ private fun BadgeSection() {
             contentColor = status.error.onContainer,
         ) {
             Text(
-                text = RawText("FAILED"),
+                text = TextResource.RawText("FAILED"),
                 style = BuildNotifyTheme.typography.labelSmall,
             )
         }
@@ -300,7 +327,7 @@ private fun BadgeSection() {
             contentColor = status.warning.onContainer,
         ) {
             Text(
-                text = RawText("WARNING"),
+                text = TextResource.RawText("WARNING"),
                 style = BuildNotifyTheme.typography.labelSmall,
             )
         }
@@ -309,7 +336,7 @@ private fun BadgeSection() {
             contentColor = status.info.onContainer,
         ) {
             Text(
-                text = RawText("RUNNING"),
+                text = TextResource.RawText("RUNNING"),
                 style = BuildNotifyTheme.typography.labelSmall,
             )
         }
@@ -354,11 +381,44 @@ private fun CircularProgressSection() {
         ) {
             CircularProgress(mode = CircularProgressMode.Countdown(progress = 0.75f))
             Text(
-                text = RawText("Countdown / MultiRing"),
+                text = TextResource.RawText("Countdown / MultiRing"),
                 style = BuildNotifyTheme.typography.bodyMedium,
                 color = BuildNotifyTheme.colors.content.secondary,
             )
         }
+    }
+}
+
+@Composable
+private fun DotProgressSection() {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        DotProgress(
+            mode = DotProgressMode.Bouncing(),
+            modifier = Modifier.height(40.dp),
+        )
+        Text(
+            text = TextResource.RawText("Bouncing"),
+            style = BuildNotifyTheme.typography.bodyMedium,
+            color = BuildNotifyTheme.colors.content.secondary,
+        )
+    }
+}
+
+@Composable
+private fun RingProgressSection() {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RingProgress(mode = RingProgressMode.Pulsing())
+        Text(
+            text = TextResource.RawText("Pulsing"),
+            style = BuildNotifyTheme.typography.bodyMedium,
+            color = BuildNotifyTheme.colors.content.secondary,
+        )
     }
 }
 
@@ -370,7 +430,7 @@ private fun SurfacesSection() {
         ) {
             Box(Modifier.padding(16.dp)) {
                 Text(
-                    text = RawText("Surface (primary)"),
+                    text = TextResource.RawText("Surface (primary)"),
                     style = BuildNotifyTheme.typography.bodyMedium,
                 )
             }
@@ -381,7 +441,7 @@ private fun SurfacesSection() {
         ) {
             Box(Modifier.padding(16.dp)) {
                 Text(
-                    text = RawText("ElevatedSurface"),
+                    text = TextResource.RawText("ElevatedSurface"),
                     style = BuildNotifyTheme.typography.bodyMedium,
                 )
             }
@@ -392,7 +452,7 @@ private fun SurfacesSection() {
         ) {
             Box(Modifier.padding(16.dp)) {
                 Text(
-                    text = RawText("CodeSurface — val greeting = \"Hello\""),
+                    text = TextResource.RawText("CodeSurface — val greeting = \"Hello\""),
                     style = BuildNotifyTheme.typography.code.regular,
                 )
             }
@@ -404,120 +464,10 @@ private fun SurfacesSection() {
         ) {
             Box(Modifier.padding(16.dp)) {
                 Text(
-                    text = RawText("Surface (clickable)"),
+                    text = TextResource.RawText("Surface (clickable)"),
                     style = BuildNotifyTheme.typography.bodyMedium,
                 )
             }
         }
     }
-}
-
-// region Mini vector icons for the catalog (no material-icons dependency)
-
-private val PlusIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "Plus",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    ).apply {
-        path(
-            fill = SolidColor(Color.Black),
-        ) {
-            moveTo(11f, 5f)
-            lineTo(13f, 5f)
-            lineTo(13f, 11f)
-            lineTo(19f, 11f)
-            lineTo(19f, 13f)
-            lineTo(13f, 13f)
-            lineTo(13f, 19f)
-            lineTo(11f, 19f)
-            lineTo(11f, 13f)
-            lineTo(5f, 13f)
-            lineTo(5f, 11f)
-            lineTo(11f, 11f)
-            close()
-        }
-    }.build()
-}
-
-private val CheckIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "Check",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    ).apply {
-        path(
-            fill = SolidColor(Color.Black),
-        ) {
-            moveTo(9f, 16.17f)
-            lineTo(4.83f, 12f)
-            lineTo(3.41f, 13.41f)
-            lineTo(9f, 19f)
-            lineTo(21f, 7f)
-            lineTo(19.59f, 5.59f)
-            close()
-        }
-    }.build()
-}
-
-private val CloseIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "Close",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    ).apply {
-        path(
-            fill = SolidColor(Color.Black),
-        ) {
-            moveTo(19f, 6.41f)
-            lineTo(17.59f, 5f)
-            lineTo(12f, 10.59f)
-            lineTo(6.41f, 5f)
-            lineTo(5f, 6.41f)
-            lineTo(10.59f, 12f)
-            lineTo(5f, 17.59f)
-            lineTo(6.41f, 19f)
-            lineTo(12f, 13.41f)
-            lineTo(17.59f, 19f)
-            lineTo(19f, 17.59f)
-            lineTo(13.41f, 12f)
-            close()
-        }
-    }.build()
-}
-
-private val InfoIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "Info",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    ).apply {
-        path(
-            fill = SolidColor(Color.Black),
-            pathFillType = PathFillType.EvenOdd,
-        ) {
-            moveTo(12f, 2f)
-            arcTo(10f, 10f, 0f, isMoreThanHalf = true, isPositiveArc = true, 12f, 22f)
-            arcTo(10f, 10f, 0f, isMoreThanHalf = true, isPositiveArc = true, 12f, 2f)
-            close()
-            moveTo(11f, 7f)
-            lineTo(13f, 7f)
-            lineTo(13f, 9f)
-            lineTo(11f, 9f)
-            close()
-            moveTo(11f, 11f)
-            lineTo(13f, 11f)
-            lineTo(13f, 17f)
-            lineTo(11f, 17f)
-            close()
-        }
-    }.build()
 }

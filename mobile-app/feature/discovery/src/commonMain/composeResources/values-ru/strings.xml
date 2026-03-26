@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- DiscoveryContent -->
+    <string name="discovery_title">BuildMonitor</string>
+    <string name="discovery_subtitle">Компаньон для Android Studio</string>
+    <string name="discovery_version_footer">BuildMonitor v%1$s</string>
+
+    <!-- IdleBody -->
+    <string name="idle_title">Готов к сканированию</string>
+    <string name="idle_body">Нажмите ниже, чтобы найти экземпляры Build Notify в вашей сети</string>
+    <string name="idle_start_scan">Начать сканирование</string>
+
+    <!-- ScanningBody -->
+    <string name="scanning_title">Сканирование сети\u2026</string>
+    <string name="scanning_body">Поиск экземпляров Build Notify</string>
+
+    <!-- Shared actions -->
+    <string name="action_cancel">Отмена</string>
+
+    <!-- ConnectingBody -->
+    <string name="connecting_title">Подключение к %1$s\u2026</string>
+
+    <!-- ConnectedBody -->
+    <string name="connected_title">Подключено к %1$s</string>
+
+    <!-- ConnectionFailedBody -->
+    <string name="connection_failed_title">Ошибка подключения</string>
+    <string name="action_try_again">Попробовать снова</string>
+
+    <!-- EmptyBody -->
+    <string name="empty_title">Устройства не найдены</string>
+    <string name="empty_body">Убедитесь, что плагин Build Notify запущен в вашей IDE</string>
+    <string name="empty_scan_again">Сканировать снова</string>
+
+    <!-- ErrorBody -->
+    <string name="error_title">Что-то пошло не так</string>
+    <string name="action_retry">Повторить</string>
+
+    <!-- NetworkUnavailableBody -->
+    <string name="network_unavailable_title">Нет подключения к сети</string>
+    <string name="network_unavailable_body">Подключитесь к Wi-Fi или Ethernet для обнаружения экземпляров IDE</string>
+
+    <!-- DiscoveryViewModel error reasons -->
+    <string name="error_connection_failed">Ошибка подключения</string>
+    <string name="error_timeout">Время подключения истекло (%1$s мс)</string>
+    <string name="error_refused">В подключении отказано: %1$s</string>
+    <string name="error_handshake">Ошибка рукопожатия: %1$s</string>
+    <string name="error_lost">Соединение потеряно: %1$s</string>
+</resources>

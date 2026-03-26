@@ -16,4 +16,7 @@ data class ComponentDimensions(
     val badgeHeight: Dp,
     val badgePaddingHorizontal: Dp,
     val buttonMinHeight: Dp,
+    val dotProgressDotSize: Dp,
+    val dotProgressSpacing: Dp,
+    val ringProgressSize: Dp,
 )

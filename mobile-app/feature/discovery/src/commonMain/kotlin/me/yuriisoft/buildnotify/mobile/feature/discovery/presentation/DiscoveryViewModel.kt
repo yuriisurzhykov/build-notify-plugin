@@ -2,41 +2,227 @@ package me.yuriisoft.buildnotify.mobile.feature.discovery.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import build_notify_mobile.feature.discovery.generated.resources.Res
+import build_notify_mobile.feature.discovery.generated.resources.error_connection_failed
+import build_notify_mobile.feature.discovery.generated.resources.error_handshake
+import build_notify_mobile.feature.discovery.generated.resources.error_lost
+import build_notify_mobile.feature.discovery.generated.resources.error_refused
+import build_notify_mobile.feature.discovery.generated.resources.error_timeout
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import me.yuriisoft.buildnotify.mobile.core.communication.EventCommunication
 import me.yuriisoft.buildnotify.mobile.core.communication.StateCommunication
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.core.usecase.FlowUseCase
 import me.yuriisoft.buildnotify.mobile.core.usecase.NoParams
+import me.yuriisoft.buildnotify.mobile.domain.model.ConnectionErrorReason
+import me.yuriisoft.buildnotify.mobile.domain.model.ConnectionStatus
 import me.yuriisoft.buildnotify.mobile.domain.model.DiscoveredHost
+import me.yuriisoft.buildnotify.mobile.domain.model.INetworkMonitor
+import me.yuriisoft.buildnotify.mobile.domain.repository.IConnectionRepository
+import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 
+/**
+ * Combines three data sources into a single [DiscoveryUiState]:
+ *
+ *  1. [INetworkMonitor]       — gates mDNS scan (WiFi/Ethernet only)
+ *  2. [observeHosts] use case — emits discovered hosts via NSD
+ *  3. [connectionRepository]  — WebSocket lifecycle (connect / disconnect)
+ *
+ * Auto-connects when exactly one host is found; shows [DiscoveryUiState.ServiceSelection]
+ * when two or more hosts appear; falls back to [DiscoveryUiState.NothingFound] after
+ * [scanTimeoutMs] of zero results.
+ */
 class DiscoveryViewModel(
     private val observeHosts: FlowUseCase<NoParams, List<DiscoveredHost>>,
+    private val connectionRepository: IConnectionRepository,
+    private val networkMonitor: INetworkMonitor,
     private val dispatchers: AppDispatchers,
     private val state: StateCommunication.Mutable<DiscoveryUiState> = StateCommunication(
-        DiscoveryUiState.Loading
+        DiscoveryUiState.Scanning,
     ),
     private val events: EventCommunication.Mutable<DiscoveryEvent> = EventCommunication(),
+    private val scanTimeoutMs: Long = SCAN_TIMEOUT_MS,
+    private val navigateDelayMs: Long = NAVIGATE_DELAY_MS,
 ) : ViewModel() {
 
     val uiState: StateFlow<DiscoveryUiState> = state.observe
     val uiEvents: Flow<DiscoveryEvent> = events.observe
 
+    private var discoveryJob: Job? = null
+    private var connectionJob: Job? = null
+
     init {
-        startDiscovery()
+        observeNetwork()
     }
 
     fun selectHost(host: DiscoveredHost) {
-        events.trySend(DiscoveryEvent.NavigateToBuild(host.host, host.port))
+        connectToHost(host)
+    }
+
+    fun retry() {
+        startDiscovery()
+    }
+
+    fun cancel() {
+        cancelAll()
+        state.put(DiscoveryUiState.Idle)
+    }
+
+    // region internal machinery
+
+    private fun observeNetwork() {
+        dispatchers.launchBackground(viewModelScope) {
+            networkMonitor.isNetworkAvailable.collect { available ->
+                if (available) {
+                    startDiscovery()
+                } else {
+                    cancelAll()
+                    state.put(DiscoveryUiState.NetworkUnavailable)
+                }
+            }
+        }
     }
 
     private fun startDiscovery() {
-        dispatchers.launchBackground(viewModelScope) {
+        cancelAll()
+        state.put(DiscoveryUiState.Scanning)
+
+        discoveryJob = dispatchers.launchBackground(viewModelScope) {
+            val timeoutJob = launch {
+                delay(scanTimeoutMs)
+                if (state.observe.value is DiscoveryUiState.Scanning) {
+                    state.put(DiscoveryUiState.NothingFound)
+                }
+            }
+
             observeHosts(NoParams)
-                .catch { e -> state.put(DiscoveryUiState.Error(e.message.orEmpty())) }
-                .collect { hosts -> state.put(DiscoveryUiState.Content(hosts)) }
+                .catch { e ->
+                    timeoutJob.cancel()
+                    state.put(DiscoveryUiState.ScanError(e.message.orEmpty()))
+                }
+                .collect { hosts -> onHostsReceived(hosts, timeoutJob) }
         }
     }
+
+    private fun onHostsReceived(hosts: List<DiscoveredHost>, timeoutJob: Job) {
+        when (state.observe.value) {
+            is DiscoveryUiState.Scanning,
+            is DiscoveryUiState.NothingFound -> {
+                when {
+                    hosts.isEmpty() -> Unit
+                    hosts.size == 1 -> {
+                        timeoutJob.cancel()
+                        connectToHost(hosts.first())
+                    }
+
+                    else -> {
+                        timeoutJob.cancel()
+                        state.put(DiscoveryUiState.ServiceSelection(hosts))
+                    }
+                }
+            }
+
+            is DiscoveryUiState.ServiceSelection -> {
+                if (hosts.isEmpty()) {
+                    state.put(DiscoveryUiState.NothingFound)
+                } else {
+                    state.put(DiscoveryUiState.ServiceSelection(hosts))
+                }
+            }
+
+            is DiscoveryUiState.Idle,
+            is DiscoveryUiState.Connecting,
+            is DiscoveryUiState.Connected,
+            is DiscoveryUiState.ConnectionFailed,
+            is DiscoveryUiState.ScanError,
+            is DiscoveryUiState.NetworkUnavailable -> Unit
+        }
+    }
+
+    private fun connectToHost(host: DiscoveredHost) {
+        discoveryJob?.cancel()
+        discoveryJob = null
+        connectionJob?.cancel()
+
+        state.put(DiscoveryUiState.Connecting(host))
+
+        connectionJob = dispatchers.launchBackground(viewModelScope) {
+            try {
+                connectionRepository.connect(host)
+                connectionRepository.status.collect { status ->
+                    when (status) {
+                        is ConnectionStatus.Connected -> {
+                            state.put(DiscoveryUiState.Connected(status.host))
+                            delay(navigateDelayMs)
+                            events.send(
+                                DiscoveryEvent.NavigateToBuild(
+                                    status.host.host,
+                                    status.host.port,
+                                ),
+                            )
+                        }
+
+                        is ConnectionStatus.Error -> {
+                            state.put(
+                                DiscoveryUiState.ConnectionFailed(
+                                    status.host,
+                                    formatErrorReason(status.reason),
+                                ),
+                            )
+                        }
+
+                        is ConnectionStatus.Connecting,
+                        is ConnectionStatus.Disconnected -> Unit
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                state.put(
+                    DiscoveryUiState.ConnectionFailed(
+                        host,
+                        TextResource.ResText(Res.string.error_connection_failed),
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun cancelAll() {
+        discoveryJob?.cancel()
+        discoveryJob = null
+        connectionJob?.cancel()
+        connectionJob = null
+    }
+
+    override fun onCleared() {
+        cancelAll()
+    }
+
+    companion object {
+        private const val SCAN_TIMEOUT_MS = 10_000L
+        private const val NAVIGATE_DELAY_MS = 800L
+    }
+}
+
+private fun formatErrorReason(reason: ConnectionErrorReason): TextResource = when (reason) {
+    is ConnectionErrorReason.Timeout ->
+        TextResource.ResText(Res.string.error_timeout, listOf(reason.durationMs.toString()))
+
+    is ConnectionErrorReason.Refused ->
+        TextResource.ResText(Res.string.error_refused, listOf(reason.message))
+
+    is ConnectionErrorReason.HandshakeFailed ->
+        TextResource.ResText(Res.string.error_handshake, listOf(reason.message))
+
+    is ConnectionErrorReason.Lost ->
+        TextResource.ResText(Res.string.error_lost, listOf(reason.message))
+
+    is ConnectionErrorReason.Unknown -> TextResource.RawText(reason.message)
 }

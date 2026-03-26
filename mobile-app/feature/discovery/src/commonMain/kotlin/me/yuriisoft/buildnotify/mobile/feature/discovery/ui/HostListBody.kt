@@ -14,11 +14,6 @@ internal fun HostListBody(
     hosts: List<DiscoveredHost>,
     onHostSelected: (DiscoveredHost) -> Unit,
 ) {
-    if (hosts.isEmpty()) {
-        EmptyBody()
-        return
-    }
-
     val spacing = BuildNotifyTheme.dimensions.spacing
 
     LazyColumn(

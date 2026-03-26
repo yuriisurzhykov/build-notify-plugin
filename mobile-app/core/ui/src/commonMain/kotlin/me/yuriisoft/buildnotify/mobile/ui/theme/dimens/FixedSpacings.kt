@@ -45,4 +45,7 @@ internal val FixedComponentDimensions = ComponentDimensions(
     badgeHeight = 24.dp,
     badgePaddingHorizontal = 8.dp,
     buttonMinHeight = 48.dp,
+    dotProgressDotSize = 8.dp,
+    dotProgressSpacing = 6.dp,
+    ringProgressSize = 120.dp,
 )

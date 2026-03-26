@@ -4,11 +4,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import me.yuriisoft.buildnotify.mobile.domain.model.ConnectionErrorReason
+import me.yuriisoft.buildnotify.mobile.domain.model.ConnectionStatus
 import me.yuriisoft.buildnotify.mobile.domain.model.DiscoveredHost
 import me.yuriisoft.buildnotify.mobile.feature.discovery.domain.ObserveHostsUseCase
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryEvent
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryUiState
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryViewModel
+import me.yuriisoft.buildnotify.mobile.testing.FakeConnectionRepository
+import me.yuriisoft.buildnotify.mobile.testing.FakeNetworkMonitor
 import me.yuriisoft.buildnotify.mobile.testing.FakeNsdRepository
 import me.yuriisoft.buildnotify.mobile.testing.RecordingEventCommunication
 import me.yuriisoft.buildnotify.mobile.testing.RecordingStateCommunication
@@ -22,10 +26,12 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalCoroutinesApi::class)
 class DiscoveryViewModelTest {
 
-    private val repository = FakeNsdRepository()
+    private val nsdRepository = FakeNsdRepository()
+    private val connectionRepository = FakeConnectionRepository()
+    private val networkMonitor = FakeNetworkMonitor(initiallyAvailable = true)
     private val dispatchers = TestAppDispatchers()
-    private val useCase = ObserveHostsUseCase(repository)
-    private val state = RecordingStateCommunication<DiscoveryUiState>(DiscoveryUiState.Loading)
+    private val useCase = ObserveHostsUseCase(nsdRepository)
+    private val state = RecordingStateCommunication<DiscoveryUiState>(DiscoveryUiState.Scanning)
     private val events = RecordingEventCommunication<DiscoveryEvent>()
 
     @BeforeTest
@@ -38,114 +44,248 @@ class DiscoveryViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel() = DiscoveryViewModel(useCase, dispatchers, state, events)
+    private fun createViewModel(
+        scanTimeoutMs: Long = Long.MAX_VALUE,
+        navigateDelayMs: Long = 0L,
+    ) = DiscoveryViewModel(
+        observeHosts = useCase,
+        connectionRepository = connectionRepository,
+        networkMonitor = networkMonitor,
+        dispatchers = dispatchers,
+        state = state,
+        events = events,
+        scanTimeoutMs = scanTimeoutMs,
+        navigateDelayMs = navigateDelayMs,
+    )
+
+    // region Network gating
 
     @Test
-    fun collectsFromRepositoryImmediatelyOnCreation() {
-        val vm = createViewModel()
+    fun showsNetworkUnavailableWhenNoNetwork() {
+        networkMonitor.setAvailable(false)
 
-        assertIs<DiscoveryUiState.Content>(vm.uiState.value)
+        createViewModel()
+
+        assertIs<DiscoveryUiState.NetworkUnavailable>(state.observe.value)
     }
 
     @Test
-    fun showsHostsWhenDiscoverySucceeds() {
-        val hosts = listOf(
-            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
+    fun startsScanningWhenNetworkAvailable() {
+        networkMonitor.setAvailable(true)
+
+        createViewModel()
+
+        assertIs<DiscoveryUiState.Scanning>(state.observe.value)
+    }
+
+    @Test
+    fun recoversFromNetworkUnavailableWhenNetworkRestored() {
+        networkMonitor.setAvailable(false)
+
+        createViewModel()
+        assertIs<DiscoveryUiState.NetworkUnavailable>(state.observe.value)
+
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+        networkMonitor.setAvailable(true)
+
+        assertIs<DiscoveryUiState.ServiceSelection>(state.observe.value)
+    }
+
+    // endregion
+
+    // region Discovery flow
+
+    @Test
+    fun showsNothingFoundAfterTimeout() {
+        nsdRepository.emit(emptyList())
+
+        createViewModel(scanTimeoutMs = 0L)
+
+        assertIs<DiscoveryUiState.NothingFound>(state.observe.value)
+    }
+
+    @Test
+    fun autoConnectsWhenSingleHostFound() {
+        nsdRepository.emit(listOf(HOST_MACBOOK))
+
+        createViewModel()
+
+        assertEquals(1, connectionRepository.connectCalls.size)
+        assertEquals(HOST_MACBOOK, connectionRepository.connectCalls.first())
+        assertIs<DiscoveryUiState.Connected>(state.observe.value)
+    }
+
+    @Test
+    fun showsServiceSelectionWhenMultipleHostsFound() {
+        val hosts = listOf(HOST_MACBOOK, HOST_DESKTOP)
+        nsdRepository.emit(hosts)
+
+        createViewModel()
+
+        val current = state.observe.value
+        assertIs<DiscoveryUiState.ServiceSelection>(current)
+        assertEquals(hosts, current.hosts)
+    }
+
+    @Test
+    fun updatesServiceSelectionWhenHostsChange() {
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+
+        createViewModel()
+
+        val updated = listOf(HOST_MACBOOK, HOST_DESKTOP, HOST_LINUX)
+        nsdRepository.emit(updated)
+
+        val current = state.observe.value
+        assertIs<DiscoveryUiState.ServiceSelection>(current)
+        assertEquals(updated, current.hosts)
+    }
+
+    @Test
+    fun staysInScanningWhileNoHostsAndNoTimeout() {
+        nsdRepository.emit(emptyList())
+
+        createViewModel(scanTimeoutMs = Long.MAX_VALUE)
+
+        assertIs<DiscoveryUiState.Scanning>(state.observe.value)
+    }
+
+    // endregion
+
+    // region Connection flow
+
+    @Test
+    fun selectHostInitiatesConnection() {
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+
+        val vm = createViewModel()
+
+        vm.selectHost(HOST_MACBOOK)
+
+        assertEquals(1, connectionRepository.connectCalls.size)
+        assertEquals(HOST_MACBOOK, connectionRepository.connectCalls.first())
+    }
+
+    @Test
+    fun showsConnectedAfterSuccessfulConnection() {
+        nsdRepository.emit(listOf(HOST_MACBOOK))
+
+        createViewModel()
+
+        assertIs<DiscoveryUiState.Connected>(state.observe.value)
+    }
+
+    @Test
+    fun showsConnectionFailedOnError() {
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+
+        val vm = createViewModel()
+
+        vm.selectHost(HOST_MACBOOK)
+
+        connectionRepository.emitStatus(
+            ConnectionStatus.Error(
+                HOST_MACBOOK,
+                ConnectionErrorReason.Refused("port closed"),
+            ),
         )
-        repository.emit(hosts)
 
-        val vm = createViewModel()
-        val currentState = vm.uiState.value
-
-        assertIs<DiscoveryUiState.Content>(currentState)
-        assertEquals(hosts, currentState.hosts)
+        val current = state.observe.value
+        assertIs<DiscoveryUiState.ConnectionFailed>(current)
+        assertIs<ResText>(current.reason)
     }
 
     @Test
-    fun showsMultipleDiscoveredHosts() {
-        val hosts = listOf(
-            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
-            DiscoveredHost(name = "Desktop", host = "192.168.1.10", port = 8766),
-            DiscoveredHost(name = "Linux", host = "10.0.0.1", port = 9000),
-        )
-        repository.emit(hosts)
+    fun emitsNavigateEventAfterConnected() {
+        nsdRepository.emit(listOf(HOST_MACBOOK))
 
-        val vm = createViewModel()
-        val currentState = vm.uiState.value
-
-        assertIs<DiscoveryUiState.Content>(currentState)
-        assertEquals(3, currentState.hosts.size)
-        assertEquals(hosts, currentState.hosts)
-    }
-
-    @Test
-    fun updatesStateWhenHostsChange() {
-        val initial = listOf(
-            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
-        )
-        repository.emit(initial)
-
-        val vm = createViewModel()
-
-        val updated = listOf(
-            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
-            DiscoveredHost(name = "Desktop", host = "192.168.1.10", port = 8766),
-        )
-        repository.emit(updated)
-
-        val currentState = vm.uiState.value
-        assertIs<DiscoveryUiState.Content>(currentState)
-        assertEquals(updated, currentState.hosts)
-    }
-
-    @Test
-    fun showsEmptyContentWhenNoHostsFound() {
-        repository.emit(emptyList())
-
-        val vm = createViewModel()
-        val currentState = vm.uiState.value
-
-        assertIs<DiscoveryUiState.Content>(currentState)
-        assertEquals(emptyList(), currentState.hosts)
-    }
-
-    @Test
-    fun emitsNavigateToBuildEventOnHostSelection() {
-        val host = DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765)
-        repository.emit(listOf(host))
-
-        val vm = createViewModel()
-        vm.selectHost(host)
+        createViewModel(navigateDelayMs = 0L)
 
         assertEquals(1, events.history.size)
         val event = events.history.first()
         assertIs<DiscoveryEvent.NavigateToBuild>(event)
-        assertEquals("192.168.1.5", event.host)
-        assertEquals(8765, event.port)
+        assertEquals(HOST_MACBOOK.host, event.host)
+        assertEquals(HOST_MACBOOK.port, event.port)
+    }
+
+    // endregion
+
+    // region Retry
+
+    @Test
+    fun retryRestartsScanFromServiceSelection() {
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+
+        val vm = createViewModel()
+        assertIs<DiscoveryUiState.ServiceSelection>(state.observe.value)
+
+        nsdRepository.emit(listOf(HOST_MACBOOK))
+        vm.retry()
+
+        assertIs<DiscoveryUiState.Connected>(state.observe.value)
     }
 
     @Test
-    fun verifyStateTransitionOrder() {
-        val hosts1 = listOf(
-            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
+    fun retryRestartsScanFromNothingFound() {
+        nsdRepository.emit(emptyList())
+
+        val vm = createViewModel(scanTimeoutMs = 0L)
+        assertIs<DiscoveryUiState.NothingFound>(state.observe.value)
+
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+        vm.retry()
+
+        assertIs<DiscoveryUiState.ServiceSelection>(state.observe.value)
+    }
+
+    // endregion
+
+    // region Cancel
+
+    @Test
+    fun cancelStopsDiscoveryAndTransitionsToIdle() {
+        nsdRepository.emit(emptyList())
+
+        val vm = createViewModel()
+        assertIs<DiscoveryUiState.Scanning>(state.observe.value)
+
+        vm.cancel()
+
+        assertIs<DiscoveryUiState.Idle>(state.observe.value)
+    }
+
+    @Test
+    fun cancelStopsConnectionAndTransitionsToIdle() {
+        nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
+
+        val vm = createViewModel()
+        assertIs<DiscoveryUiState.ServiceSelection>(state.observe.value)
+
+        vm.selectHost(HOST_MACBOOK)
+        assertIs<DiscoveryUiState.Connecting>(state.observe.value)
+
+        vm.cancel()
+
+        assertIs<DiscoveryUiState.Idle>(state.observe.value)
+    }
+
+    // endregion
+
+    companion object {
+        private val HOST_MACBOOK = DiscoveredHost(
+            name = "MacBook",
+            host = "192.168.1.5",
+            port = 8765,
         )
-        val hosts2 = listOf(
-            DiscoveredHost(name = "MacBook", host = "192.168.1.5", port = 8765),
-            DiscoveredHost(name = "Desktop", host = "192.168.1.10", port = 8766),
+        private val HOST_DESKTOP = DiscoveredHost(
+            name = "Desktop",
+            host = "192.168.1.10",
+            port = 8766,
         )
-        repository.emit(hosts1)
-
-        createViewModel()
-
-        repository.emit(hosts2)
-
-        assertEquals(
-            listOf(
-                DiscoveryUiState.Loading,
-                DiscoveryUiState.Content(hosts1),
-                DiscoveryUiState.Content(hosts2),
-            ),
-            state.history,
+        private val HOST_LINUX = DiscoveredHost(
+            name = "Linux",
+            host = "10.0.0.1",
+            port = 9000,
         )
     }
 }

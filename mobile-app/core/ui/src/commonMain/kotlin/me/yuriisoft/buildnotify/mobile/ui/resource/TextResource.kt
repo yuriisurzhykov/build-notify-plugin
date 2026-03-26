@@ -11,25 +11,28 @@ import org.jetbrains.compose.resources.stringResource
 interface TextResource {
     @Composable
     fun resolve(): CharSequence
-}
 
-@Immutable
-data class RawText(val value: String) : TextResource {
-    @Composable
-    override fun resolve(): String = value
-}
+    @Immutable
+    data class ResText(
+        val resource: StringResource,
+        val args: List<Any> = emptyList(),
+    ) : TextResource {
+        constructor(resource: StringResource, vararg args: Any) : this(resource, args.toList())
 
-@Immutable
-data class ResText(
-    val resource: StringResource,
-    val args: List<Any> = emptyList(),
-) : TextResource {
-    @Composable
-    override fun resolve(): String = stringResource(resource, *args.toTypedArray())
-}
+        @Composable
+        override fun resolve(): String = stringResource(resource, *args.toTypedArray())
+    }
 
-@Immutable
-data class StyledText(val value: AnnotatedString) : TextResource {
-    @Composable
-    override fun resolve(): AnnotatedString = value
+    @Immutable
+    data class RawText(val value: String) : TextResource {
+        @Composable
+        override fun resolve(): String = value
+    }
+
+    @Immutable
+    data class StyledText(val value: AnnotatedString) : TextResource {
+        @Composable
+        override fun resolve(): AnnotatedString = value
+    }
+
 }

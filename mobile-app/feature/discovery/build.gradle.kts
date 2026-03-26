@@ -16,6 +16,7 @@ kotlin {
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.kotlin.inject.runtime)
+            implementation(libs.jetbrains.compose.resources)
         }
 
         commonTest.dependencies {

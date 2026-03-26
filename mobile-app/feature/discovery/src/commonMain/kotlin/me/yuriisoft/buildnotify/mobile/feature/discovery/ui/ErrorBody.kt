@@ -8,30 +8,60 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import build_notify_mobile.feature.discovery.generated.resources.Res
+import build_notify_mobile.feature.discovery.generated.resources.action_retry
+import build_notify_mobile.feature.discovery.generated.resources.error_title
+import me.yuriisoft.buildnotify.mobile.ui.components.button.SecondaryButton
 import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
-import me.yuriisoft.buildnotify.mobile.ui.resource.RawText
+import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
+import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
-internal fun ErrorBody(message: String) {
+internal fun ErrorBody(
+    message: String,
+    onRetry: () -> Unit,
+) {
+    val spacing = BuildNotifyTheme.dimensions.spacing
+    val error = BuildNotifyTheme.colors.status.error
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = RawText("Something went wrong"),
-                style = BuildNotifyTheme.typography.titleMedium,
-                color = BuildNotifyTheme.colors.status.error.main,
+            StatusIcon(
+                containerColor = error.container,
+                contentColor = error.onContainer,
             )
 
-            Spacer(Modifier.height(BuildNotifyTheme.dimensions.spacing.small))
+            Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = RawText(message),
+                text = TextResource.ResText(Res.string.error_title),
+                style = BuildNotifyTheme.typography.titleMedium,
+                color = error.main,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(Modifier.height(spacing.tiny))
+
+            Text(
+                text = TextResource.RawText(message),
                 style = BuildNotifyTheme.typography.bodyMedium,
                 color = BuildNotifyTheme.colors.content.secondary,
+                textAlign = TextAlign.Center,
             )
+
+            Spacer(Modifier.height(spacing.xLarge))
+
+            SecondaryButton(onClick = onRetry) {
+                Text(
+                    text = TextResource.ResText(Res.string.action_retry),
+                    style = BuildNotifyTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }

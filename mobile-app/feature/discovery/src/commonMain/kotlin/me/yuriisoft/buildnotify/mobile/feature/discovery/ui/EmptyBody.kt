@@ -8,30 +8,58 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import build_notify_mobile.feature.discovery.generated.resources.Res
+import build_notify_mobile.feature.discovery.generated.resources.empty_body
+import build_notify_mobile.feature.discovery.generated.resources.empty_scan_again
+import build_notify_mobile.feature.discovery.generated.resources.empty_title
+import me.yuriisoft.buildnotify.mobile.ui.components.button.SecondaryButton
 import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
-import me.yuriisoft.buildnotify.mobile.ui.resource.RawText
+import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
+import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
-internal fun EmptyBody() {
+internal fun EmptyBody(onRetry: () -> Unit) {
+    val spacing = BuildNotifyTheme.dimensions.spacing
+    val warning = BuildNotifyTheme.colors.status.warning
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            StatusIcon(
+                containerColor = warning.container,
+                contentColor = warning.onContainer,
+            )
+
+            Spacer(Modifier.height(spacing.large))
+
             Text(
-                text = RawText("No devices found"),
+                text = TextResource.ResText(Res.string.empty_title),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = BuildNotifyTheme.colors.content.primary,
+                textAlign = TextAlign.Center,
             )
 
-            Spacer(Modifier.height(BuildNotifyTheme.dimensions.spacing.small))
+            Spacer(Modifier.height(spacing.tiny))
 
             Text(
-                text = RawText("Make sure the Build Notify plugin is running in your IDE"),
+                text = TextResource.ResText(Res.string.empty_body),
                 style = BuildNotifyTheme.typography.bodyMedium,
                 color = BuildNotifyTheme.colors.content.secondary,
+                textAlign = TextAlign.Center,
             )
+
+            Spacer(Modifier.height(spacing.xLarge))
+
+            SecondaryButton(onClick = onRetry) {
+                Text(
+                    text = TextResource.ResText(Res.string.empty_scan_again),
+                    style = BuildNotifyTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }
