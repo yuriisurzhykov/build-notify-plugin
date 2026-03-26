@@ -42,6 +42,8 @@ data class HandshakePayload(
     val instanceId: String,
     /** What this server can do right now; client hides UI for missing capabilities. */
     val capabilities: Set<Capability> = emptySet(),
+    /** SHA-256 fingerprint of the server TLS certificate, e.g. "AB:CD:EF:...". Null when TLS is off. */
+    val certFingerprint: String? = null,
 ) : WsPayload()
 
 @Serializable

@@ -18,7 +18,7 @@ class PluginSettingsState : PersistentStateComponent<PluginSettingsState.State> 
         var connectionLostTimeoutSec: Int = 30,
         /** Drop build sessions with no finish event after this many minutes. */
         var sessionTimeoutMinutes: Int = 30,
-        /** Optional absolute path to a JKS keystore; empty = try classpath `keystore.jks` or env `BUILDNOTIFY_KEYSTORE_PATH`. */
+        /** Optional absolute path to a JKS keystore for advanced users. Empty = auto-generated self-signed cert via [CertificateManager]. */
         var keystorePath: String = "",
     )
 

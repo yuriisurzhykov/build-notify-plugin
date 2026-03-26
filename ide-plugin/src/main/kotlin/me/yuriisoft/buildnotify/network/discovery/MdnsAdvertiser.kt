@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
+import me.yuriisoft.buildnotify.security.CertificateManager
 import me.yuriisoft.buildnotify.settings.PluginSettingsState
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicBoolean
@@ -27,6 +28,18 @@ class MdnsAdvertiser : Disposable {
 
         runCatching {
             val settings = service<PluginSettingsState>().snapshot()
+            val certManager = service<CertificateManager>()
+
+            val txtRecord = buildMap {
+                put("version", "1")
+                val fp = certManager.fingerprint()
+                if (fp != null) {
+                    put("scheme", "wss")
+                    put("fp", fp)
+                } else {
+                    put("scheme", "ws")
+                }
+            }
 
             val mDnsInstance = JmDNS.create(InetAddress.getLocalHost())
             val info = ServiceInfo.create(
@@ -35,7 +48,7 @@ class MdnsAdvertiser : Disposable {
                 settings.port,
                 0,
                 0,
-                mapOf("version" to "1"),
+                txtRecord,
             )
 
             mDnsInstance.registerService(info)

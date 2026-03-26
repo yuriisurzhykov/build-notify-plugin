@@ -13,6 +13,10 @@ import com.intellij.openapi.components.service
 import me.yuriisoft.buildnotify.BuildNotifyBundle
 import me.yuriisoft.buildnotify.network.discovery.MdnsAdvertiser
 import me.yuriisoft.buildnotify.network.server.BuildWebSocketServer
+import me.yuriisoft.buildnotify.notification.PluginNotifier
+import me.yuriisoft.buildnotify.security.CertificateManager
+import java.nio.file.Files
+import java.nio.file.Path
 import javax.swing.JComponent
 
 /**
@@ -62,6 +66,18 @@ class PluginSettingsConfigurable : Configurable {
                         .resizableColumn()
                     comment(BuildNotifyBundle.message("settings.field.keystore.path.comment"))
                 }
+                row(BuildNotifyBundle.message("settings.field.fingerprint")) {
+                    val fp = service<CertificateManager>().fingerprint()
+                        ?: BuildNotifyBundle.message("settings.field.fingerprint.unavailable")
+                    textField()
+                        .applyToComponent {
+                            text = fp
+                            isEditable = false
+                        }
+                        .align(AlignX.FILL)
+                        .resizableColumn()
+                    comment(BuildNotifyBundle.message("settings.field.fingerprint.comment"))
+                }
             }
 
             group(BuildNotifyBundle.message("settings.group.connection")) {
@@ -104,21 +120,60 @@ class PluginSettingsConfigurable : Configurable {
         settings.loadState(uiState.copy())
         val updated = settings.snapshot()
 
+        val keystoreChanged = previous.keystorePath != updated.keystorePath
+        if (keystoreChanged) validateKeystorePath(updated.keystorePath)
+
         val serverNeedsRestart =
             previous.port != updated.port ||
                 previous.connectionLostTimeoutSec != updated.connectionLostTimeoutSec ||
-                previous.keystorePath != updated.keystorePath
+                keystoreChanged
         val mdnsNeedsRestart =
             previous.port != updated.port ||
                 previous.serviceName != updated.serviceName
 
         if (serverNeedsRestart || mdnsNeedsRestart) {
-            val server = service<BuildWebSocketServer>()
-            val mdns = service<MdnsAdvertiser>()
-            if (serverNeedsRestart) server.stop()
-            if (mdnsNeedsRestart) mdns.stop()
-            if (serverNeedsRestart) server.start()
-            if (mdnsNeedsRestart) mdns.start()
+            restartServices(serverNeedsRestart, mdnsNeedsRestart)
+        }
+    }
+
+    private fun validateKeystorePath(path: String) {
+        val trimmed = path.trim()
+        if (trimmed.isEmpty()) return
+
+        val file = Path.of(trimmed)
+        val notifier = service<PluginNotifier>()
+
+        if (!Files.exists(file)) {
+            notifier.warning(
+                BuildNotifyBundle.message("notification.keystore.not.found.title"),
+                BuildNotifyBundle.message("notification.keystore.not.found.content", trimmed),
+            )
+            return
+        }
+
+        if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
+            notifier.warning(
+                BuildNotifyBundle.message("notification.keystore.unreadable.title"),
+                BuildNotifyBundle.message("notification.keystore.unreadable.content", trimmed),
+            )
+        }
+    }
+
+    private fun restartServices(serverNeedsRestart: Boolean, mdnsNeedsRestart: Boolean) {
+        val server = service<BuildWebSocketServer>()
+        val mdns = service<MdnsAdvertiser>()
+        val notifier = service<PluginNotifier>()
+
+        if (serverNeedsRestart) server.stop()
+        if (mdnsNeedsRestart) mdns.stop()
+        if (serverNeedsRestart) server.start()
+        if (mdnsNeedsRestart) mdns.start()
+
+        if (serverNeedsRestart && !server.isActive()) {
+            notifier.error(
+                BuildNotifyBundle.message("notification.settings.restart.failed.title"),
+                BuildNotifyBundle.message("notification.settings.restart.failed.content"),
+            )
         }
     }
 

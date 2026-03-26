@@ -4,6 +4,9 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
+import me.yuriisoft.buildnotify.BuildNotifyBundle
+import me.yuriisoft.buildnotify.notification.PluginNotifier
+import me.yuriisoft.buildnotify.security.CertificateManager
 import me.yuriisoft.buildnotify.serialization.*
 import me.yuriisoft.buildnotify.settings.PluginSettingsState
 import org.java_websocket.WebSocket
@@ -60,12 +63,20 @@ class BuildWebSocketServer : Disposable {
             ).also { it.start() }
 
             logger.info("WebSocket server started on port ${settings.port}")
+            service<PluginNotifier>().info(
+                BuildNotifyBundle.message("notification.server.started.title"),
+                BuildNotifyBundle.message("notification.server.started.content", settings.port),
+            )
         }.onFailure { throwable ->
             running.set(false)
             heartbeatScheduler?.stop()
             heartbeatScheduler = null
             server = null
             logger.error("Failed to start WebSocket server", throwable)
+            service<PluginNotifier>().error(
+                BuildNotifyBundle.message("notification.server.start.failed.title"),
+                BuildNotifyBundle.message("notification.server.start.failed.content", throwable.message.orEmpty()),
+            )
         }
     }
 
@@ -129,8 +140,9 @@ class BuildWebSocketServer : Disposable {
                     instanceId = instanceId,
                     capabilities = setOf(
                         Capability.BUILD_MONITOR,
-                        Capability.BUILD_CONTROL
+                        Capability.BUILD_CONTROL,
                     ),
+                    certFingerprint = service<CertificateManager>().fingerprint(),
                 ),
             )
             session.send(MessageSerializer.encode(greeting))
@@ -187,23 +199,49 @@ class BuildWebSocketServer : Disposable {
             logger.info("Internal WebSocket server is ready")
         }
 
+        /**
+         * TLS setup priority:
+         *   1. User-provided keystore (settings.keystorePath + env BUILDNOTIFY_KEYSTORE_PASSWORD)
+         *   2. Auto-generated self-signed certificate via [CertificateManager]
+         */
         private fun setupSSL(port: Int) {
+            userProvidedSslContext()?.let { ctx ->
+                setWebSocketFactory(DefaultSSLWebSocketServerFactory(ctx))
+                logger.info("SSL (WSS) configured from user keystore on port $port.")
+                service<PluginNotifier>().info(
+                    BuildNotifyBundle.message("notification.ssl.enabled.title"),
+                    BuildNotifyBundle.message("notification.ssl.enabled.content", port),
+                )
+                return
+            }
+
+            val certManager = service<CertificateManager>()
+            val autoContext = certManager.sslContext()
+
+            if (autoContext != null) {
+                setWebSocketFactory(DefaultSSLWebSocketServerFactory(autoContext))
+                logger.info("SSL (WSS) configured from auto-generated certificate on port $port.")
+                service<PluginNotifier>().info(
+                    BuildNotifyBundle.message("notification.ssl.auto.title"),
+                    BuildNotifyBundle.message("notification.ssl.auto.content", port),
+                )
+            } else {
+                logger.warn("TLS unavailable; running plain WS on port $port.")
+                service<PluginNotifier>().warning(
+                    BuildNotifyBundle.message("notification.ssl.failed.title"),
+                    BuildNotifyBundle.message("notification.ssl.failed.content",
+                        "Certificate generation failed. Check Event Log."),
+                )
+            }
+        }
+
+        private fun userProvidedSslContext(): SSLContext? {
             val password = System.getenv("BUILDNOTIFY_KEYSTORE_PASSWORD")?.trim()?.toCharArray()
-            if (password == null || password.isEmpty()) {
-                logger.info(
-                    "WSS disabled: set BUILDNOTIFY_KEYSTORE_PASSWORD to enable TLS (plain WS on port $port).",
-                )
-                return
-            }
+            if (password == null || password.isEmpty()) return null
 
-            val stream = openKeystoreStream() ?: run {
-                logger.info(
-                    "WSS disabled: no keystore file found (settings, BUILDNOTIFY_KEYSTORE_PATH, or resource). WS on port $port.",
-                )
-                return
-            }
+            val stream = openKeystoreStream() ?: return null
 
-            stream.use { keystoreStream ->
+            return stream.use { keystoreStream ->
                 runCatching {
                     val keyStore = KeyStore.getInstance("JKS")
                     keyStore.load(keystoreStream, password)
@@ -211,14 +249,16 @@ class BuildWebSocketServer : Disposable {
                     val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
                     kmf.init(keyStore, password)
 
-                    val sslContext = SSLContext.getInstance("TLS")
-                    sslContext.init(kmf.keyManagers, null, null)
-
-                    setWebSocketFactory(DefaultSSLWebSocketServerFactory(sslContext))
-                    logger.info("SSL (WSS) configured; secure connections accepted on port $port.")
+                    SSLContext.getInstance("TLS").apply {
+                        init(kmf.keyManagers, null, null)
+                    }
                 }.onFailure { e ->
-                    logger.info("WSS not enabled; using WS only on port $port: ${e.message}")
-                }
+                    logger.warn("User-provided keystore failed: ${e.message}")
+                    service<PluginNotifier>().warning(
+                        BuildNotifyBundle.message("notification.ssl.failed.title"),
+                        BuildNotifyBundle.message("notification.ssl.failed.content", e.message.orEmpty()),
+                    )
+                }.getOrNull()
             }
         }
 
@@ -235,7 +275,7 @@ class BuildWebSocketServer : Disposable {
                 if (Files.isRegularFile(p)) return Files.newInputStream(p)
                 logger.warn("BUILDNOTIFY_KEYSTORE_PATH not found: $envPath")
             }
-            return javaClass.classLoader.getResourceAsStream("keystore.jks")
+            return null
         }
     }
 }

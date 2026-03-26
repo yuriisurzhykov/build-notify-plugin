@@ -41,8 +41,15 @@
     <!-- Extensions defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="BuildNotify"
+                            displayType="BALLOON"
+                            bundle="messages.BuildNotifyBundle"
+                            key="notification.group.name"/>
+
         <postStartupActivity implementation="me.yuriisoft.buildnotify.BuildNotifyProjectActivity"/>
         <applicationService serviceImplementation="me.yuriisoft.buildnotify.settings.PluginSettingsState"/>
+        <applicationService serviceImplementation="me.yuriisoft.buildnotify.notification.PluginNotifier"/>
+        <applicationService serviceImplementation="me.yuriisoft.buildnotify.security.CertificateManager"/>
 
         <!--
             ExternalSystemTaskNotificationListener registered as EP.
