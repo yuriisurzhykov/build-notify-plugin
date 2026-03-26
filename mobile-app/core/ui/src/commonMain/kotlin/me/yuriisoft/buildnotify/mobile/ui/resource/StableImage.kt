@@ -14,7 +14,7 @@ interface StableImage {
 }
 
 @Immutable
-data class VectorStableImage(val imageVector: ImageVector) : StableImage {
+internal data class VectorStableImage(val imageVector: ImageVector) : StableImage {
     @Composable
     override fun createPainter(): Painter = rememberVectorPainter(imageVector)
 }

@@ -24,7 +24,7 @@ import me.yuriisoft.buildnotify.mobile.ui.components.progress.RingProgress
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.dot.DotProgressMode
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.ring.RingProgressMode
 import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
-import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -49,7 +49,7 @@ internal fun ScanningBody(onCancel: () -> Unit) {
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = TextResource.ResText(Res.string.scanning_title),
+                text = textResource(Res.string.scanning_title),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = BuildNotifyTheme.colors.content.primary,
                 textAlign = TextAlign.Center,
@@ -58,7 +58,7 @@ internal fun ScanningBody(onCancel: () -> Unit) {
             Spacer(Modifier.height(spacing.tiny))
 
             Text(
-                text = TextResource.ResText(Res.string.scanning_body),
+                text = textResource(Res.string.scanning_body),
                 style = BuildNotifyTheme.typography.bodyMedium,
                 color = BuildNotifyTheme.colors.content.secondary,
                 textAlign = TextAlign.Center,
@@ -83,7 +83,7 @@ internal fun ScanningBody(onCancel: () -> Unit) {
 
             GhostButton(onClick = onCancel) {
                 Text(
-                    text = TextResource.ResText(Res.string.action_cancel),
+                    text = textResource(Res.string.action_cancel),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }

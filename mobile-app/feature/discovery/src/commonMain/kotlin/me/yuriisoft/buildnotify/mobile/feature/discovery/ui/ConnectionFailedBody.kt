@@ -20,6 +20,7 @@ import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
 import me.yuriisoft.buildnotify.mobile.ui.icons.CloseIcon
 import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
 import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -46,7 +47,7 @@ internal fun ConnectionFailedBody(
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = TextResource.ResText(Res.string.connection_failed_title),
+                text = textResource(Res.string.connection_failed_title),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = error.main,
                 textAlign = TextAlign.Center,
@@ -79,7 +80,7 @@ internal fun ConnectionFailedBody(
 
             SecondaryButton(onClick = onRetry) {
                 Text(
-                    text = TextResource.ResText(Res.string.action_try_again),
+                    text = textResource(Res.string.action_try_again),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }

@@ -10,10 +10,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import me.tatarka.inject.annotations.Inject
-import me.yuriisoft.buildnotify.mobile.core.navigation.BuildStatusDestination
 import me.yuriisoft.buildnotify.mobile.core.navigation.Navigator
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
 import me.yuriisoft.buildnotify.mobile.core.navigation.ScreenTransitions
+import me.yuriisoft.buildnotify.mobile.core.navigation.routes.BuildStatusDestination
 import me.yuriisoft.buildnotify.mobile.core.platform.AppVersionProvider
 import me.yuriisoft.buildnotify.mobile.feature.discovery.ui.DiscoveryContent
 import me.yuriisoft.buildnotify.mobile.network.connection.DiscoveredHost
@@ -32,6 +32,7 @@ class DiscoveryScreen(
     override fun Content(backStackEntry: NavBackStackEntry, navigator: Navigator) {
         val vm by rememberUpdatedState(viewModel { viewModelFactory() })
         val state by vm.uiState.collectAsState()
+//        val snackbarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(Unit) {
             vm.uiEvents.collect { event ->
@@ -39,12 +40,24 @@ class DiscoveryScreen(
                     is DiscoveryEvent.NavigateToBuild -> {
                         navigator.navigateTo(BuildStatusDestination.route)
                     }
+
+                    is DiscoveryEvent.NetworkRestored -> {
+//                        snackbarHostState.showSnackbar(getString(Res.string.network_restored))
+                    }
                 }
             }
         }
 
         val onHostSelected = remember(vm) {
             { discoveredHost: DiscoveredHost -> vm.selectHost(discoveredHost) }
+        }
+
+        val onConfirmPairing = remember(vm) {
+            { vm.confirmPairing() }
+        }
+
+        val onRejectPairing = remember(vm) {
+            { vm.rejectPairing() }
         }
 
         val onRetry = remember(vm) {
@@ -63,6 +76,8 @@ class DiscoveryScreen(
             state = state,
             appVersion = appVersionProvider.versionName,
             onHostSelected = onHostSelected,
+            onConfirmPairing = onConfirmPairing,
+            onRejectPairing = onRejectPairing,
             onRetry = onRetry,
             onCancel = onCancel,
             onStartScan = onStartScan,

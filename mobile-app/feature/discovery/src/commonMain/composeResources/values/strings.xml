@@ -40,11 +40,22 @@
     <string name="network_unavailable_title">No Network Connection</string>
     <string name="network_unavailable_body">Connect to a Wi-Fi or Ethernet network to discover IDE instances</string>
 
+    <!-- PairingConfirmationBody -->
+    <string name="pairing_title">Verify Server Identity</string>
+    <string name="pairing_body">Verify this fingerprint matches what your IDE shows</string>
+    <string name="pairing_fingerprint_label">SHA-256 FINGERPRINT</string>
+    <string name="pairing_confirm">Trust</string>
+    <string name="pairing_reject">Cancel</string>
+
+    <!-- DiscoveryEvent: one-shot messages -->
+    <string name="network_restored">Connection restored</string>
+
     <!-- DiscoveryViewModel error reasons -->
     <string name="error_connection_failed">Connection failed</string>
     <string name="error_timeout">Connection timed out (%1$sms)</string>
     <string name="error_refused">Connection refused: %1$s</string>
     <string name="error_handshake">Handshake failed: %1$s</string>
     <string name="error_lost">Connection lost: %1$s</string>
+    <string name="error_tls_pinning">Certificate fingerprint mismatch — server identity changed</string>
     <string name="error_unknown">Unknown error occurred</string>
 </resources>

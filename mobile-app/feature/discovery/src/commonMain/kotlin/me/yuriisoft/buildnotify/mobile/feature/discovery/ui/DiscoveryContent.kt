@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,9 +24,8 @@ import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
 import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
 import me.yuriisoft.buildnotify.mobile.ui.components.layout.FlatRow
 import me.yuriisoft.buildnotify.mobile.ui.components.layout.FlatRowSlot
-import me.yuriisoft.buildnotify.mobile.ui.components.layout.Surface
 import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
-import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 private val DiscoveryHeaderSlots = listOf(
@@ -38,6 +38,8 @@ internal fun DiscoveryContent(
     state: DiscoveryUiState,
     appVersion: String,
     onHostSelected: (DiscoveredHost) -> Unit,
+    onConfirmPairing: () -> Unit,
+    onRejectPairing: () -> Unit,
     onRetry: () -> Unit,
     onCancel: () -> Unit,
     onStartScan: () -> Unit,
@@ -46,10 +48,7 @@ internal fun DiscoveryContent(
     val spacing = BuildNotifyTheme.dimensions.spacing
     val layout = BuildNotifyTheme.dimensions.layout
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = BuildNotifyTheme.colors.surface.background,
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -72,7 +71,7 @@ internal fun DiscoveryContent(
 
                 Text(
                     modifier = Modifier.slot(1),
-                    text = TextResource.ResText(Res.string.discovery_title),
+                    text = textResource(Res.string.discovery_title),
                     style = BuildNotifyTheme.typography.displayLarge,
                     color = BuildNotifyTheme.colors.content.primary,
                     textAlign = TextAlign.Start,
@@ -80,7 +79,7 @@ internal fun DiscoveryContent(
 
                 Text(
                     modifier = Modifier.slot(1),
-                    text = TextResource.ResText(Res.string.discovery_subtitle),
+                    text = textResource(Res.string.discovery_subtitle),
                     style = BuildNotifyTheme.typography.bodyMedium,
                     color = BuildNotifyTheme.colors.content.secondary,
                     textAlign = TextAlign.Start,
@@ -100,12 +99,19 @@ internal fun DiscoveryContent(
                     is DiscoveryUiState.Scanning           -> ScanningBody(onCancel = onCancel)
                     is DiscoveryUiState.ServiceSelection   -> HostListBody(
                         currentState.hosts,
-                        onHostSelected
+                        onHostSelected,
+                    )
+
+                    is DiscoveryUiState.PairingConfirmation -> PairingConfirmationBody(
+                        host = currentState.host,
+                        fingerprint = currentState.fingerprint,
+                        onConfirm = onConfirmPairing,
+                        onReject = onRejectPairing,
                     )
 
                     is DiscoveryUiState.Connecting         -> ConnectingBody(
                         host = currentState.host,
-                        onCancel = onCancel
+                        onCancel = onCancel,
                     )
 
                     is DiscoveryUiState.Connected          -> ConnectedBody(currentState.host)
@@ -118,7 +124,7 @@ internal fun DiscoveryContent(
                     is DiscoveryUiState.NothingFound       -> EmptyBody(onRetry = onRetry)
                     is DiscoveryUiState.ScanError          -> ErrorBody(
                         message = currentState.message,
-                        onRetry = onRetry
+                        onRetry = onRetry,
                     )
 
                     is DiscoveryUiState.NetworkUnavailable -> NetworkUnavailableBody()
@@ -126,7 +132,7 @@ internal fun DiscoveryContent(
             }
 
             Text(
-                text = TextResource.ResText(Res.string.discovery_version_footer, appVersion),
+                text = textResource(Res.string.discovery_version_footer, appVersion),
                 style = BuildNotifyTheme.typography.bodySmall,
                 color = BuildNotifyTheme.colors.content.tertiary,
                 textAlign = TextAlign.Center,
@@ -135,5 +141,16 @@ internal fun DiscoveryContent(
                     .padding(vertical = spacing.regular),
             )
         }
+
+        /*SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) { data ->
+            Snackbar(
+                snackbarData = data,
+                backgroundColor = BuildNotifyTheme.colors.surface.elevated,
+                contentColor = BuildNotifyTheme.colors.content.primary,
+            )
+        }*/
     }
 }

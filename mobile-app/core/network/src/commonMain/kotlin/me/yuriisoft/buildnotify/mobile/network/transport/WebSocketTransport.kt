@@ -1,7 +1,7 @@
 package me.yuriisoft.buildnotify.mobile.network.transport
 
-import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.http.URLProtocol
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import me.yuriisoft.buildnotify.mobile.data.protocol.WsEnvelope
 import me.yuriisoft.buildnotify.mobile.data.protocol.WsPayload
+import me.yuriisoft.buildnotify.mobile.network.client.HttpClientProvider
 
 /**
  * Raw bidirectional WebSocket channel — the only class that touches Ktor
@@ -22,22 +23,36 @@ import me.yuriisoft.buildnotify.mobile.data.protocol.WsPayload
  * Returns a cold [Flow] of decoded payloads. Takes a [ReceiveChannel] for
  * outgoing messages — the actor pattern replaces the old `sendMutex`.
  *
- * When the flow is cancelled or errors, `finally` cleans up both the sender
- * coroutine and the WebSocket session. When `retryWhen` (applied downstream)
- * restarts the flow, a fresh [WebSocketSession] is created and the sender
- * reconnects to the same [outgoing] channel.
+ * Each [open] call creates a fresh [HttpClient] via [clientProvider] with
+ * the supplied [fingerprint] so TLS certificate pinning is configured
+ * per-connection (TOFU). The client is closed in the `finally` block.
+ *
+ * When the flow is cancelled or errors, `finally` cleans up the sender
+ * coroutine, the WebSocket session, and the client. When `retryWhen`
+ * (applied downstream) restarts the flow, a fresh session is created.
  */
 class WebSocketTransport(
-    private val client: HttpClient,
+    private val clientProvider: HttpClientProvider,
     private val codec: PayloadCodec,
 ) : Transport {
 
     override fun open(
         host: String,
         port: Int,
+        secure: Boolean,
+        fingerprint: String?,
         outgoing: ReceiveChannel<WsEnvelope>,
     ): Flow<WsPayload> = channelFlow {
-        val ws = client.webSocketSession(host = host, port = port, path = "/ws")
+        val client = clientProvider.provide(fingerprint.takeIf { secure })
+
+        val ws = client.webSocketSession {
+            url {
+                protocol = if (secure) URLProtocol.WSS else URLProtocol.WS
+                this.host = host
+                this.port = port
+                pathSegments = listOf("ws")
+            }
+        }
 
         val sender = launch {
             for (envelope in outgoing) {
@@ -54,6 +69,7 @@ class WebSocketTransport(
         } finally {
             sender.cancel()
             ws.close()
+            client.close()
         }
     }
 }

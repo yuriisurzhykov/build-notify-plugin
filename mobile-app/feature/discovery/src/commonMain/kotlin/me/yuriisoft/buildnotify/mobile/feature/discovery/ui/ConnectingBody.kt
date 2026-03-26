@@ -25,6 +25,7 @@ import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.dot.DotProgre
 import me.yuriisoft.buildnotify.mobile.ui.components.progress.mode.ring.RingProgressMode
 import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
 import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -52,7 +53,7 @@ internal fun ConnectingBody(
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = TextResource.ResText(Res.string.connecting_title, listOf(host.name)),
+                text = textResource(Res.string.connecting_title, host.name),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = BuildNotifyTheme.colors.content.primary,
                 textAlign = TextAlign.Center,
@@ -86,7 +87,7 @@ internal fun ConnectingBody(
 
             GhostButton(onClick = onCancel) {
                 Text(
-                    text = TextResource.ResText(Res.string.action_cancel),
+                    text = textResource(Res.string.action_cancel),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }

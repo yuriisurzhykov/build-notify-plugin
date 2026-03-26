@@ -16,7 +16,7 @@ import build_notify_mobile.feature.discovery.generated.resources.empty_title
 import me.yuriisoft.buildnotify.mobile.ui.components.button.SecondaryButton
 import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
 import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
-import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -37,7 +37,7 @@ internal fun EmptyBody(onRetry: () -> Unit) {
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = TextResource.ResText(Res.string.empty_title),
+                text = textResource(Res.string.empty_title),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = BuildNotifyTheme.colors.content.primary,
                 textAlign = TextAlign.Center,
@@ -46,7 +46,7 @@ internal fun EmptyBody(onRetry: () -> Unit) {
             Spacer(Modifier.height(spacing.tiny))
 
             Text(
-                text = TextResource.ResText(Res.string.empty_body),
+                text = textResource(Res.string.empty_body),
                 style = BuildNotifyTheme.typography.bodyMedium,
                 color = BuildNotifyTheme.colors.content.secondary,
                 textAlign = TextAlign.Center,
@@ -56,7 +56,7 @@ internal fun EmptyBody(onRetry: () -> Unit) {
 
             SecondaryButton(onClick = onRetry) {
                 Text(
-                    text = TextResource.ResText(Res.string.empty_scan_again),
+                    text = textResource(Res.string.empty_scan_again),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }

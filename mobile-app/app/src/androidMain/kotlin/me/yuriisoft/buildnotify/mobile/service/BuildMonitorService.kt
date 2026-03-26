@@ -2,7 +2,11 @@ package me.yuriisoft.buildnotify.mobile.service
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING
+import android.os.Build
 import android.os.IBinder
+import androidx.annotation.RequiresApi
+import androidx.core.app.ServiceCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,15 +34,18 @@ class BuildMonitorService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate() {
         super.onCreate()
         val component = (application as BuildNotifyApp).component
         connectionManager = component.connectionManager
         notificationHelper = NotificationHelper(this)
 
-        startForeground(
-            NotificationHelper.NOTIFICATION_ID,
-            notificationHelper.persistentNotification(),
+        ServiceCompat.startForeground(
+            /* service = */ this,
+            /* id = */ NotificationHelper.NOTIFICATION_ID,
+            /* notification = */ notificationHelper.persistentNotification(),
+            /* foregroundServiceType = */ FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING,
         )
 
         observeConnectionState()

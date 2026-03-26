@@ -61,10 +61,11 @@ class ManagedConnection(
 
     override val incoming: SharedFlow<WsPayload> = _incoming.asSharedFlow()
 
-    private val outgoing = Channel<WsEnvelope>(Channel.BUFFERED)
+    private var currentOutgoing: Channel<WsEnvelope>? = null
 
     override suspend fun send(envelope: WsEnvelope) {
-        outgoing.send(envelope)
+        val ch = currentOutgoing ?: error("Not connected — no active pipeline")
+        ch.send(envelope)
     }
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -81,9 +82,13 @@ class ManagedConnection(
     @OptIn(FlowPreview::class)
     override suspend fun connect(host: DiscoveredHost) {
         pipeline?.cancelAndJoin()
+        currentOutgoing?.close()
+
+        val outgoing = Channel<WsEnvelope>(Channel.BUFFERED)
+        currentOutgoing = outgoing
         _state.put(ConnectionState.Connecting(host))
 
-        pipeline = transport.open(host.host, host.port, outgoing)
+        pipeline = transport.open(host.host, host.port, host.isSecure, host.fingerprint, outgoing)
             .onEach { payload ->
                 if (state.value !is ConnectionState.Connected) {
                     _state.put(ConnectionState.Connected(host))
@@ -108,6 +113,8 @@ class ManagedConnection(
     override suspend fun disconnect() {
         pipeline?.cancelAndJoin()
         pipeline = null
+        currentOutgoing?.close()
+        currentOutgoing = null
         _state.put(ConnectionState.Disconnected)
     }
 

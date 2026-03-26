@@ -28,6 +28,7 @@ import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionManager
 import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionState
 import me.yuriisoft.buildnotify.mobile.network.connection.DiscoveredHost
 import me.yuriisoft.buildnotify.mobile.network.error.ConnectionErrorReason
+import me.yuriisoft.buildnotify.mobile.network.tls.TrustedServers
 import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 
 /**
@@ -37,17 +38,20 @@ import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
  *  2. [observeHosts] use case — emits discovered hosts via NSD
  *  3. [connectionManager]     — WebSocket lifecycle (connect / disconnect)
  *
- * Auto-connects when exactly one host is found; shows [DiscoveryUiState.ServiceSelection]
- * when two or more hosts appear; falls back to [DiscoveryUiState.NothingFound] after
- * [scanTimeoutMs] of zero results.
+ * The initial state is [DiscoveryUiState.Idle]; scanning begins only when
+ * the user explicitly taps "Start Scan". Network loss from any state
+ * transitions to [DiscoveryUiState.NetworkUnavailable] and disconnects
+ * all active pipelines. Network restoration fires a one-shot
+ * [DiscoveryEvent.NetworkRestored] event and transitions back to Idle.
  */
 class DiscoveryViewModel(
     private val observeHosts: FlowUseCase<NoParams, List<DiscoveredHost>>,
     private val connectionManager: ConnectionManager,
     private val networkMonitor: INetworkMonitor,
+    private val trustedServers: TrustedServers,
     private val dispatchers: AppDispatchers,
     private val state: StateCommunication.Mutable<DiscoveryUiState> = StateCommunication(
-        DiscoveryUiState.Scanning,
+        DiscoveryUiState.Idle,
     ),
     private val events: EventCommunication.Mutable<DiscoveryEvent> = EventCommunication(),
     private val scanTimeoutMs: Long = SCAN_TIMEOUT_MS,
@@ -59,13 +63,29 @@ class DiscoveryViewModel(
 
     private var discoveryJob: Job? = null
     private var connectionJob: Job? = null
+    private var networkAvailableOnce = false
 
     init {
         observeNetwork()
     }
 
     fun selectHost(host: DiscoveredHost) {
+        if (host.isSecure && host.fingerprint != null && !trustedServers.isPinned(host.name)) {
+            state.put(DiscoveryUiState.PairingConfirmation(host, host.fingerprint.orEmpty()))
+            return
+        }
         connectToHost(host)
+    }
+
+    fun confirmPairing() {
+        val current = state.observe.value
+        if (current !is DiscoveryUiState.PairingConfirmation) return
+        trustedServers.pin(current.host.name, current.fingerprint)
+        connectToHost(current.host)
+    }
+
+    fun rejectPairing() {
+        state.put(DiscoveryUiState.Idle)
     }
 
     fun retry() {
@@ -82,11 +102,16 @@ class DiscoveryViewModel(
     private fun observeNetwork() {
         dispatchers.launchBackground(viewModelScope) {
             networkMonitor.isNetworkAvailable.collect { available ->
-                if (available) {
-                    startDiscovery()
-                } else {
+                if (!available) {
                     cancelAll()
+                    connectionManager.disconnect()
                     state.put(DiscoveryUiState.NetworkUnavailable)
+                } else {
+                    if (networkAvailableOnce) {
+                        events.send(DiscoveryEvent.NetworkRestored)
+                    }
+                    networkAvailableOnce = true
+                    state.put(DiscoveryUiState.Idle)
                 }
             }
         }
@@ -100,6 +125,7 @@ class DiscoveryViewModel(
             val timeoutJob = launch {
                 delay(scanTimeoutMs)
                 if (state.observe.value is DiscoveryUiState.Scanning) {
+                    discoveryJob?.cancel()
                     state.put(DiscoveryUiState.NothingFound)
                 }
             }
@@ -121,7 +147,7 @@ class DiscoveryViewModel(
                     hosts.isEmpty() -> Unit
                     hosts.size == 1 -> {
                         timeoutJob.cancel()
-                        connectToHost(hosts.first())
+                        selectHost(hosts.first())
                     }
 
                     else            -> {
@@ -140,6 +166,7 @@ class DiscoveryViewModel(
             }
 
             is DiscoveryUiState.Idle,
+            is DiscoveryUiState.PairingConfirmation,
             is DiscoveryUiState.Connecting,
             is DiscoveryUiState.Connected,
             is DiscoveryUiState.ConnectionFailed,
@@ -184,6 +211,7 @@ class DiscoveryViewModel(
             }
 
             is ConnectionState.Failed    -> {
+                connectionManager.disconnect()
                 state.put(
                     DiscoveryUiState.ConnectionFailed(
                         TextResource.RawText(connectionState.host.name),
@@ -209,6 +237,7 @@ class DiscoveryViewModel(
 
     override fun onCleared() {
         cancelAll()
+        viewModelScope.launch { connectionManager.disconnect() }
     }
 
     companion object {

@@ -11,7 +11,16 @@ import me.yuriisoft.buildnotify.mobile.data.protocol.WsPayload
  * [ManagedConnection] depends on this interface, not on [WebSocketTransport]
  * directly, enabling substitution with a fake in tests and alternative
  * transport implementations in the future.
+ *
+ * [fingerprint] is the TOFU-pinned SHA-256 fingerprint. When non-null,
+ * the transport configures TLS certificate pinning for the connection.
  */
 fun interface Transport {
-    fun open(host: String, port: Int, outgoing: ReceiveChannel<WsEnvelope>): Flow<WsPayload>
+    fun open(
+        host: String,
+        port: Int,
+        secure: Boolean,
+        fingerprint: String?,
+        outgoing: ReceiveChannel<WsEnvelope>,
+    ): Flow<WsPayload>
 }

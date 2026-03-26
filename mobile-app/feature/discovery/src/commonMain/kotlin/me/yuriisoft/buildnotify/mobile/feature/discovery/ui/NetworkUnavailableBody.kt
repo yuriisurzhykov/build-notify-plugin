@@ -16,7 +16,7 @@ import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
 import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
 import me.yuriisoft.buildnotify.mobile.ui.icons.InfoIcon
 import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
-import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -39,7 +39,7 @@ internal fun NetworkUnavailableBody() {
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = TextResource.ResText(Res.string.network_unavailable_title),
+                text = textResource(Res.string.network_unavailable_title),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = BuildNotifyTheme.colors.content.primary,
                 textAlign = TextAlign.Center,
@@ -48,7 +48,7 @@ internal fun NetworkUnavailableBody() {
             Spacer(Modifier.height(spacing.tiny))
 
             Text(
-                text = TextResource.ResText(Res.string.network_unavailable_body),
+                text = textResource(Res.string.network_unavailable_body),
                 style = BuildNotifyTheme.typography.bodyMedium,
                 color = BuildNotifyTheme.colors.content.secondary,
                 textAlign = TextAlign.Center,

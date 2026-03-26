@@ -18,13 +18,13 @@ interface ImageResource {
         @Composable
         override fun resolve(): StableImage = VectorStableImage(imageVector)
     }
-}
 
-@Immutable
-data class ResImage(val resource: DrawableResource) : ImageResource {
-    @Composable
-    override fun resolve(): StableImage {
-        val painter = painterResource(resource)
-        return remember(painter) { PainterStableImage(painter) }
+    @Immutable
+    data class ResImage(val resource: DrawableResource) : ImageResource {
+        @Composable
+        override fun resolve(): StableImage {
+            val painter = painterResource(resource)
+            return remember(painter) { PainterStableImage(painter) }
+        }
     }
 }

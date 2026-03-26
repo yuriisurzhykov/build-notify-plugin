@@ -6,4 +6,6 @@ import androidx.compose.runtime.Immutable
 sealed interface DiscoveryEvent {
 
     data object NavigateToBuild : DiscoveryEvent
+
+    data object NetworkRestored : DiscoveryEvent
 }

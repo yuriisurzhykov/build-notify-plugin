@@ -1,8 +1,6 @@
 package me.yuriisoft.buildnotify.mobile
 
 import com.yuriisurzhykov.buildnotifier.feature.catalog.CatalogScreen
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.IntoSet
@@ -11,6 +9,7 @@ import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
 import me.yuriisoft.buildnotify.mobile.core.platform.AppVersionProvider
 import me.yuriisoft.buildnotify.mobile.core.platform.INetworkMonitor
+import me.yuriisoft.buildnotify.mobile.feature.buildstatus.presentation.BuildStatusScreen
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.INsdDiscovery
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.NsdRepository
 import me.yuriisoft.buildnotify.mobile.feature.discovery.domain.ObserveHostsUseCase
@@ -29,6 +28,7 @@ import me.yuriisoft.buildnotify.mobile.network.error.recognizers.RefusedErrors
 import me.yuriisoft.buildnotify.mobile.network.error.recognizers.TimeoutErrors
 import me.yuriisoft.buildnotify.mobile.network.reconnection.ExponentialBackoff
 import me.yuriisoft.buildnotify.mobile.network.reconnection.ReconnectionStrategy
+import me.yuriisoft.buildnotify.mobile.network.tls.TrustedServers
 import me.yuriisoft.buildnotify.mobile.network.transport.PayloadCodec
 import me.yuriisoft.buildnotify.mobile.network.transport.Transport
 import me.yuriisoft.buildnotify.mobile.network.transport.WebSocketTransport
@@ -51,6 +51,8 @@ abstract class AppComponent(
     @get:Provides protected val nsdDiscovery: INsdDiscovery,
     @get:Provides protected val networkMonitor: INetworkMonitor,
     @get:Provides val appVersionProvider: AppVersionProvider,
+    @get:Provides protected val trustedServers: TrustedServers,
+    @get:Provides protected val httpClientProvider: HttpClientProvider,
 ) {
 
     abstract val screens: Set<Screen>
@@ -66,9 +68,6 @@ abstract class AppComponent(
     protected fun dispatchers(): AppDispatchers = AppDispatchers.Default()
 
     @Provides
-    protected fun httpClient(): HttpClient = HttpClient { install(WebSockets) }
-
-    @Provides
     protected fun json(): Json = Json { ignoreUnknownKeys = true }
 
     @Provides
@@ -76,11 +75,13 @@ abstract class AppComponent(
         observeHosts: ObserveHostsUseCase,
         connectionManager: ConnectionManager,
         networkMonitor: INetworkMonitor,
+        trustedServers: TrustedServers,
         dispatchers: AppDispatchers,
     ): DiscoveryViewModel = DiscoveryViewModel(
         observeHosts = observeHosts,
         connectionManager = connectionManager,
         networkMonitor = networkMonitor,
+        trustedServers = trustedServers,
         dispatchers = dispatchers,
     )
 
@@ -90,16 +91,19 @@ abstract class AppComponent(
 
     @IntoSet
     @Provides
+    protected fun buildStatusScreen(screen: BuildStatusScreen): Screen = screen
+
+    @IntoSet
+    @Provides
     protected fun catalogScreen(screen: CatalogScreen): Screen = screen
 
     // --- :core:network wiring (ISP: ManagedConnection → ActiveSession + ConnectionManager) ---
-
     @Provides
     protected fun payloadCodec(json: Json): PayloadCodec = PayloadCodec(json)
 
     @Provides
-    protected fun transport(codec: PayloadCodec): Transport =
-        WebSocketTransport(HttpClientProvider().provide(), codec)
+    protected fun transport(clientProvider: HttpClientProvider, codec: PayloadCodec): Transport =
+        WebSocketTransport(clientProvider, codec)
 
     @Provides
     protected fun reconnectionStrategy(): ReconnectionStrategy = ExponentialBackoff()

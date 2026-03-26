@@ -11,6 +11,11 @@ sealed interface DiscoveryUiState {
 
     data class ServiceSelection(val hosts: List<DiscoveredHost>) : DiscoveryUiState
 
+    data class PairingConfirmation(
+        val host: DiscoveredHost,
+        val fingerprint: String,
+    ) : DiscoveryUiState
+
     data class Connecting(val host: DiscoveredHost) : DiscoveryUiState
 
     data class Connected(val host: DiscoveredHost) : DiscoveryUiState

@@ -13,14 +13,8 @@ import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory
 import org.java_websocket.server.WebSocketServer
-import java.io.InputStream
 import java.net.InetSocketAddress
-import java.nio.file.Files
-import java.nio.file.Path
-import java.security.KeyStore
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.net.ssl.KeyManagerFactory
-import javax.net.ssl.SSLContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -199,83 +193,27 @@ class BuildWebSocketServer : Disposable {
             logger.info("Internal WebSocket server is ready")
         }
 
-        /**
-         * TLS setup priority:
-         *   1. User-provided keystore (settings.keystorePath + env BUILDNOTIFY_KEYSTORE_PASSWORD)
-         *   2. Auto-generated self-signed certificate via [CertificateManager]
-         */
         private fun setupSSL(port: Int) {
-            userProvidedSslContext()?.let { ctx ->
-                setWebSocketFactory(DefaultSSLWebSocketServerFactory(ctx))
-                logger.info("SSL (WSS) configured from user keystore on port $port.")
+            val certManager = CertificateManager.getInstance()
+            val sslContext = certManager.sslContext()
+
+            if (sslContext != null) {
+                setWebSocketFactory(DefaultSSLWebSocketServerFactory(sslContext))
+                logger.info("SSL (WSS) configured on port $port")
                 service<PluginNotifier>().info(
                     BuildNotifyBundle.message("notification.ssl.enabled.title"),
                     BuildNotifyBundle.message("notification.ssl.enabled.content", port),
                 )
-                return
-            }
-
-            val certManager = service<CertificateManager>()
-            val autoContext = certManager.sslContext()
-
-            if (autoContext != null) {
-                setWebSocketFactory(DefaultSSLWebSocketServerFactory(autoContext))
-                logger.info("SSL (WSS) configured from auto-generated certificate on port $port.")
-                service<PluginNotifier>().info(
-                    BuildNotifyBundle.message("notification.ssl.auto.title"),
-                    BuildNotifyBundle.message("notification.ssl.auto.content", port),
-                )
             } else {
-                logger.warn("TLS unavailable; running plain WS on port $port.")
+                logger.warn("TLS unavailable; running plain WS on port $port")
                 service<PluginNotifier>().warning(
                     BuildNotifyBundle.message("notification.ssl.failed.title"),
-                    BuildNotifyBundle.message("notification.ssl.failed.content",
-                        "Certificate generation failed. Check Event Log."),
+                    BuildNotifyBundle.message(
+                        "notification.ssl.failed.content",
+                        "All SSL providers failed. Check Event Log."
+                    ),
                 )
             }
-        }
-
-        private fun userProvidedSslContext(): SSLContext? {
-            val password = System.getenv("BUILDNOTIFY_KEYSTORE_PASSWORD")?.trim()?.toCharArray()
-            if (password == null || password.isEmpty()) return null
-
-            val stream = openKeystoreStream() ?: return null
-
-            return stream.use { keystoreStream ->
-                runCatching {
-                    val keyStore = KeyStore.getInstance("JKS")
-                    keyStore.load(keystoreStream, password)
-
-                    val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
-                    kmf.init(keyStore, password)
-
-                    SSLContext.getInstance("TLS").apply {
-                        init(kmf.keyManagers, null, null)
-                    }
-                }.onFailure { e ->
-                    logger.warn("User-provided keystore failed: ${e.message}")
-                    service<PluginNotifier>().warning(
-                        BuildNotifyBundle.message("notification.ssl.failed.title"),
-                        BuildNotifyBundle.message("notification.ssl.failed.content", e.message.orEmpty()),
-                    )
-                }.getOrNull()
-            }
-        }
-
-        private fun openKeystoreStream(): InputStream? {
-            val configured = settings.keystorePath.trim()
-            if (configured.isNotEmpty()) {
-                val p = Path.of(configured)
-                if (Files.isRegularFile(p)) return Files.newInputStream(p)
-                logger.warn("Keystore path from settings not found: $configured")
-            }
-            val envPath = System.getenv("BUILDNOTIFY_KEYSTORE_PATH")?.trim().orEmpty()
-            if (envPath.isNotEmpty()) {
-                val p = Path.of(envPath)
-                if (Files.isRegularFile(p)) return Files.newInputStream(p)
-                logger.warn("BUILDNOTIFY_KEYSTORE_PATH not found: $envPath")
-            }
-            return null
         }
     }
 }

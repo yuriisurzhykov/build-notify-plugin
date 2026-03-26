@@ -40,11 +40,22 @@
     <string name="network_unavailable_title">Нет подключения к сети</string>
     <string name="network_unavailable_body">Подключитесь к Wi-Fi или Ethernet для обнаружения экземпляров IDE</string>
 
+    <!-- PairingConfirmationBody -->
+    <string name="pairing_title">Проверка сервера</string>
+    <string name="pairing_body">Убедитесь, что этот отпечаток совпадает с тем, что показывает ваша IDE</string>
+    <string name="pairing_fingerprint_label">ОТПЕЧАТОК SHA-256</string>
+    <string name="pairing_confirm">Доверять</string>
+    <string name="pairing_reject">Отмена</string>
+
+    <!-- DiscoveryEvent: one-shot messages -->
+    <string name="network_restored">Соединение восстановлено</string>
+
     <!-- DiscoveryViewModel error reasons -->
     <string name="error_connection_failed">Ошибка подключения</string>
     <string name="error_timeout">Время подключения истекло (%1$s мс)</string>
     <string name="error_refused">В подключении отказано: %1$s</string>
     <string name="error_handshake">Ошибка рукопожатия: %1$s</string>
     <string name="error_lost">Соединение потеряно: %1$s</string>
+    <string name="error_tls_pinning">Несоответствие отпечатка сертификата — идентификация сервера изменилась</string>
     <string name="error_unknown">Произошла какая-то ошибка</string>
 </resources>

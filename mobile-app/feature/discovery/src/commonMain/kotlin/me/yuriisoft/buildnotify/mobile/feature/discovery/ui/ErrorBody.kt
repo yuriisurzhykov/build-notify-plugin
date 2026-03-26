@@ -16,6 +16,7 @@ import me.yuriisoft.buildnotify.mobile.ui.components.button.SecondaryButton
 import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
 import me.yuriisoft.buildnotify.mobile.ui.components.icon.StatusIcon
 import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
+import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -39,7 +40,7 @@ internal fun ErrorBody(
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = TextResource.ResText(Res.string.error_title),
+                text = textResource(Res.string.error_title),
                 style = BuildNotifyTheme.typography.titleMedium,
                 color = error.main,
                 textAlign = TextAlign.Center,
@@ -58,7 +59,7 @@ internal fun ErrorBody(
 
             SecondaryButton(onClick = onRetry) {
                 Text(
-                    text = TextResource.ResText(Res.string.action_retry),
+                    text = textResource(Res.string.action_retry),
                     style = BuildNotifyTheme.typography.labelLarge,
                 )
             }

@@ -43,6 +43,10 @@ kotlin {
             implementation(libs.activity.compose)
             implementation(libs.ktor.client.okhttp)
         }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
     }
 }
 

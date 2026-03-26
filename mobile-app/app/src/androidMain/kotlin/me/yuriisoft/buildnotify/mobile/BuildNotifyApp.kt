@@ -2,6 +2,8 @@ package me.yuriisoft.buildnotify.mobile
 
 import android.app.Application
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.AndroidNsdDiscovery
+import me.yuriisoft.buildnotify.mobile.tls.OkHttpClientProvider
+import me.yuriisoft.buildnotify.mobile.tls.SharedPrefsTrustedServers
 
 /**
  * Application-scoped entry point that hosts the DI [component].
@@ -24,6 +26,8 @@ class BuildNotifyApp : Application() {
             AndroidNsdDiscovery(applicationContext),
             AndroidNetworkMonitor(applicationContext),
             AndroidAppVersionProvider(),
+            SharedPrefsTrustedServers(applicationContext),
+            OkHttpClientProvider(),
         )
     }
 }
