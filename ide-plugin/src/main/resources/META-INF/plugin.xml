@@ -29,6 +29,7 @@
         "COMPATIBLE" means this plugin does not use any K1-only APIs.
     -->
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <!--suppress PluginXmlValidity -->
         <supportsKotlinPluginMode supportsK2="true"/>
     </extensions>
 
@@ -41,15 +42,14 @@
     <!-- Extensions defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <!--suppress PluginXmlCapitalization -->
         <notificationGroup id="BuildNotify"
-                            displayType="BALLOON"
-                            bundle="messages.BuildNotifyBundle"
-                            key="notification.group.name"/>
+                           displayType="BALLOON"
+                           bundle="messages.BuildNotifyBundle"
+                           key="notification.group.name"/>
 
         <postStartupActivity implementation="me.yuriisoft.buildnotify.BuildNotifyProjectActivity"/>
         <applicationService serviceImplementation="me.yuriisoft.buildnotify.settings.PluginSettingsState"/>
-        <applicationService serviceImplementation="me.yuriisoft.buildnotify.notification.PluginNotifier"/>
-        <applicationService serviceImplementation="me.yuriisoft.buildnotify.security.CertificateManager"/>
 
         <!--
             ExternalSystemTaskNotificationListener registered as EP.
