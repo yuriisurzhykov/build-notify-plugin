@@ -26,11 +26,11 @@ import kotlin.time.Duration.Companion.hours
 class ManagedConnectionTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
-    private val dispatchers = AppDispatchers.Abstract(
+    private val dispatchers = object : AppDispatchers.Abstract(
         main = testDispatcher,
         io = testDispatcher,
         default = testDispatcher,
-    )
+    ) {}
 
     private val host = DiscoveredHost(name = "Test", host = "10.0.0.1", port = 8765)
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import me.yuriisoft.buildnotify.mobile.core.platform.INetworkMonitor
 
@@ -52,11 +53,13 @@ class AndroidNetworkMonitor(
         awaitClose {
             connectivityManager?.unregisterNetworkCallback(callback)
         }
-    }.stateIn(
-        scope = CoroutineScope(Dispatchers.Default),
-        started = SharingStarted.Eagerly,
-        initialValue = hasMatchingNetwork(),
-    )
+    }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = CoroutineScope(Dispatchers.Default),
+            started = SharingStarted.Eagerly,
+            initialValue = hasMatchingNetwork(),
+        )
 
     /**
      * Synchronous snapshot used for the initial [StateFlow] value and for
@@ -68,6 +71,6 @@ class AndroidNetworkMonitor(
             ?.getNetworkCapabilities(connectivityManager.activeNetwork)
             ?: return false
         return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
 }
