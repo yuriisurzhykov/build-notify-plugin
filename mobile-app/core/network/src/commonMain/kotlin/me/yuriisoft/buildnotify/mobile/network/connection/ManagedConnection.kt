@@ -62,6 +62,8 @@ class ManagedConnection(
     override val incoming: SharedFlow<WsPayload> = _incoming.asSharedFlow()
 
     private var currentOutgoing: Channel<WsEnvelope>? = null
+    @Volatile
+    private var lastFingerprint: String? = null
 
     override suspend fun send(envelope: WsEnvelope) {
         val ch = currentOutgoing ?: error("Not connected — no active pipeline")
@@ -84,6 +86,8 @@ class ManagedConnection(
         pipeline?.cancelAndJoin()
         currentOutgoing?.close()
 
+        lastFingerprint = host.fingerprint.takeIf { host.isSecure }
+
         val outgoing = Channel<WsEnvelope>(Channel.BUFFERED)
         currentOutgoing = outgoing
         _state.put(ConnectionState.Connecting(host))
@@ -101,11 +105,12 @@ class ManagedConnection(
                 reconnection.shouldRetry(cause, attempt)
             }
             .onCompletion { cause ->
-                when {
-                    cause == null                   -> _state.put(ConnectionState.Disconnected)
-                    cause !is CancellationException ->
-                        _state.put(ConnectionState.Failed(host, errorMapping.map(cause)))
+                val state = when (cause) {
+                    null                      -> ConnectionState.Disconnected
+                    !is CancellationException -> ConnectionState.Failed(host, errorMapping.map(cause))
+                    else                      -> return@onCompletion
                 }
+                _state.put(state)
             }
             .launchIn(scope)
     }
@@ -115,6 +120,8 @@ class ManagedConnection(
         pipeline = null
         currentOutgoing?.close()
         currentOutgoing = null
+        transport.releaseClient(lastFingerprint)
+        lastFingerprint = null
         _state.put(ConnectionState.Disconnected)
     }
 

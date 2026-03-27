@@ -19,7 +19,19 @@ import javax.net.ssl.X509TrustManager
  */
 class OkHttpClientProvider : HttpClientProvider {
 
+    private val cache = mutableMapOf<String, HttpClient>()
+
     override fun provide(fingerprint: String?): HttpClient {
+        val key = fingerprint ?: PLAIN_KEY
+        return cache.getOrPut(key) { buildClient(fingerprint) }
+    }
+
+    override fun release(fingerprint: String?) {
+        val key = fingerprint ?: PLAIN_KEY
+        cache.remove(key)?.close()
+    }
+
+    private fun buildClient(fingerprint: String?): HttpClient {
         val trustManager: X509TrustManager? = fingerprint?.let {
             BuildNotifyTrustManager(it)
         }
@@ -47,6 +59,7 @@ class OkHttpClientProvider : HttpClientProvider {
     }
 
     private companion object {
+        const val PLAIN_KEY = "__plain__"
         const val PING_INTERVAL_MS = 15_000L
         const val CONNECT_TIMEOUT_MS = 10_000L
         const val SOCKET_TIMEOUT_MS = 60_000L

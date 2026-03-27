@@ -14,4 +14,15 @@ import io.ktor.client.HttpClient
 interface HttpClientProvider {
 
     fun provide(fingerprint: String? = null): HttpClient
+
+    /**
+     * Releases the cached [HttpClient] associated with [fingerprint].
+     *
+     * Call on explicit disconnect only — not on transient retry failures,
+     * so the same client is reused across reconnect attempts.
+     *
+     * No-op by default; override only where client pooling is used (OkHttp).
+     * Darwin engine manages its own session lifecycle and doesn't need this.
+     */
+    fun release(fingerprint: String?) {}
 }

@@ -69,7 +69,13 @@ class WebSocketTransport(
         } finally {
             sender.cancel()
             ws.close()
-            client.close()
+            // client is intentionally not closed here — it is reused across
+            // retryWhen cycles. ManagedConnection.disconnect() calls
+            // releaseClient() when the connection is explicitly torn down.
         }
+    }
+
+    override fun releaseClient(fingerprint: String?) {
+        clientProvider.release(fingerprint)
     }
 }

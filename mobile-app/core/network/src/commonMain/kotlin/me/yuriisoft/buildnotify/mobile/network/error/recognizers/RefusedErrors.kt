@@ -14,10 +14,6 @@ import me.yuriisoft.buildnotify.mobile.network.error.ErrorRecognizer
 class RefusedErrors : ErrorRecognizer {
 
     override fun recognize(throwable: Throwable): ConnectionErrorReason? = when {
-        throwable is java.net.UnknownServiceException -> ConnectionErrorReason.Refused(
-            throwable.message ?: "Unknown service requested"
-        )
-
         throwable.isConnectionRefused()               -> {
             ConnectionErrorReason.Refused(throwable.message ?: "Connection refused")
         }
@@ -33,6 +29,6 @@ class RefusedErrors : ErrorRecognizer {
         keywords.any { contains(it, ignoreCase = true) }
 
     private companion object {
-        val REFUSAL_PATTERNS = listOf("refused", "unreachable", "no route to host")
+        val REFUSAL_PATTERNS = listOf("refused", "unreachable", "no route to host", "CLEARTEXT")
     }
 }
