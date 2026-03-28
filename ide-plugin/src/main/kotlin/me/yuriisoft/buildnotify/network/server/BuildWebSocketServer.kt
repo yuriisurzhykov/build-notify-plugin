@@ -6,6 +6,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import me.yuriisoft.buildnotify.BuildNotifyBundle
+import me.yuriisoft.buildnotify.network.discovery.InstanceIdentity
 import me.yuriisoft.buildnotify.network.server.ui.ClientApprovalDialog
 import me.yuriisoft.buildnotify.notification.PluginNotifier
 import me.yuriisoft.buildnotify.security.CertificateManager
@@ -18,17 +19,30 @@ import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
+/**
+ * Manages the lifecycle of the WebSocket server that pushes build events to
+ * connected mobile clients.
+ *
+ * ### Phase 3 change — `instanceId` delegation
+ * `instanceId` is no longer generated locally. It is resolved from the
+ * [InstanceIdentity] application service, which is also referenced by
+ * [MdnsAdvertiser] to include the same `id` in the mDNS TXT record.
+ *
+ * This removes the inconsistency where the WebSocket handshake payload
+ * advertised one UUID and the mDNS record advertised nothing — now both
+ * layers surface the same identity token.
+ *
+ * Everything else (server lifecycle, broadcast, SSL setup, heartbeat) is
+ * unchanged; this is a minimal, surgical modification (YAGNI, OCP).
+ */
 @Service(Service.Level.APP)
 class BuildWebSocketServer : Disposable {
 
     private val logger = thisLogger()
     private val running = AtomicBoolean(false)
 
-    @OptIn(ExperimentalUuidApi::class)
-    private val instanceId: String = Uuid.random().toString()
+    private val instanceId: String = service<InstanceIdentity>().id
 
     private var server: InternalWebSocketServer? = null
     private var heartbeatScheduler: HeartbeatScheduler? = null
@@ -43,7 +57,6 @@ class BuildWebSocketServer : Disposable {
             server = InternalWebSocketServer(
                 port = settings.port,
                 registry = registry,
-                settings = settings,
             ).apply {
                 isReuseAddr = true
                 connectionLostTimeout = settings.connectionLostTimeoutSec
@@ -68,7 +81,10 @@ class BuildWebSocketServer : Disposable {
             logger.error("Failed to start WebSocket server", throwable)
             service<PluginNotifier>().error(
                 BuildNotifyBundle.message("notification.server.start.failed.title"),
-                BuildNotifyBundle.message("notification.server.start.failed.content", throwable.message.orEmpty()),
+                BuildNotifyBundle.message(
+                    "notification.server.start.failed.content",
+                    throwable.message.orEmpty(),
+                ),
             )
         }
     }
@@ -77,7 +93,7 @@ class BuildWebSocketServer : Disposable {
 
     /**
      * Broadcast a payload to all connected clients.
-     * The server wraps it in a fresh WsEnvelope automatically.
+     * The server wraps it in a fresh [WsEnvelope] automatically.
      */
     fun broadcast(payload: WsPayload) {
         if (!isActive()) return
@@ -87,8 +103,7 @@ class BuildWebSocketServer : Disposable {
 
     /**
      * Send a typed response to a specific command from any client.
-     * Sets correlationId = command.id so the client can match request ↔ response.
-     * Currently broadcasts to all clients; target-specific send can be added via ClientRegistry later.
+     * Sets `correlationId = command.id` so the client can match request ↔ response.
      */
     fun replyTo(command: WsEnvelope, payload: WsPayload) {
         if (!isActive()) return
@@ -114,7 +129,6 @@ class BuildWebSocketServer : Disposable {
     private inner class InternalWebSocketServer(
         port: Int,
         private val registry: ClientRegistry,
-        private val settings: PluginSettingsState.State,
     ) : WebSocketServer(InetSocketAddress(port)) {
 
         init {
@@ -143,7 +157,9 @@ class BuildWebSocketServer : Disposable {
 
         override fun onClose(conn: WebSocket, code: Int, reason: String?, remote: Boolean) {
             registry.unregister(conn.getAttachment())
-            logger.info("Client disconnected: ${conn.remoteSocketAddress}, reason=$reason, remote=$remote, remaining=${registry.connectedCount}")
+            logger.info(
+                "Client disconnected: ${conn.remoteSocketAddress}, reason=$reason, remote=$remote, remaining=${registry.connectedCount}",
+            )
         }
 
         override fun onMessage(conn: WebSocket?, message: String?) {

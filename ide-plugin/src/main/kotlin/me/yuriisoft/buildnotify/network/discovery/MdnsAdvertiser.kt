@@ -44,8 +44,7 @@ class MdnsAdvertiser : Disposable {
 
         runCatching {
             val settings = service<PluginSettingsState>().snapshot()
-            val certManager = service<CertificateManager>()
-            // Phase 3: resolve instanceId from the shared InstanceIdentity service.
+            val certManager = CertificateManager.getInstance()
             val instanceId = service<InstanceIdentity>().id
 
             val txtRecord = buildMap {
