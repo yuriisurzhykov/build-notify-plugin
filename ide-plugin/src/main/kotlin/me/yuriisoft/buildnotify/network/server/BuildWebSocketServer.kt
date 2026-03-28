@@ -1,17 +1,20 @@
 package me.yuriisoft.buildnotify.network.server
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import me.yuriisoft.buildnotify.BuildNotifyBundle
+import me.yuriisoft.buildnotify.network.server.ui.ClientApprovalDialog
 import me.yuriisoft.buildnotify.notification.PluginNotifier
 import me.yuriisoft.buildnotify.security.CertificateManager
+import me.yuriisoft.buildnotify.security.ClientToFuTrustManager
+import me.yuriisoft.buildnotify.security.PersistentTrustedClients
 import me.yuriisoft.buildnotify.serialization.*
 import me.yuriisoft.buildnotify.settings.PluginSettingsState
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
-import org.java_websocket.server.DefaultSSLWebSocketServerFactory
 import org.java_websocket.server.WebSocketServer
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
@@ -24,10 +27,6 @@ class BuildWebSocketServer : Disposable {
     private val logger = thisLogger()
     private val running = AtomicBoolean(false)
 
-    /**
-     * Stable for the lifetime of this IDE process.
-     * Changes after IDE restart, which is acceptable — clients re-pair automatically.
-     */
     @OptIn(ExperimentalUuidApi::class)
     private val instanceId: String = Uuid.random().toString()
 
@@ -110,9 +109,7 @@ class BuildWebSocketServer : Disposable {
         logger.info("WebSocket server stopped")
     }
 
-    override fun dispose() {
-        stop()
-    }
+    override fun dispose() = stop()
 
     private inner class InternalWebSocketServer(
         port: Int,
@@ -146,9 +143,7 @@ class BuildWebSocketServer : Disposable {
 
         override fun onClose(conn: WebSocket, code: Int, reason: String?, remote: Boolean) {
             registry.unregister(conn.getAttachment())
-            logger.info(
-                "Client disconnected: ${conn.remoteSocketAddress}, reason=$reason, remote=$remote, remaining=${registry.connectedCount}",
-            )
+            logger.info("Client disconnected: ${conn.remoteSocketAddress}, reason=$reason, remote=$remote, remaining=${registry.connectedCount}")
         }
 
         override fun onMessage(conn: WebSocket?, message: String?) {
@@ -194,17 +189,9 @@ class BuildWebSocketServer : Disposable {
         }
 
         private fun setupSSL(port: Int) {
-            val certManager = CertificateManager.getInstance()
-            val sslContext = certManager.sslContext()
+            val bundle = CertificateManager.getInstance().bundle()
 
-            if (sslContext != null) {
-                setWebSocketFactory(DefaultSSLWebSocketServerFactory(sslContext))
-                logger.info("SSL (WSS) configured on port $port")
-                service<PluginNotifier>().info(
-                    BuildNotifyBundle.message("notification.ssl.enabled.title"),
-                    BuildNotifyBundle.message("notification.ssl.enabled.content", port),
-                )
-            } else {
+            if (bundle == null) {
                 logger.warn("TLS unavailable; running plain WS on port $port")
                 service<PluginNotifier>().warning(
                     BuildNotifyBundle.message("notification.ssl.failed.title"),
@@ -213,6 +200,44 @@ class BuildWebSocketServer : Disposable {
                         "All SSL providers failed. Check Event Log."
                     ),
                 )
+                return
+            }
+
+            val clientTrustManager = ClientToFuTrustManager(
+                store = service<PersistentTrustedClients>(),
+                onFirstSeen = { fingerprint -> showApprovalDialogOnEdt(fingerprint) },
+            )
+
+            setWebSocketFactory(
+                MtlsWebSocketServerFactory(
+                    serverKeyManagers = bundle.keyManagers,
+                    clientTrustManager = clientTrustManager,
+                )
+            )
+
+            logger.info("SSL (WSS) with mutual-TLS (wantClientAuth) configured on port $port")
+            service<PluginNotifier>().info(
+                BuildNotifyBundle.message("notification.ssl.enabled.title"),
+                BuildNotifyBundle.message("notification.ssl.enabled.content", port),
+            )
+        }
+
+        /**
+         * Posts [ClientApprovalDialog] creation to the EDT.
+         *
+         * Called from the java-websocket I/O thread inside
+         * [ClientToFuTrustManager.checkClientTrusted]. Must not block —
+         * `invokeLater` returns immediately, allowing the I/O thread to
+         * propagate the [java.security.cert.CertificateException] that
+         * rejects this handshake attempt. The mobile retries via
+         * `ExponentialBackoff`; on the next attempt, if the user approved,
+         * [me.yuriisoft.buildnotify.security.TrustedClients.isTrusted]
+         * returns `true` and the handshake succeeds.
+         */
+        private fun showApprovalDialogOnEdt(fingerprint: String) {
+            ApplicationManager.getApplication().invokeLater {
+                logger.info("Showing client approval dialog for fingerprint: $fingerprint")
+                ClientApprovalDialog(fingerprint).show()
             }
         }
     }

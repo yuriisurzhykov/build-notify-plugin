@@ -12,6 +12,22 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
 
+/**
+ * Advertises the BuildNotify WebSocket server on the local network via mDNS.
+ *
+ * ### Phase 3 change — `id` TXT key
+ * The TXT record now includes `id = <instanceId>` in addition to `scheme`,
+ * `version`, and `fp`. This allows mobile clients to key their TOFU trust
+ * store on a **stable server identity** rather than on the mDNS service name,
+ * which is user-configurable and can change.
+ *
+ * [InstanceIdentity] is the single source of truth for the instance UUID.
+ * Both this class and [BuildWebSocketServer] resolve it from the service
+ * container — no circular dependency, no constructor-level coupling.
+ *
+ * Mobile clients running older plugin versions that don't yet advertise `id`
+ * fall back gracefully to `host.name` as the trust key (see [DiscoveryViewModel]).
+ */
 @Service(Service.Level.APP)
 class MdnsAdvertiser : Disposable {
 
@@ -29,13 +45,16 @@ class MdnsAdvertiser : Disposable {
         runCatching {
             val settings = service<PluginSettingsState>().snapshot()
             val certManager = service<CertificateManager>()
+            // Phase 3: resolve instanceId from the shared InstanceIdentity service.
+            val instanceId = service<InstanceIdentity>().id
 
             val txtRecord = buildMap {
                 put("version", "1")
-                val fp = certManager.fingerprint()
-                if (fp != null) {
+                put("id", instanceId)
+                val fingerprintHash = certManager.fingerprint()
+                if (fingerprintHash != null) {
                     put("scheme", "wss")
-                    put("fp", fp)
+                    put("fp", fingerprintHash)
                 } else {
                     put("scheme", "ws")
                 }
@@ -53,7 +72,7 @@ class MdnsAdvertiser : Disposable {
 
             mDnsInstance.registerService(info)
             jmDNS.getAndSet(mDnsInstance)
-            logger.info("mDNS advertiser started: ${settings.serviceName}:${settings.port}")
+            logger.info("mDNS advertiser started: ${settings.serviceName}:${settings.port}, instanceId=$instanceId")
         }.onFailure { throwable ->
             started.set(false)
             logger.error("Failed to start mDNS advertiser", throwable)
