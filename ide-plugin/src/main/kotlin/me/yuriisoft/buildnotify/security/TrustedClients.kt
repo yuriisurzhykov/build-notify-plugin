@@ -23,7 +23,8 @@ interface TrustedClients {
     /**
      * Returns `true` iff the fingerprint has been seen but not yet decided upon.
      * A pending client causes the handshake to fail with a retriable exception
-     * until the user approves or rejects via [ClientApprovalDialog].
+     * until the user confirms or rejects via
+     * [me.yuriisoft.buildnotify.network.server.ui.PairingPinDialog].
      */
     fun isPending(clientFingerprint: String): Boolean
 

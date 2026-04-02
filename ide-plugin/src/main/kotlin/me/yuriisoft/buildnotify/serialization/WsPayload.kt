@@ -44,6 +44,8 @@ data class HandshakePayload(
     val capabilities: Set<Capability> = emptySet(),
     /** SHA-256 fingerprint of the server TLS certificate, e.g. "AB:CD:EF:...". Null when TLS is off. */
     val certFingerprint: String? = null,
+    /** Human-readable name for the IDE instance, e.g. "Android Studio — MyProject". */
+    val deviceName: String = "",
 ) : WsPayload()
 
 @Serializable
@@ -52,6 +54,19 @@ enum class Capability {
     BUILD_CONTROL,   // can send cmd.run_build / cmd.cancel_build
     AI_AGENT,        // can send cmd.trigger_agent (future)
 }
+
+/**
+ * Sent by the client after receiving [HandshakePayload] and completing TLS pairing.
+ * Carries client identity so the server can display the device in its UI and
+ * respond with [BuildSnapshotPayload] to synchronise state.
+ */
+@Serializable
+@SerialName("sys.hello")
+data class HelloPayload(
+    val deviceName: String,
+    val platform: String,
+    val appVersion: String,
+) : WsPayload()
 
 /** Keep-alive ping from server. Client should reset its "connection lost" timer on receipt. */
 @Serializable
@@ -123,6 +138,31 @@ data class BuildDiagnosticPayload(
 data class BuildResultPayload(
     val result: BuildResult,
 ) : WsPayload()
+
+/**
+ * Sent by the server immediately after receiving [HelloPayload].
+ * Gives the client a consistent view of every build that is currently in-flight
+ * so it does not miss events that started before it connected.
+ */
+@Serializable
+@SerialName("build.snapshot")
+data class BuildSnapshotPayload(
+    val activeBuilds: List<ActiveBuildInfo>,
+) : WsPayload()
+
+@Serializable
+data class ActiveBuildInfo(
+    val buildId: String,
+    val projectName: String,
+    val startedAt: Long,
+    val tasks: List<ActiveTaskInfo>,
+)
+
+@Serializable
+data class ActiveTaskInfo(
+    val taskPath: String,
+    val status: TaskStatus,
+)
 
 // ─── Commands (client → server) ──────────────────────────────────────────────
 //

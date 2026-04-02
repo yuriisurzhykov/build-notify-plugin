@@ -131,11 +131,12 @@ class ManagedConnection(
 }
 
 private fun ConnectionState.hostOrNull(): DiscoveredHost? = when (this) {
-    is ConnectionState.Connecting   -> host
-    is ConnectionState.Connected    -> host
-    is ConnectionState.Reconnecting -> host
-    is ConnectionState.Failed       -> host
+    is ConnectionState.Connecting      -> host
+    is ConnectionState.PairingRequired -> host
+    is ConnectionState.Connected       -> host
+    is ConnectionState.Reconnecting    -> host
+    is ConnectionState.Failed          -> host
 
     is ConnectionState.Idle,
-    is ConnectionState.Disconnected -> null
+    is ConnectionState.Disconnected    -> null
 }

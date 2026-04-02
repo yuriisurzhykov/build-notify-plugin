@@ -109,6 +109,16 @@ class BuildSessionRegistry : Disposable {
         sessionsByBuildId.remove(buildId)
 
     /**
+     * Returns a point-in-time snapshot of all active sessions.
+     *
+     * The returned list is a detached copy of the current values — safe to
+     * iterate without holding any build lock. Individual [BuildSession]
+     * fields that are `val` (buildId, projectName, startedAt) are immutable
+     * and always consistent.
+     */
+    fun activeSessions(): List<BuildSession> = sessionsByBuildId.values.toList()
+
+    /**
      * Removes all sessions whose [BuildSession.projectPath] matches [projectBasePath]
      * (after path normalization).
      *

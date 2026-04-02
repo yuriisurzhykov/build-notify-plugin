@@ -34,6 +34,13 @@ class ClientRegistry {
             .forEach { session -> session.send(message) }
     }
 
+    fun sendTo(sessionId: String, message: String) {
+        val session = clients[sessionId] ?: return
+        if (session.isOpen) session.send(message)
+    }
+
+    fun findSession(sessionId: String): WebSocketSession? = clients[sessionId]
+
     private fun removeClosedSessions() {
         val dead = clients.entries.filter { !it.value.isOpen }.map { it.key }
         dead.forEach { clients.remove(it) }

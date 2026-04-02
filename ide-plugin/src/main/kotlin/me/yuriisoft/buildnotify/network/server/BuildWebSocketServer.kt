@@ -2,12 +2,14 @@ package me.yuriisoft.buildnotify.network.server
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import me.yuriisoft.buildnotify.BuildNotifyBundle
+import me.yuriisoft.buildnotify.build.BuildSnapshotProvider
 import me.yuriisoft.buildnotify.network.discovery.InstanceIdentity
-import me.yuriisoft.buildnotify.network.server.ui.ClientApprovalDialog
+import me.yuriisoft.buildnotify.network.server.ui.PairingPinDialog
 import me.yuriisoft.buildnotify.notification.PluginNotifier
 import me.yuriisoft.buildnotify.security.CertificateManager
 import me.yuriisoft.buildnotify.security.ClientToFuTrustManager
@@ -102,13 +104,13 @@ class BuildWebSocketServer : Disposable {
     }
 
     /**
-     * Send a typed response to a specific command from any client.
+     * Send a typed response to the specific client that issued [command].
      * Sets `correlationId = command.id` so the client can match request ↔ response.
      */
-    fun replyTo(command: WsEnvelope, payload: WsPayload) {
+    fun replyTo(command: WsEnvelope, sessionId: String, payload: WsPayload) {
         if (!isActive()) return
         val encoded = MessageSerializer.encode(WsEnvelope(correlationId = command.id, payload = payload))
-        service<ClientRegistry>().broadcast(encoded)
+        service<ClientRegistry>().sendTo(sessionId, encoded)
     }
 
     fun stop() {
@@ -148,6 +150,7 @@ class BuildWebSocketServer : Disposable {
                         Capability.BUILD_CONTROL,
                     ),
                     certFingerprint = service<CertificateManager>().fingerprint(),
+                    deviceName = ApplicationNamesInfo.getInstance().fullProductName,
                 ),
             )
             session.send(MessageSerializer.encode(greeting))
@@ -164,9 +167,10 @@ class BuildWebSocketServer : Disposable {
 
         override fun onMessage(conn: WebSocket?, message: String?) {
             val raw = message.orEmpty()
+            val sessionId: String? = conn?.getAttachment()
             runCatching {
                 val envelope = MessageSerializer.decode(raw)
-                handleClientMessage(envelope)
+                handleClientMessage(envelope, sessionId)
             }.onFailure { throwable ->
                 logger.warn("Failed to decode incoming message: '$raw'", throwable)
             }
@@ -176,17 +180,24 @@ class BuildWebSocketServer : Disposable {
          * Dispatch point for all client-initiated messages.
          * Add new command handlers here as a new `is XxxCommand` branch — nothing else changes.
          */
-        private fun handleClientMessage(envelope: WsEnvelope) {
+        private fun handleClientMessage(envelope: WsEnvelope, sessionId: String?) {
+            if (sessionId == null) {
+                logger.warn("Received message from unknown session, ignoring")
+                return
+            }
+
             when (val payload = envelope.payload) {
+                is HelloPayload -> handleHello(payload, sessionId)
+
                 is CancelBuildCommand -> {
                     // TODO: delegate to BuildMonitorService.cancelBuild(payload.buildId)
-                    replyTo(envelope, CommandResultPayload(CommandStatus.ACCEPTED))
+                    replyTo(envelope, sessionId, CommandResultPayload(CommandStatus.ACCEPTED))
                     logger.debug("CancelBuild requested for buildId=${payload.buildId}")
                 }
 
                 is RunBuildCommand -> {
                     // TODO: delegate to GradleRunner / ExternalSystemManager
-                    replyTo(envelope, CommandResultPayload(CommandStatus.ACCEPTED))
+                    replyTo(envelope, sessionId, CommandResultPayload(CommandStatus.ACCEPTED))
                     logger.debug("RunBuild requested: project=${payload.projectName}, tasks=${payload.tasks}")
                 }
 
@@ -194,6 +205,18 @@ class BuildWebSocketServer : Disposable {
                     "Received unexpected payload type from client: ${payload::class.simpleName}",
                 )
             }
+        }
+
+        private fun handleHello(payload: HelloPayload, sessionId: String) {
+            logger.info(
+                "Client hello: device=${payload.deviceName}, platform=${payload.platform}, version=${payload.appVersion}",
+            )
+
+            registry.findSession(sessionId)?.deviceName = payload.deviceName
+
+            val snapshot = service<BuildSnapshotProvider>().snapshot()
+            val encoded = MessageSerializer.encode(WsEnvelope(payload = snapshot))
+            registry.sendTo(sessionId, encoded)
         }
 
         override fun onError(conn: WebSocket?, ex: Exception?) {
@@ -221,7 +244,10 @@ class BuildWebSocketServer : Disposable {
 
             val clientTrustManager = ClientToFuTrustManager(
                 store = service<PersistentTrustedClients>(),
-                onFirstSeen = { fingerprint -> showApprovalDialogOnEdt(fingerprint) },
+                serverFingerprint = bundle.fingerprint,
+                onFirstSeen = { serverFp, clientFp, deviceName ->
+                    showPairingDialogOnEdt(serverFp, clientFp, deviceName)
+                },
             )
 
             setWebSocketFactory(
@@ -239,21 +265,29 @@ class BuildWebSocketServer : Disposable {
         }
 
         /**
-         * Posts [ClientApprovalDialog] creation to the EDT.
+         * Posts [PairingPinDialog] creation to the EDT.
          *
          * Called from the java-websocket I/O thread inside
          * [ClientToFuTrustManager.checkClientTrusted]. Must not block —
          * `invokeLater` returns immediately, allowing the I/O thread to
          * propagate the [java.security.cert.CertificateException] that
-         * rejects this handshake attempt. The mobile retries via
-         * `ExponentialBackoff`; on the next attempt, if the user approved,
-         * [me.yuriisoft.buildnotify.security.TrustedClients.isTrusted]
+         * rejects this handshake attempt. The mobile client's reconnection
+         * strategy will retry; on the next attempt, if the user confirmed
+         * the PIN, [me.yuriisoft.buildnotify.security.TrustedClients.isTrusted]
          * returns `true` and the handshake succeeds.
          */
-        private fun showApprovalDialogOnEdt(fingerprint: String) {
+        private fun showPairingDialogOnEdt(
+            serverFingerprint: String,
+            clientFingerprint: String,
+            deviceName: String,
+        ) {
             ApplicationManager.getApplication().invokeLater {
-                logger.info("Showing client approval dialog for fingerprint: $fingerprint")
-                ClientApprovalDialog(fingerprint).show()
+                logger.info("Showing pairing dialog for device '$deviceName'")
+                PairingPinDialog(
+                    clientFingerprint = clientFingerprint,
+                    serverFingerprint = serverFingerprint,
+                    deviceName = deviceName,
+                ).show()
             }
         }
     }

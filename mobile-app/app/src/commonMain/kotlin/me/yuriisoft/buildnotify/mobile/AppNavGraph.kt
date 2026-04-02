@@ -2,7 +2,6 @@ package me.yuriisoft.buildnotify.mobile
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -14,12 +13,14 @@ import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
+    navigator: AppNavigator,
     screens: Set<Screen>,
     startRoute: String,
 ) {
-    val navigator = remember(navController) { AppNavigator(navController) }
-
-    NavHost(navController = navController, startDestination = startRoute) {
+    NavHost(
+        navController = navController,
+        startDestination = startRoute
+    ) {
         screens.forEach { screen ->
             composable(
                 route = screen.destination.route,

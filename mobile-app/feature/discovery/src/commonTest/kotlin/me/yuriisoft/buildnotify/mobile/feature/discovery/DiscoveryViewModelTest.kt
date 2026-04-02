@@ -228,7 +228,7 @@ class DiscoveryViewModelTest {
     }
 
     @Test
-    fun disconnectsOnConnectionFailed() {
+    fun doesNotDisconnectOnConnectionFailed() {
         nsdRepository.emit(listOf(HOST_MACBOOK, HOST_DESKTOP))
 
         val vm = createViewModel()
@@ -244,7 +244,7 @@ class DiscoveryViewModelTest {
             ),
         )
 
-        assertEquals(disconnectsBefore + 1, connectionManager.disconnectCalls)
+        assertEquals(disconnectsBefore, connectionManager.disconnectCalls)
     }
 
     @Test

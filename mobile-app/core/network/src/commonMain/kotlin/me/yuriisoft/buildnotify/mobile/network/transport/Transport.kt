@@ -4,12 +4,12 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import me.yuriisoft.buildnotify.mobile.data.protocol.WsEnvelope
 import me.yuriisoft.buildnotify.mobile.data.protocol.WsPayload
-import me.yuriisoft.buildnotify.mobile.network.connection.ManagedConnection
+import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionOrchestrator
 
 /**
  * Abstraction over the raw bidirectional WebSocket channel (DIP).
  *
- * [ManagedConnection] depends on this interface, not on [WebSocketTransport]
+ * [ConnectionOrchestrator] depends on this interface, not on [WebSocketTransport]
  * directly, enabling substitution with a fake in tests and alternative
  * transport implementations in the future.
  *
@@ -28,7 +28,7 @@ fun interface Transport {
     /**
      * Releases any resources (e.g. cached [HttpClient]) held for [fingerprint].
      *
-     * Called by [ManagedConnection] on explicit disconnect — not during
+     * Called by [ConnectionOrchestrator] on explicit disconnect — not during
      * retryWhen cycles, so the transport can reuse the same client across
      * reconnect attempts to the same host.
      *

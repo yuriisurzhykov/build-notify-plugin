@@ -70,7 +70,7 @@ class WebSocketTransport(
             sender.cancel()
             ws.close()
             // client is intentionally not closed here — it is reused across
-            // retryWhen cycles. ManagedConnection.disconnect() calls
+            // retryWhen cycles. ConnectionOrchestrator.disconnect() calls
             // releaseClient() when the connection is explicitly torn down.
         }
     }

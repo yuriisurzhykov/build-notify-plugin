@@ -11,7 +11,7 @@ import me.yuriisoft.buildnotify.mobile.feature.discovery.domain.repository.INsdR
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryScreen
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryViewModel
 import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionManager
-import me.yuriisoft.buildnotify.mobile.network.tls.TrustedServers
+import me.yuriisoft.buildnotify.mobile.network.pairing.PairingCoordinator
 
 /**
  * Contribution interface for the Discovery feature.
@@ -40,13 +40,13 @@ interface DiscoveryComponent {
         observeHosts: ObserveHostsUseCase,
         connectionManager: ConnectionManager,
         networkMonitor: INetworkMonitor,
-        trustedServers: TrustedServers,
+        pairingCoordinator: PairingCoordinator,
         dispatchers: AppDispatchers,
     ): DiscoveryViewModel = DiscoveryViewModel(
         observeHosts = observeHosts,
         connectionManager = connectionManager,
         networkMonitor = networkMonitor,
-        trustedServers = trustedServers,
+        pairingCoordinator = pairingCoordinator,
         dispatchers = dispatchers,
     )
 

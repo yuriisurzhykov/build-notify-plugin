@@ -2,6 +2,7 @@ package me.yuriisoft.buildnotify.mobile
 
 import android.app.Application
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.AndroidNsdDiscovery
+import me.yuriisoft.buildnotify.mobile.tls.AndroidClientIdentityProvider
 import me.yuriisoft.buildnotify.mobile.tls.ClientCertificateManager
 import me.yuriisoft.buildnotify.mobile.tls.OkHttpClientProvider
 import me.yuriisoft.buildnotify.mobile.tls.SharedPrefsTrustedServers
@@ -36,12 +37,17 @@ class BuildNotifyApp : Application() {
             it.ensureInitialized()
         }
 
+        val clientProvider = OkHttpClientProvider(clientCertManager)
+
         component = AppComponent::class.create(
             AndroidNsdDiscovery(applicationContext),
             AndroidNetworkMonitor(applicationContext),
             AndroidAppVersionProvider(),
+            AndroidDeviceIdentity(),
             SharedPrefsTrustedServers(applicationContext),
-            OkHttpClientProvider(clientCertManager),
+            clientProvider,
+            clientProvider,
+            AndroidClientIdentityProvider(clientCertManager),
         )
     }
 }

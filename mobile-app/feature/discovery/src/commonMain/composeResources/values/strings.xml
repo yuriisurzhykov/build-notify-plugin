@@ -20,6 +20,10 @@
     <!-- ConnectingBody -->
     <string name="connecting_title">Connecting to %1$s\u2026</string>
 
+    <!-- WaitingForIdeBody -->
+    <string name="waiting_for_ide_title">Waiting for IDE\u2026</string>
+    <string name="waiting_for_ide_body">Confirming pairing with %1$s</string>
+
     <!-- ConnectedBody -->
     <string name="connected_title">Connected to %1$s</string>
 
@@ -41,10 +45,10 @@
     <string name="network_unavailable_body">Connect to a Wi-Fi or Ethernet network to discover IDE instances</string>
 
     <!-- PairingConfirmationBody -->
-    <string name="pairing_title">Verify Server Identity</string>
-    <string name="pairing_body">Verify this fingerprint matches what your IDE shows</string>
-    <string name="pairing_fingerprint_label">SHA-256 FINGERPRINT</string>
-    <string name="pairing_confirm">Trust</string>
+    <string name="pairing_title">Verify Pairing Code</string>
+    <string name="pairing_body">Compare this code with the one displayed in your IDE</string>
+    <string name="pairing_pin_label">PAIRING CODE</string>
+    <string name="pairing_confirm">Confirm</string>
     <string name="pairing_reject">Cancel</string>
 
     <!-- DiscoveryEvent: one-shot messages -->
@@ -58,5 +62,7 @@
     <string name="error_lost">Connection lost: %1$s</string>
     <string name="error_tls_pinning">Certificate fingerprint mismatch — server identity changed</string>
     <string name="error_client_rejected">This device was rejected by the IDE.\nOpen IDE Settings → Build Notifier → Trusted Clients to re-pair.</string>
+    <string name="error_pairing_rejected">Pairing was cancelled.</string>
+    <string name="error_pairing_timeout">Pairing timed out.\nPlease retry and confirm the code on both devices within 2 minutes.</string>
     <string name="error_unknown">Unknown error occurred</string>
 </resources>

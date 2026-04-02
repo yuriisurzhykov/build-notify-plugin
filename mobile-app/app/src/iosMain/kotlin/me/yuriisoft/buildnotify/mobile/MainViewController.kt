@@ -4,6 +4,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.IosNsdDiscovery
 import me.yuriisoft.buildnotify.mobile.tls.ClientIdentityManager
 import me.yuriisoft.buildnotify.mobile.tls.DarwinHttpClientProvider
+import me.yuriisoft.buildnotify.mobile.tls.IosClientIdentityProvider
 import me.yuriisoft.buildnotify.mobile.tls.UserDefaultsTrustedServers
 import platform.UIKit.UIViewController
 
@@ -29,18 +30,24 @@ fun MainViewController(): UIViewController {
         it.ensureInitialized()
     }
 
+    val clientProvider = DarwinHttpClientProvider(clientIdentityManager)
+
     val component = AppComponent::class.create(
         IosNsdDiscovery(),
         IosNetworkMonitor(),
         IosAppVersionProvider(),
+        IosDeviceIdentity(),
         UserDefaultsTrustedServers(),
-        DarwinHttpClientProvider(clientIdentityManager),
+        clientProvider,
+        clientProvider,
+        IosClientIdentityProvider(clientIdentityManager),
     )
 
     return ComposeUIViewController {
         App(
             screens = component.screens,
             startRoute = component.startRoute,
+            connectionState = component.connectionManager.state,
         )
     }
 }

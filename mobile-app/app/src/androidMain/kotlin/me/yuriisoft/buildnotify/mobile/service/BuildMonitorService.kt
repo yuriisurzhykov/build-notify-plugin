@@ -62,12 +62,13 @@ class BuildMonitorService : Service() {
         serviceScope.launch {
             connectionManager.state.collect { state ->
                 when (state) {
-                    is ConnectionState.Connected    -> notificationHelper.updatePersistent("Connected to ${state.host.name}")
-                    is ConnectionState.Connecting   -> notificationHelper.updatePersistent("Connecting to ${state.host.name}…")
-                    is ConnectionState.Reconnecting -> notificationHelper.updatePersistent("Reconnecting (attempt ${state.attempt})…")
-                    is ConnectionState.Failed       -> notificationHelper.updatePersistent("Connection lost")
-                    is ConnectionState.Disconnected -> stopSelf()
-                    is ConnectionState.Idle         -> Unit
+                    is ConnectionState.Connected       -> notificationHelper.updatePersistent("Connected to ${state.host.name}")
+                    is ConnectionState.Connecting      -> notificationHelper.updatePersistent("Connecting to ${state.host.name}…")
+                    is ConnectionState.PairingRequired -> notificationHelper.updatePersistent("Pairing with ${state.host.name}…")
+                    is ConnectionState.Reconnecting    -> notificationHelper.updatePersistent("Reconnecting (attempt ${state.attempt})…")
+                    is ConnectionState.Failed          -> notificationHelper.updatePersistent("Connection lost")
+                    is ConnectionState.Disconnected    -> stopSelf()
+                    is ConnectionState.Idle            -> Unit
                 }
             }
         }

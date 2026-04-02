@@ -21,9 +21,13 @@ sealed interface DiscoveryUiState {
 
     data class PairingConfirmation(
         val host: DiscoveredHost,
-        val fingerprint: String,
+        val pin: String,
     ) : DiscoveryUiState {
         override val animateOrder: Int = 3
+    }
+
+    data class WaitingForIde(val host: DiscoveredHost) : DiscoveryUiState {
+        override val animateOrder: Int = 4
     }
 
     data class Connecting(val host: DiscoveredHost) : DiscoveryUiState {

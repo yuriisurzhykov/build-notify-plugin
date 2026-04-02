@@ -8,6 +8,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import me.yuriisoft.buildnotify.mobile.network.client.HttpClientProvider
+import me.yuriisoft.buildnotify.mobile.network.tls.ServerCertificateCapture
 import platform.CoreCrypto.CC_SHA256
 import platform.CoreCrypto.CC_SHA256_DIGEST_LENGTH
 import platform.Foundation.NSArray
@@ -32,9 +33,18 @@ import platform.Security.SecTrustGetCertificateCount
  * 1. Server certificate TOFU pinning via `NSURLAuthenticationMethodServerTrust`.
  * 2. Client certificate presentation via `NSURLAuthenticationMethodClientCertificate`
  *    (Phase 4 — mTLS).
+ * 3. Server certificate capture via [ServerCertificateCapture] for PIN-based pairing.
  *
  * Both TLS sides are handled through `handleChallenge`, which is the only
  * integration point Darwin exposes for SSL customization in `NSURLSession`.
+ *
+ * ### Server certificate capture
+ *
+ * The `ServerTrust` challenge handler captures the server certificate's SHA-256
+ * fingerprint into [capturedServerFingerprint] **before** the accept/cancel
+ * decision. This allows the [PairingCoordinator] to derive the 6-digit PIN from
+ * the actual TLS certificate even when the overall handshake fails (e.g. the
+ * server rejects the client certificate during pairing).
  *
  * ### Phase 4 design notes
  * - `SecIdentity` bundles the private key + certificate in the iOS Keychain.
@@ -54,7 +64,16 @@ import platform.Security.SecTrustGetCertificateCount
 @OptIn(ExperimentalForeignApi::class)
 class DarwinHttpClientProvider(
     private val clientIdentityManager: ClientIdentityManager,
-) : HttpClientProvider {
+) : HttpClientProvider, ServerCertificateCapture {
+
+    @Volatile
+    private var observedFingerprint: String? = null
+
+    override val capturedServerFingerprint: String? get() = observedFingerprint
+
+    override fun clearCapturedFingerprint() {
+        observedFingerprint = null
+    }
 
     /**
      * Provides an [HttpClient] configured for the Darwin engine.
@@ -145,6 +164,7 @@ class DarwinHttpClientProvider(
         }
 
         val actual = certData.sha256Fingerprint()
+        observedFingerprint = actual
 
         if (actual.equals(expectedFingerprint, ignoreCase = true)) {
             val credential = NSURLCredential.credentialForTrust(serverTrust)

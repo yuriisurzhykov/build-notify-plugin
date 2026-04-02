@@ -3,14 +3,13 @@ package me.yuriisoft.buildnotify.mobile.network
 import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Provides
 import me.yuriisoft.buildnotify.mobile.network.client.HttpClientProvider
-import me.yuriisoft.buildnotify.mobile.network.connection.ManagedConnection
 import me.yuriisoft.buildnotify.mobile.network.error.ErrorMapping
 import me.yuriisoft.buildnotify.mobile.network.error.ErrorRecognizer
 import me.yuriisoft.buildnotify.mobile.network.error.recognizers.HandshakeErrors
 import me.yuriisoft.buildnotify.mobile.network.error.recognizers.LostConnectionErrors
 import me.yuriisoft.buildnotify.mobile.network.error.recognizers.RefusedErrors
 import me.yuriisoft.buildnotify.mobile.network.error.recognizers.TimeoutErrors
-import me.yuriisoft.buildnotify.mobile.network.reconnection.ExponentialBackoff
+import me.yuriisoft.buildnotify.mobile.network.reconnection.BudgetedReconnection
 import me.yuriisoft.buildnotify.mobile.network.reconnection.ReconnectionStrategy
 import me.yuriisoft.buildnotify.mobile.network.transport.PayloadCodec
 import me.yuriisoft.buildnotify.mobile.network.transport.Transport
@@ -20,7 +19,7 @@ import me.yuriisoft.buildnotify.mobile.network.transport.WebSocketTransport
  * Contribution interface for the network layer.
  *
  * Encapsulates all WebSocket/transport wiring so the parent
- * component never touches [ManagedConnection] internals.
+ * component never touches [ConnectionOrchestrator] internals.
  */
 interface NetworkComponent {
 
@@ -36,7 +35,7 @@ interface NetworkComponent {
     @Provides
     fun reconnectionStrategy(
         errorMapping: ErrorMapping,
-    ): ReconnectionStrategy = ExponentialBackoff(errorMapping = errorMapping)
+    ): ReconnectionStrategy = BudgetedReconnection(errorMapping = errorMapping)
 
     @Provides
     fun errorRecognizers(): List<ErrorRecognizer> = listOf(

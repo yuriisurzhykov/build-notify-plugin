@@ -117,9 +117,14 @@ internal fun DiscoveryContent(
 
                     is DiscoveryUiState.PairingConfirmation -> PairingConfirmationBody(
                         host = currentState.host,
-                        fingerprint = currentState.fingerprint,
+                        pin = currentState.pin,
                         onConfirm = onConfirmPairing,
                         onReject = onRejectPairing,
+                    )
+
+                    is DiscoveryUiState.WaitingForIde       -> WaitingForIdeBody(
+                        host = currentState.host,
+                        onCancel = onCancel,
                     )
 
                     is DiscoveryUiState.Connecting          -> ConnectingBody(

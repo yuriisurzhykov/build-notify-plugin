@@ -38,13 +38,33 @@ sealed interface ConnectionErrorReason {
      *   2. The mobile client disconnects and attempts a fresh connection (which
      *      will re-trigger the IDE approval dialog).
      *
-     * **Retry behaviour:** [ExponentialBackoff.shouldRetry] returns `false` for
+     * **Retry behaviour:** [BudgetedReconnection.shouldRetry] returns `false` for
      * this error class — retrying is pointless because the server will keep
      * throwing `CertificateException("Client explicitly rejected")` until the
-     * rejection is manually cleared. [ManagedConnection.retryWhen] therefore
-     * stops retrying and transitions to [ConnectionState.Failed].
+     * rejection is manually cleared. The [ConnectionOrchestrator]'s `retryWhen`
+     * therefore stops retrying and transitions to [ConnectionState.Failed].
      */
     data class ClientRejected(override val message: String) : ConnectionErrorReason
+
+    /**
+     * The PIN-based pairing flow was not completed within the allowed time.
+     *
+     * This happens when either the mobile user or the IDE user fails to
+     * confirm/reject the PIN before the [ConnectionOrchestrator]'s pairing
+     * timeout expires. The mobile should return to the discovery screen so
+     * the user can retry the connection (which will re-trigger pairing).
+     */
+    data class PairingTimeout(override val message: String) : ConnectionErrorReason
+
+    /**
+     * The mobile user explicitly rejected the PIN during the pairing flow.
+     *
+     * Unlike [ClientRejected] (which originates from the IDE side), this
+     * reason is produced locally when the user taps "Cancel" on the pairing
+     * confirmation screen. The connection is not retried automatically —
+     * the user must initiate a new scan/connection attempt.
+     */
+    data class PairingRejected(override val message: String) : ConnectionErrorReason
 
     data class Unknown(override val message: String) : ConnectionErrorReason
 }

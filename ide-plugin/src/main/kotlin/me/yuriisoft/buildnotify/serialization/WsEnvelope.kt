@@ -1,5 +1,6 @@
 package me.yuriisoft.buildnotify.serialization
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -16,10 +17,10 @@ import kotlin.uuid.Uuid
  */
 @Serializable
 data class WsEnvelope @OptIn(ExperimentalUuidApi::class) constructor(
-    val v: Int = PROTOCOL_VERSION,
+    @SerialName("v") val v: Int = PROTOCOL_VERSION,
     val id: String = Uuid.random().toString(),
     val correlationId: String? = null,
-    val ts: Long = System.currentTimeMillis(),
+    @SerialName("ts") val ts: Long = System.currentTimeMillis(),
     val payload: WsPayload,
 ) {
     companion object {
@@ -27,6 +28,6 @@ data class WsEnvelope @OptIn(ExperimentalUuidApi::class) constructor(
          * Bump when a breaking change is introduced.
          * Minor/additive changes (new optional fields, new payload types) do NOT require a bump.
          */
-        const val PROTOCOL_VERSION = 1
+        const val PROTOCOL_VERSION = 2
     }
 }

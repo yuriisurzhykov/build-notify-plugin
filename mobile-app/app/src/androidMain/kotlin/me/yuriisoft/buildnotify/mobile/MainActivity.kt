@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
             App(
                 screens = component.screens,
                 startRoute = component.startRoute,
+                connectionState = component.connectionManager.state,
             )
         }
     }

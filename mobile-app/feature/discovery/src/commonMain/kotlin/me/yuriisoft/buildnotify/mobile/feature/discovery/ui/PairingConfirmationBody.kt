@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.pairing_body
 import build_notify_mobile.feature.discovery.generated.resources.pairing_confirm
-import build_notify_mobile.feature.discovery.generated.resources.pairing_fingerprint_label
+import build_notify_mobile.feature.discovery.generated.resources.pairing_pin_label
 import build_notify_mobile.feature.discovery.generated.resources.pairing_reject
 import build_notify_mobile.feature.discovery.generated.resources.pairing_title
 import me.yuriisoft.buildnotify.mobile.network.connection.DiscoveredHost
@@ -34,7 +34,7 @@ import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 @Composable
 internal fun PairingConfirmationBody(
     host: DiscoveredHost,
-    fingerprint: String,
+    pin: String,
     onConfirm: () -> Unit,
     onReject: () -> Unit,
 ) {
@@ -82,7 +82,7 @@ internal fun PairingConfirmationBody(
             Spacer(Modifier.height(spacing.large))
 
             Text(
-                text = textResource(Res.string.pairing_fingerprint_label),
+                text = textResource(Res.string.pairing_pin_label),
                 style = BuildNotifyTheme.typography.labelSmall,
                 color = BuildNotifyTheme.colors.content.tertiary,
                 textAlign = TextAlign.Center,
@@ -91,13 +91,10 @@ internal fun PairingConfirmationBody(
             Spacer(Modifier.height(spacing.xxSmall))
 
             Text(
-                text = TextResource.RawText(fingerprint),
-                style = BuildNotifyTheme.typography.bodySmall,
+                text = TextResource.RawText(pin.formatAsPin()),
+                style = BuildNotifyTheme.typography.displayLarge,
                 color = BuildNotifyTheme.colors.content.primary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = spacing.regular),
             )
 
             Divider(
@@ -130,3 +127,8 @@ internal fun PairingConfirmationBody(
         }
     }
 }
+
+private fun String.formatAsPin(): String =
+    chunked(PIN_GROUP_SIZE).joinToString(" ")
+
+private const val PIN_GROUP_SIZE = 3

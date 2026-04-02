@@ -7,6 +7,8 @@ import build_notify_mobile.feature.discovery.generated.resources.error_client_re
 import build_notify_mobile.feature.discovery.generated.resources.error_connection_failed
 import build_notify_mobile.feature.discovery.generated.resources.error_handshake
 import build_notify_mobile.feature.discovery.generated.resources.error_lost
+import build_notify_mobile.feature.discovery.generated.resources.error_pairing_rejected
+import build_notify_mobile.feature.discovery.generated.resources.error_pairing_timeout
 import build_notify_mobile.feature.discovery.generated.resources.error_refused
 import build_notify_mobile.feature.discovery.generated.resources.error_timeout
 import build_notify_mobile.feature.discovery.generated.resources.error_unknown
@@ -30,7 +32,7 @@ import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionManager
 import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionState
 import me.yuriisoft.buildnotify.mobile.network.connection.DiscoveredHost
 import me.yuriisoft.buildnotify.mobile.network.error.ConnectionErrorReason
-import me.yuriisoft.buildnotify.mobile.network.tls.TrustedServers
+import me.yuriisoft.buildnotify.mobile.network.pairing.PairingCoordinator
 import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 
 /**
@@ -38,22 +40,23 @@ import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
  *
  * Drives [DiscoveryUiState] transitions and fires one-shot [DiscoveryEvent]s.
  *
- * ### Phase 5 change
- * [formatErrorReason] now handles [ConnectionErrorReason.ClientRejected] with a
- * dedicated user-facing string (`error_client_rejected`) that guides the user to
- * re-pair via IDE settings. All other branches are unchanged.
+ * ### Phase 6 change — PIN-based pairing
  *
- * The retry button visible in [DiscoveryUiState.ConnectionFailed] is intentionally
- * **still shown** even for `ClientRejected` — it lets the user try again after
- * they have cleared the rejection in the plugin settings, without having to
- * restart the app.
+ * The ViewModel no longer manages pairing directly via [TrustedServers].
+ * Instead, it delegates all trust decisions to [PairingCoordinator] which is
+ * shared with the [ConnectionOrchestrator]. The orchestrator detects when
+ * pairing is required and emits [ConnectionState.PairingRequired]; this
+ * ViewModel observes that state and shows the PIN confirmation UI.
+ *
+ * [confirmPairing] and [rejectPairing] simply forward to the coordinator,
+ * which unblocks the orchestrator's pairing gate.
  */
 @Inject
 class DiscoveryViewModel(
     private val observeHosts: ObserveHostsUseCase,
     private val connectionManager: ConnectionManager,
     private val networkMonitor: INetworkMonitor,
-    private val trustedServers: TrustedServers,
+    private val pairingCoordinator: PairingCoordinator,
     private val dispatchers: AppDispatchers,
     private val state: StateCommunication.Mutable<DiscoveryUiState> = StateCommunication(
         DiscoveryUiState.Idle,
@@ -74,27 +77,15 @@ class DiscoveryViewModel(
     }
 
     fun selectHost(host: DiscoveredHost) {
-        when {
-            host.isSecure && !trustedServers.isPinned(host.trustKey) -> {
-                val pairingConfirmation = DiscoveryUiState.PairingConfirmation(
-                    host = host,
-                    fingerprint = host.fingerprint.orEmpty()
-                )
-                state.put(pairingConfirmation)
-            }
-
-            else                                                     -> connectToHost(host)
-        }
+        connectToHost(host)
     }
 
     fun confirmPairing() {
-        val current = state.observe.value as? DiscoveryUiState.PairingConfirmation ?: return
-        trustedServers.pin(current.host.trustKey, current.host.fingerprint ?: return)
-        connectToHost(current.host)
+        pairingCoordinator.confirm()
     }
 
     fun rejectPairing() {
-        state.put(DiscoveryUiState.Idle)
+        pairingCoordinator.reject()
     }
 
     fun retry() {
@@ -168,6 +159,7 @@ class DiscoveryViewModel(
 
             is DiscoveryUiState.Idle,
             is DiscoveryUiState.PairingConfirmation,
+            is DiscoveryUiState.WaitingForIde,
             is DiscoveryUiState.Connecting,
             is DiscoveryUiState.Connected,
             is DiscoveryUiState.ConnectionFailed,
@@ -205,10 +197,18 @@ class DiscoveryViewModel(
 
     private suspend fun handleConnectionState(connectionState: ConnectionState) {
         when (connectionState) {
-            is ConnectionState.Connected    -> handleConnectedState(connectionState)
+            is ConnectionState.Connected       -> handleConnectedState(connectionState)
 
-            is ConnectionState.Failed       -> {
-                connectionManager.disconnect()
+            is ConnectionState.PairingRequired -> {
+                state.put(
+                    DiscoveryUiState.PairingConfirmation(
+                        host = connectionState.host,
+                        pin = connectionState.pin,
+                    ),
+                )
+            }
+
+            is ConnectionState.Failed          -> {
                 state.put(
                     DiscoveryUiState.ConnectionFailed(
                         hostResource = TextResource.RawText(connectionState.host.name),
@@ -218,10 +218,20 @@ class DiscoveryViewModel(
                 )
             }
 
-            is ConnectionState.Connecting,
-            is ConnectionState.Reconnecting,
-            is ConnectionState.Idle,
-            is ConnectionState.Disconnected -> Unit
+            is ConnectionState.Disconnected    -> {
+                state.put(DiscoveryUiState.Idle)
+            }
+
+            is ConnectionState.Connecting    -> transitionToWaitingIfPaired(connectionState.host)
+            is ConnectionState.Reconnecting -> transitionToWaitingIfPaired(connectionState.host)
+            is ConnectionState.Idle         -> Unit
+        }
+    }
+
+    private fun transitionToWaitingIfPaired(host: DiscoveredHost) {
+        val current = state.observe.value
+        if (current is DiscoveryUiState.PairingConfirmation || current is DiscoveryUiState.WaitingForIde) {
+            state.put(DiscoveryUiState.WaitingForIde(host))
         }
     }
 
@@ -265,10 +275,14 @@ private fun formatErrorReason(reason: ConnectionErrorReason): TextResource {
         is ConnectionErrorReason.HandshakeFailed -> Res.string.error_handshake
         is ConnectionErrorReason.Lost            -> Res.string.error_lost
         is ConnectionErrorReason.ClientRejected  -> Res.string.error_client_rejected
+        is ConnectionErrorReason.PairingRejected -> Res.string.error_pairing_rejected
+        is ConnectionErrorReason.PairingTimeout  -> Res.string.error_pairing_timeout
         is ConnectionErrorReason.Unknown         -> Res.string.error_unknown
     }
     return when (reason) {
-        is ConnectionErrorReason.ClientRejected -> TextResource.ResText(resource)
+        is ConnectionErrorReason.ClientRejected,
+        is ConnectionErrorReason.PairingRejected,
+        is ConnectionErrorReason.PairingTimeout -> TextResource.ResText(resource)
         else                                    -> TextResource.ResText(resource, reason.message)
     }
 }

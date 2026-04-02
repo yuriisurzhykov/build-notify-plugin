@@ -5,6 +5,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.websocket.WebSockets
 import me.yuriisoft.buildnotify.mobile.network.client.HttpClientProvider
+import me.yuriisoft.buildnotify.mobile.network.tls.ServerCertificateCapture
 import me.yuriisoft.buildnotify.mobile.tls.OkHttpClientProvider.Companion.PLAIN_KEY
 import java.security.SecureRandom
 import javax.net.ssl.SSLContext
@@ -14,10 +15,20 @@ import javax.net.ssl.X509TrustManager
  * Android [HttpClientProvider] that configures OkHttp with:
  * 1. Server certificate pinning via [BuildNotifyTrustManager] (TOFU — existing).
  * 2. Client certificate presentation via [ClientKeyManager] (mTLS — Phase 1).
+ * 3. Server certificate capture via [ServerCertificateCapture] for PIN-based pairing.
  *
- * Both concerns are active only when a non-null [fingerprint] is supplied,
+ * Both TLS concerns are active only when a non-null [fingerprint] is supplied,
  * i.e. the connection is to a known, paired server.  Plain `ws://` connections
  * (fingerprint == null) remain unchanged.
+ *
+ * ### Server certificate capture
+ *
+ * The [BuildNotifyTrustManager] reports the server certificate's SHA-256
+ * fingerprint via a callback **before** the validation decision. This allows
+ * [capturedServerFingerprint] to hold the actual TLS-derived fingerprint even
+ * when the handshake fails (e.g. the server rejects the client certificate
+ * during pairing). The [PairingCoordinator] reads this value to derive the
+ * 6-digit PIN from the real certificate instead of the mDNS-advertised value.
  *
  * ### Cache key
  * Previously the key was `fingerprint ?: PLAIN_KEY`.  With mTLS the semantically
@@ -32,9 +43,18 @@ import javax.net.ssl.X509TrustManager
  */
 class OkHttpClientProvider(
     private val clientCertManager: ClientCertificateManager,
-) : HttpClientProvider {
+) : HttpClientProvider, ServerCertificateCapture {
 
     private val cache = mutableMapOf<String, HttpClient>()
+
+    @Volatile
+    private var observedFingerprint: String? = null
+
+    override val capturedServerFingerprint: String? get() = observedFingerprint
+
+    override fun clearCapturedFingerprint() {
+        observedFingerprint = null
+    }
 
     override fun provide(fingerprint: String?): HttpClient {
         val key = cacheKey(fingerprint)
@@ -49,7 +69,7 @@ class OkHttpClientProvider(
     // Private — client construction
     private fun buildClient(fingerprint: String?): HttpClient {
         val trustManager: X509TrustManager? = fingerprint?.let {
-            BuildNotifyTrustManager(it)
+            BuildNotifyTrustManager(it) { observed -> observedFingerprint = observed }
         }
 
         return HttpClient(OkHttp) {

@@ -11,9 +11,24 @@ import javax.net.ssl.X509TrustManager
  *
  * Fingerprints are compared case-insensitively in colon-separated hex format
  * (e.g. `"AB:CD:EF:12:34:..."`).
+ *
+ * ### Server certificate capture (pairing support)
+ *
+ * [onServerCertificateObserved] is invoked with the server certificate's SHA-256
+ * fingerprint **before** the validation decision is made. This allows the pairing
+ * flow to capture the actual TLS fingerprint even when the handshake ultimately
+ * fails (e.g. the server rejects the client certificate). The captured fingerprint
+ * is used to derive the 6-digit PIN from the real certificate rather than the
+ * mDNS-advertised value.
+ *
+ * @param expectedFingerprint         the TOFU-pinned fingerprint to validate against.
+ * @param onServerCertificateObserved callback receiving the server certificate's
+ *                                    SHA-256 fingerprint (colon-separated hex).
+ *                                    Invoked on the TLS handshake thread.
  */
 class BuildNotifyTrustManager(
     private val expectedFingerprint: String,
+    private val onServerCertificateObserved: (fingerprint: String) -> Unit = {},
 ) : X509TrustManager {
 
     override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String) {
@@ -25,6 +40,8 @@ class BuildNotifyTrustManager(
 
         val leaf = chain[0]
         val actual = leaf.sha256Fingerprint()
+
+        onServerCertificateObserved(actual)
 
         if (!actual.equals(expectedFingerprint, ignoreCase = true)) {
             throw CertificateException(

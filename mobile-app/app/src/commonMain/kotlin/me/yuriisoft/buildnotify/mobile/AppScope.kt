@@ -8,7 +8,7 @@ import me.tatarka.inject.annotations.Scope
  * Providers annotated with this scope inside an [AppScope]-annotated
  * component become singletons for the lifetime of that component instance.
  * Use for objects that must be shared across the entire app (e.g.
- * [ManagedConnection][me.yuriisoft.buildnotify.mobile.network.connection.ManagedConnection]).
+ * [ConnectionOrchestrator][me.yuriisoft.buildnotify.mobile.network.connection.ConnectionOrchestrator]).
  */
 @Scope
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
