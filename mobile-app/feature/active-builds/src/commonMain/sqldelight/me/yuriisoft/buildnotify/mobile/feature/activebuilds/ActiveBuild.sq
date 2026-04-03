@@ -1,0 +1,30 @@
+CREATE TABLE active_build (
+    build_id     TEXT PRIMARY KEY,
+    project_name TEXT NOT NULL,
+    status       TEXT NOT NULL,
+    started_at   INTEGER NOT NULL,
+    current_task TEXT,
+    result       TEXT
+);
+
+CREATE INDEX idx_active_build_status ON active_build(status);
+
+selectAll:
+SELECT * FROM active_build ORDER BY started_at DESC;
+
+selectById:
+SELECT * FROM active_build WHERE build_id = ?;
+
+upsert:
+INSERT OR REPLACE INTO active_build
+    (build_id, project_name, status, started_at, current_task, result)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM active_build;
+
+deleteById:
+DELETE FROM active_build WHERE build_id = ?;
+
+countByStatus:
+SELECT status, COUNT(*) AS count FROM active_build GROUP BY status;

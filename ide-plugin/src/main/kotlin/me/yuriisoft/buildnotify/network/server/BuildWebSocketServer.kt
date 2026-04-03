@@ -260,7 +260,7 @@ class BuildWebSocketServer : Disposable {
             logger.info("SSL (WSS) with mutual-TLS (wantClientAuth) configured on port $port")
             service<PluginNotifier>().info(
                 BuildNotifyBundle.message("notification.ssl.enabled.title"),
-                BuildNotifyBundle.message("notification.ssl.enabled.content", port),
+                BuildNotifyBundle.message("notification.ssl.enabled.content", port.toString()),
             )
         }
 

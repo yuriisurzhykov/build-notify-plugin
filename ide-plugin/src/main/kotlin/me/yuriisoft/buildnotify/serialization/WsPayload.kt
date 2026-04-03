@@ -38,13 +38,21 @@ sealed class WsPayload
 @SerialName("sys.handshake")
 data class HandshakePayload(
     val protocolVersion: Int = WsEnvelope.PROTOCOL_VERSION,
-    /** Stable opaque ID for this IDE instance; changes only on full reinstall / new machine. */
+    /**
+     * Stable opaque ID for this IDE instance; changes only on full reinstall / new machine.
+     * */
     val instanceId: String,
-    /** What this server can do right now; client hides UI for missing capabilities. */
+    /**
+     * What this server can do right now; client hides UI for missing capabilities.
+     * */
     val capabilities: Set<Capability> = emptySet(),
-    /** SHA-256 fingerprint of the server TLS certificate, e.g. "AB:CD:EF:...". Null when TLS is off. */
+    /**
+     * SHA-256 fingerprint of the server TLS certificate, e.g. "AB:CD:EF:...". Null when TLS is off.
+     * */
     val certFingerprint: String? = null,
-    /** Human-readable name for the IDE instance, e.g. "Android Studio — MyProject". */
+    /**
+     * Human-readable name for the IDE instance, e.g. "Android Studio — MyProject".
+     * */
     val deviceName: String = "",
 ) : WsPayload()
 
@@ -68,7 +76,9 @@ data class HelloPayload(
     val appVersion: String,
 ) : WsPayload()
 
-/** Keep-alive ping from server. Client should reset its "connection lost" timer on receipt. */
+/**
+ * Keep-alive ping from server. Client should reset its "connection lost" timer on receipt.
+ * */
 @Serializable
 @SerialName("sys.heartbeat")
 data class HeartbeatPayload(
@@ -204,8 +214,10 @@ data class CommandResultPayload(
 enum class CommandStatus {
     /** Command queued or already in progress; result will follow as a build event. */
     ACCEPTED,
+
     /** Command understood but refused (unknown buildId, wrong state, insufficient capability). */
     REJECTED,
+
     /** Server-side error during execution. */
     FAILED,
 }

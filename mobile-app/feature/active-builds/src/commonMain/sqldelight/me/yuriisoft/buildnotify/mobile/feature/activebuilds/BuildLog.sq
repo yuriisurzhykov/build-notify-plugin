@@ -1,0 +1,22 @@
+CREATE TABLE build_log (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    build_id  TEXT NOT NULL REFERENCES active_build(build_id) ON DELETE CASCADE,
+    timestamp INTEGER NOT NULL,
+    message   TEXT NOT NULL,
+    kind      TEXT NOT NULL
+);
+
+CREATE INDEX idx_build_log_build ON build_log(build_id);
+
+selectByBuildId:
+SELECT * FROM build_log WHERE build_id = ? ORDER BY id ASC;
+
+insert:
+INSERT INTO build_log (build_id, timestamp, message, kind)
+VALUES (?, ?, ?, ?);
+
+logCount:
+SELECT COUNT(*) FROM build_log WHERE build_id = ?;
+
+deleteByBuildId:
+DELETE FROM build_log WHERE build_id = ?;

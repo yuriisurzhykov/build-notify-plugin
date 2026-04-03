@@ -3,17 +3,14 @@ package me.yuriisoft.buildnotify.network.server.ui
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.ui.components.JBLabel
-import com.intellij.util.ui.JBUI
+import com.intellij.ui.dsl.builder.*
 import me.yuriisoft.buildnotify.BuildNotifyBundle
 import me.yuriisoft.buildnotify.security.PairingPinCalculator
 import me.yuriisoft.buildnotify.security.PersistentTrustedClients
 import java.awt.Font
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
+import java.awt.event.ActionEvent
 import javax.swing.Action
 import javax.swing.JComponent
-import javax.swing.JPanel
 import javax.swing.SwingConstants
 
 /**
@@ -54,38 +51,21 @@ class PairingPinDialog(
         init()
     }
 
-    // ── DialogWrapper overrides ───────────────────────────────────────────────
-
-    override fun createCenterPanel(): JComponent {
-        val panel = JPanel(GridBagLayout())
-        val gbc = GridBagConstraints().apply {
-            fill = GridBagConstraints.HORIZONTAL
-            anchor = GridBagConstraints.WEST
-            weightx = 1.0
-            gridx = 0
+    override fun createCenterPanel(): JComponent = panel {
+        row {
+            label(BuildNotifyBundle.message("dialog.pairing.description"))
         }
-
-        gbc.gridy = 0
-        gbc.insets = JBUI.insetsBottom(8)
-        panel.add(
-            JBLabel(BuildNotifyBundle.message("dialog.pairing.description")),
-            gbc,
-        )
-
-        gbc.gridy = 1
-        gbc.insets = JBUI.insetsBottom(12)
-        panel.add(
-            JBLabel(BuildNotifyBundle.message("dialog.pairing.device.label", deviceName)),
-            gbc,
-        )
-
-        gbc.gridy = 2
-        gbc.insets = JBUI.insetsBottom(4)
-        gbc.anchor = GridBagConstraints.CENTER
-        gbc.fill = GridBagConstraints.NONE
-        panel.add(pinLabel(), gbc)
-
-        return panel
+        row {
+            label(BuildNotifyBundle.message("dialog.pairing.device.label", deviceName))
+        }.bottomGap(BottomGap.SMALL)
+        row {
+            label(pin.formatted())
+                .align(Align.CENTER)
+                .applyToComponent {
+                    font = Font(Font.MONOSPACED, Font.BOLD, 32)
+                    horizontalAlignment = SwingConstants.CENTER
+                }
+        }.layout(RowLayout.INDEPENDENT)
     }
 
     /**
@@ -96,8 +76,6 @@ class PairingPinDialog(
     override fun createActions(): Array<Action> = arrayOf(confirmAction(), rejectAction())
 
     override fun createCancelAction(): Action? = null
-
-    // ── Actions ───────────────────────────────────────────────────────────────
 
     private fun confirmAction(): Action = dialogAction(
         text = BuildNotifyBundle.message("dialog.pairing.action.confirm"),
@@ -115,22 +93,10 @@ class PairingPinDialog(
         close(CANCEL_EXIT_CODE)
     }
 
-    // ── UI helpers ────────────────────────────────────────────────────────────
-
-    /**
-     * Large, centered, monospaced label displaying the PIN split into two
-     * groups of three for readability (e.g. "042 817").
-     */
-    private fun pinLabel(): JBLabel {
-        val formatted = "${pin.substring(0, 3)} ${pin.substring(3)}"
-        return JBLabel(formatted, SwingConstants.CENTER).apply {
-            font = Font(Font.MONOSPACED, Font.BOLD, 32)
-            border = JBUI.Borders.empty(12)
-        }
-    }
+    private fun String.formatted(): String = "${substring(0, 3)} ${substring(3)}"
 
     private fun dialogAction(text: String, perform: () -> Unit): Action =
         object : DialogWrapperAction(text) {
-            override fun doAction(e: java.awt.event.ActionEvent?) = perform()
+            override fun doAction(e: ActionEvent?) = perform()
         }
 }
