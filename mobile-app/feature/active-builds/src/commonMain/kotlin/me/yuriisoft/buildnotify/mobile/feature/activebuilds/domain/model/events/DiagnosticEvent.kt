@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.event
+package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events
 
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot

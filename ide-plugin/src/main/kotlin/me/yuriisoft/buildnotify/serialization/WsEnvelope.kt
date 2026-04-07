@@ -17,11 +17,13 @@ import kotlin.uuid.Uuid
  */
 @Serializable
 data class WsEnvelope @OptIn(ExperimentalUuidApi::class) constructor(
-    @SerialName("v")
+    @SerialName("version")
     val version: Int = PROTOCOL_VERSION,
+    @SerialName("id")
     val id: String = Uuid.random().toString(),
+    @SerialName("correlation_id")
     val correlationId: String? = null,
-    @SerialName("ts")
+    @SerialName("timestamp")
     val timestamp: Long = System.currentTimeMillis(),
     val payload: WsPayload,
 ) {

@@ -6,5 +6,5 @@ data class BuildRecord(
     val status: BuildRecordStatus,
     val startedAt: Long,
     val currentTask: String?,
-    val resultJson: String?,
+    val durationMs: Long?,
 )

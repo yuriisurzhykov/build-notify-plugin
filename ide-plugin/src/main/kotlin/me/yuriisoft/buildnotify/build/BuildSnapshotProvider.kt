@@ -7,13 +7,15 @@ import me.yuriisoft.buildnotify.serialization.ActiveBuildInfo
 import me.yuriisoft.buildnotify.serialization.BuildSnapshotPayload
 
 /**
- * Assembles a [BuildSnapshotPayload] from the current state of [BuildSessionRegistry].
+ * Assembles a [BuildSnapshotPayload] from the current state of [BuildSessionRegistry]
+ * and [RecentBuildResultStore].
  *
  * Called once per client immediately after the server receives `sys.hello`,
- * giving the client a consistent view of every build that is currently in-flight
- * so it does not miss events that started before it connected.
+ * giving the client:
+ * - every build currently in-flight ([BuildSnapshotPayload.activeBuilds])
+ * - the most recently completed builds ([BuildSnapshotPayload.recentResults])
  *
- * Stateless — every call queries the registry afresh.
+ * Every call queries both registries afresh; no state is held here.
  */
 @Service(Service.Level.APP)
 class BuildSnapshotProvider {
@@ -30,5 +32,6 @@ class BuildSnapshotProvider {
                         tasks = emptyList(),
                     )
                 },
+            recentResults = service<RecentBuildResultStore>().recentResults(),
         )
 }

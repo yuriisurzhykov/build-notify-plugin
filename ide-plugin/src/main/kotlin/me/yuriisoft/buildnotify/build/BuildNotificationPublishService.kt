@@ -36,12 +36,15 @@ class BuildNotificationPublishService {
     }
 
     /**
-     * Notifies all connected clients about the final build result.
+     * Notifies all connected clients about the final build result and records
+     * it in [RecentBuildResultStore] so that future clients receive it in
+     * [BuildSnapshotPayload.recentResults].
      *
      * @param result aggregated build outcome with timing, status, and issues
      */
     fun publishResult(result: BuildResult) {
         broadcast(BuildResultPayload(result))
+        service<RecentBuildResultStore>().record(result)
     }
 
     /**
@@ -64,12 +67,14 @@ class BuildNotificationPublishService {
                 projectName = event.projectName,
                 taskPath = event.taskPath,
             )
+
             is OutgoingBuildEvent.TaskFinished -> TaskFinishedPayload(
                 buildId = event.buildId,
                 projectName = event.projectName,
                 taskPath = event.taskPath,
                 status = event.status,
             )
+
             is OutgoingBuildEvent.Diagnostic -> BuildDiagnosticPayload(
                 buildId = event.buildId,
                 projectName = event.projectName,

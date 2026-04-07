@@ -4,7 +4,7 @@ CREATE TABLE active_build (
     status       TEXT NOT NULL,
     started_at   INTEGER NOT NULL,
     current_task TEXT,
-    result       TEXT
+    duration_ms  INTEGER
 );
 
 CREATE INDEX idx_active_build_status ON active_build(status);
@@ -17,7 +17,7 @@ SELECT * FROM active_build WHERE build_id = ?;
 
 upsert:
 INSERT OR REPLACE INTO active_build
-    (build_id, project_name, status, started_at, current_task, result)
+    (build_id, project_name, status, started_at, current_task, duration_ms)
 VALUES (?, ?, ?, ?, ?, ?);
 
 deleteAll:

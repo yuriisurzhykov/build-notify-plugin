@@ -158,6 +158,7 @@ data class BuildResultPayload(
 @SerialName("build.snapshot")
 data class BuildSnapshotPayload(
     val activeBuilds: List<ActiveBuildInfo>,
+    val recentResults: List<BuildResult> = emptyList(),
 ) : WsPayload()
 
 @Serializable

@@ -344,14 +344,14 @@ SELECT status, COUNT(*) AS count FROM active_build GROUP BY status;
 
 Column notes:
 
-| Column | Type | Description |
-|---|---|---|
-| `build_id` | TEXT PK | Unique build identifier from the IDE |
-| `project_name` | TEXT | Human-readable project name |
-| `status` | TEXT | One of: `ACTIVE`, `SUCCESS`, `FAILED`, `CANCELLED` |
-| `started_at` | INTEGER | Epoch milliseconds when the build started |
-| `current_task` | TEXT | Path of the currently running task, null when finished |
-| `result` | TEXT | JSON-serialized `BuildOutcome`, null while active |
+| Column         | Type    | Description                                            |
+|----------------|---------|--------------------------------------------------------|
+| `build_id`     | TEXT PK | Unique build identifier from the IDE                   |
+| `project_name` | TEXT    | Human-readable project name                            |
+| `status`       | TEXT    | One of: `ACTIVE`, `SUCCESS`, `FAILED`, `CANCELLED`     |
+| `started_at`   | INTEGER | Epoch milliseconds when the build started              |
+| `current_task` | TEXT    | Path of the currently running task, null when finished |
+| `result`       | TEXT    | JSON-serialized `BuildOutcome`, null while active      |
 
 ### build_log
 
@@ -382,13 +382,13 @@ DELETE FROM build_log WHERE build_id = ?;
 
 Column notes:
 
-| Column | Type | Description |
-|---|---|---|
-| `id` | INTEGER PK | Auto-increment, preserves insertion order |
-| `build_id` | TEXT FK | References `active_build.build_id`, CASCADE delete |
-| `timestamp` | INTEGER | Epoch milliseconds when the event occurred |
-| `message` | TEXT | Human-readable log line (e.g. `"> Task :app:compile"`) |
-| `kind` | TEXT | One of: `TASK`, `WARNING`, `ERROR` |
+| Column      | Type       | Description                                            |
+|-------------|------------|--------------------------------------------------------|
+| `id`        | INTEGER PK | Auto-increment, preserves insertion order              |
+| `build_id`  | TEXT FK    | References `active_build.build_id`, CASCADE delete     |
+| `timestamp` | INTEGER    | Epoch milliseconds when the event occurred             |
+| `message`   | TEXT       | Human-readable log line (e.g. `"> Task :app:compile"`) |
+| `kind`      | TEXT       | One of: `TASK`, `WARNING`, `ERROR`                     |
 
 ---
 
@@ -416,14 +416,14 @@ sealed interface BuildEvent {
 Each subtype implements both fold methods. Events that do not affect a
 particular accumulator return it unchanged.
 
-| Event | `foldBuilds` effect | `foldLogs` effect |
-|---|---|---|
-| `BuildStartedEvent` | Adds `Active` entry to the map | No change |
-| `TaskStartedEvent` | Updates `currentTask` on existing `Active` | Appends `TASK` log entry |
-| `TaskFinishedEvent` | No change | Appends `TASK` log entry (with status) |
-| `DiagnosticEvent` | No change | Appends `WARNING` or `ERROR` log entry |
-| `BuildResultEvent` | Replaces `Active` with `Finished` | No change |
-| `SnapshotEvent` | Replaces entire map with snapshot data | Clears all logs (fresh start) |
+| Event               | `foldBuilds` effect                        | `foldLogs` effect                      |
+|---------------------|--------------------------------------------|----------------------------------------|
+| `BuildStartedEvent` | Adds `Active` entry to the map             | No change                              |
+| `TaskStartedEvent`  | Updates `currentTask` on existing `Active` | Appends `TASK` log entry               |
+| `TaskFinishedEvent` | No change                                  | Appends `TASK` log entry (with status) |
+| `DiagnosticEvent`   | No change                                  | Appends `WARNING` or `ERROR` log entry |
+| `BuildResultEvent`  | Replaces `Active` with `Finished`          | No change                              |
+| `SnapshotEvent`     | Replaces entire map with snapshot data     | Clears all logs (fresh start)          |
 
 Subtypes with their properties:
 
@@ -677,10 +677,10 @@ class ActiveBuildRepository(
 
 1. ViewModel calls `repository.observeBuilds()`.
 2. `ActiveBuildCachedSource.observe(Unit)` starts a `channelFlow`:
-   - Background: collects from `RemoteActiveBuildSource` → calls
-     `LocalActiveBuildSource.save()` on every emission.
-   - Foreground: collects from `LocalActiveBuildSource.observe()` → emits
-     to the caller.
+    - Background: collects from `RemoteActiveBuildSource` → calls
+      `LocalActiveBuildSource.save()` on every emission.
+    - Foreground: collects from `LocalActiveBuildSource.observe()` → emits
+      to the caller.
 3. UI only ever sees data from the local source (SQLite). Remote data appears
    after it has been persisted and local re-emits.
 4. On cold start, local already has persisted data — UI renders immediately
@@ -692,13 +692,13 @@ class ActiveBuildRepository(
 
 All mappers implement `Mapper<T, S>` from `core:common`.
 
-| Mapper class | Signature | Responsibility |
-|---|---|---|
-| `BuildEventMapper` | `Mapper<WsPayload, BuildEvent?>` | System boundary: maps wire protocol types to feature-local domain events. Contains the **single** `when` in the entire feature. Returns `null` for non-build payloads. |
-| `BuildRecordMapper` | `Mapper<BuildRecord, BuildSnapshot>` | SQL row → domain model. Uses `JsonToOutcomeMapper` to deserialize the `result` column when status is not `ACTIVE`. |
-| `LogRecordMapper` | `Mapper<BuildLogRecord, BuildLogEntry>` | SQL row → domain model. Maps `LogRecordKind` string to `LogKind` enum. |
-| `OutcomeToJsonMapper` | `Mapper<BuildOutcome, String>` | Domain → JSON string for the `active_build.result` column. Used by `LocalActiveBuildSource.save()`. |
-| `JsonToOutcomeMapper` | `Mapper<String, BuildOutcome>` | JSON string from `active_build.result` → domain model. Used by `BuildRecordMapper`. |
+| Mapper class          | Signature                               | Responsibility                                                                                                                                                         |
+|-----------------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BuildEventMapper`    | `Mapper<WsPayload, BuildEvent?>`        | System boundary: maps wire protocol types to feature-local domain events. Contains the **single** `when` in the entire feature. Returns `null` for non-build payloads. |
+| `BuildRecordMapper`   | `Mapper<BuildRecord, BuildSnapshot>`    | SQL row → domain model. Uses `JsonToOutcomeMapper` to deserialize the `result` column when status is not `ACTIVE`.                                                     |
+| `LogRecordMapper`     | `Mapper<BuildLogRecord, BuildLogEntry>` | SQL row → domain model. Maps `LogRecordKind` string to `LogKind` enum.                                                                                                 |
+| `OutcomeToJsonMapper` | `Mapper<BuildOutcome, String>`          | Domain → JSON string for the `active_build.result` column. Used by `LocalActiveBuildSource.save()`.                                                                    |
+| `JsonToOutcomeMapper` | `Mapper<String, BuildOutcome>`          | JSON string from `active_build.result` → domain model. Used by `BuildRecordMapper`.                                                                                    |
 
 ---
 
@@ -837,16 +837,16 @@ so the user sees the outcome instead of a vanishing card.
 
 ## 13. Design Patterns Summary
 
-| Pattern | Where applied | Why |
-|---|---|---|
-| **CachedReadableDataSource** (project) | `ActiveBuildCachedSource`, `BuildLogCachedSource` | Standard composition from `core:cache`: remote writes into local, local is single source of truth, UI only sees local. Two independent pipelines for builds and logs. |
-| **Scenario C** (project) | `LocalActiveBuildSource`, `LocalBuildLogSource` | Per-entity typed SQL tables behind `MutableDataSource`. SQLDelight DAOs used directly, no `CacheStore`. Follows `core:cache` README exactly. |
-| **Polymorphic fold** | `BuildEvent.foldBuilds()`, `BuildEvent.foldLogs()` | Each event type carries its own fold behavior. Remote sources accumulate state via pure functional fold without `when`. |
-| **Mapper** (project convention) | `BuildEventMapper`, `BuildRecordMapper`, `LogRecordMapper`, `OutcomeToJsonMapper`, `JsonToOutcomeMapper` | All boundary transformations via `Mapper<T, S>` from `core:common`. |
-| **ISP** (SOLID) | `ReadableDataSource` / `WritableDataSource` / `MutableDataSource` / `CancelBuildUseCase` | Consumers depend only on the contract they need. Repository sees `ReadableDataSource`. CachedReadableDataSource sees `MutableDataSource`. Invalidator sees `WritableDataSource.delete()`. |
-| **DIP** (SOLID) | Repository depends on `CachedReadableDataSource` abstractions | The repository never sees `ActiveBuildQueries`, `BuildLogQueries`, or any SQLDelight type. |
-| **SRP** (SOLID) | Mapper maps. Remote folds. Local persists. CachedReadableDataSource composes. Repository delegates. | Each class has exactly one reason to change. |
-| **OCP** (SOLID) | `BuildEvent` sealed hierarchy | Adding a new build event type: (1) add sealed subtype with fold methods, (2) add mapping case in `BuildEventMapper`. No existing code is modified. |
+| Pattern                                | Where applied                                                                                            | Why                                                                                                                                                                                       |
+|----------------------------------------|----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **CachedReadableDataSource** (project) | `ActiveBuildCachedSource`, `BuildLogCachedSource`                                                        | Standard composition from `core:cache`: remote writes into local, local is single source of truth, UI only sees local. Two independent pipelines for builds and logs.                     |
+| **Scenario C** (project)               | `LocalActiveBuildSource`, `LocalBuildLogSource`                                                          | Per-entity typed SQL tables behind `MutableDataSource`. SQLDelight DAOs used directly, no `CacheStore`. Follows `core:cache` README exactly.                                              |
+| **Polymorphic fold**                   | `BuildEvent.foldBuilds()`, `BuildEvent.foldLogs()`                                                       | Each event type carries its own fold behavior. Remote sources accumulate state via pure functional fold without `when`.                                                                   |
+| **Mapper** (project convention)        | `BuildEventMapper`, `BuildRecordMapper`, `LogRecordMapper`, `OutcomeToJsonMapper`, `JsonToOutcomeMapper` | All boundary transformations via `Mapper<T, S>` from `core:common`.                                                                                                                       |
+| **ISP** (SOLID)                        | `ReadableDataSource` / `WritableDataSource` / `MutableDataSource` / `CancelBuildUseCase`                 | Consumers depend only on the contract they need. Repository sees `ReadableDataSource`. CachedReadableDataSource sees `MutableDataSource`. Invalidator sees `WritableDataSource.delete()`. |
+| **DIP** (SOLID)                        | Repository depends on `CachedReadableDataSource` abstractions                                            | The repository never sees `ActiveBuildQueries`, `BuildLogQueries`, or any SQLDelight type.                                                                                                |
+| **SRP** (SOLID)                        | Mapper maps. Remote folds. Local persists. CachedReadableDataSource composes. Repository delegates.      | Each class has exactly one reason to change.                                                                                                                                              |
+| **OCP** (SOLID)                        | `BuildEvent` sealed hierarchy                                                                            | Adding a new build event type: (1) add sealed subtype with fold methods, (2) add mapping case in `BuildEventMapper`. No existing code is modified.                                        |
 
 ---
 

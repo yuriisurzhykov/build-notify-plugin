@@ -1,10 +1,13 @@
-package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.event
+package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model
 
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildIssue
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.FinishStatus
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogKind
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.BuildResultEvent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.BuildStartedEvent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.DiagnosticEvent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.DiagnosticSeverity
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.SnapshotBuild
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.SnapshotEvent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.TaskFinishedEvent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events.TaskStartedEvent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -334,6 +337,63 @@ class BuildEventFoldTest {
         assertEquals(1, snapshot.outcome.errors.size)
         assertEquals("compilation error", snapshot.outcome.errors[0].message)
         assertEquals(2, snapshot.outcome.warnings.size)
+    }
+
+    @Test
+    fun buildResult_foldBuilds_noopWhenNoActiveEntry() {
+        val existing = mapOf(
+            "other" to BuildSnapshot.Active(
+                buildId = "other",
+                projectName = "lib",
+                startedAt = 500L,
+                currentTask = null,
+            ),
+        )
+        val event = BuildResultEvent(
+            buildId = "b1",
+            projectName = "app",
+            status = FinishStatus.SUCCESS,
+            durationMs = 5000L,
+            startedAt = 1000L,
+            finishedAt = 6000L,
+            errors = emptyList(),
+            warnings = emptyList(),
+        )
+
+        val result = event.foldBuilds(existing)
+
+        assertEquals(existing, result, "result for unknown build must be ignored")
+    }
+
+    @Test
+    fun buildResult_foldBuilds_noopWhenBuildAlreadyFinished() {
+        val existing = mapOf(
+            "b1" to BuildSnapshot.Finished(
+                buildId = "b1",
+                projectName = "app",
+                startedAt = 1000L,
+                outcome = BuildOutcome(
+                    status = FinishStatus.FAILED,
+                    durationMs = 2000L,
+                    errors = emptyList(),
+                    warnings = emptyList(),
+                ),
+            ),
+        )
+        val event = BuildResultEvent(
+            buildId = "b1",
+            projectName = "app",
+            status = FinishStatus.SUCCESS,
+            durationMs = 5000L,
+            startedAt = 1000L,
+            finishedAt = 6000L,
+            errors = emptyList(),
+            warnings = emptyList(),
+        )
+
+        val result = event.foldBuilds(existing)
+
+        assertEquals(existing, result, "duplicate result must not overwrite existing Finished")
     }
 
     @Test

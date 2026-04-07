@@ -38,6 +38,7 @@ sealed class WsPayload
 @Serializable
 @SerialName("sys.handshake")
 data class HandshakePayload(
+    @SerialName("version")
     val protocolVersion: Int = WsEnvelope.PROTOCOL_VERSION,
     val instanceId: String,
     val capabilities: Set<Capability> = emptySet(),
@@ -143,6 +144,7 @@ data class BuildResultPayload(
 @SerialName("build.snapshot")
 data class BuildSnapshotPayload(
     val activeBuilds: List<ActiveBuildInfo>,
+    val recentResults: List<BuildResult> = emptyList(),
 ) : WsPayload()
 
 @Serializable

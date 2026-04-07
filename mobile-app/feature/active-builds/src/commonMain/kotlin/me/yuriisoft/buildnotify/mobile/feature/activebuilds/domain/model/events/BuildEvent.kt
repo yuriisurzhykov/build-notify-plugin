@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.event
+package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events
 
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
@@ -18,3 +18,10 @@ internal fun Map<String, List<BuildLogEntry>>.appendLog(
     buildId: String,
     entry: BuildLogEntry,
 ): Map<String, List<BuildLogEntry>> = this + (buildId to (this[buildId].orEmpty() + entry))
+
+data class SnapshotBuild(
+    val buildId: String,
+    val projectName: String,
+    val startedAt: Long,
+    val currentTask: String?,
+)

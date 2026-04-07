@@ -1,4 +1,4 @@
-package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.event
+package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events
 
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildIssue
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
@@ -19,17 +19,22 @@ data class BuildResultEvent(
 
     override fun foldBuilds(
         builds: Map<String, BuildSnapshot>,
-    ): Map<String, BuildSnapshot> = builds + (buildId to BuildSnapshot.Finished(
-        buildId = buildId,
-        projectName = projectName,
-        startedAt = startedAt,
-        outcome = BuildOutcome(
-            status = status,
-            durationMs = durationMs,
-            errors = errors,
-            warnings = warnings,
-        ),
-    ))
+    ): Map<String, BuildSnapshot> {
+        val existing = builds[buildId] ?: return builds
+        if (existing is BuildSnapshot.Finished) return builds
+        val active = existing as? BuildSnapshot.Active ?: return builds
+        return builds + (buildId to BuildSnapshot.Finished(
+            buildId = buildId,
+            projectName = active.projectName,
+            startedAt = active.startedAt,
+            outcome = BuildOutcome(
+                status = status,
+                durationMs = durationMs,
+                errors = errors,
+                warnings = warnings,
+            ),
+        ))
+    }
 
     override fun foldLogs(
         logs: Map<String, List<BuildLogEntry>>,

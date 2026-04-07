@@ -1,0 +1,23 @@
+CREATE TABLE build_issue (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    build_id  TEXT NOT NULL REFERENCES active_build(build_id) ON DELETE CASCADE,
+    message   TEXT NOT NULL,
+    file_path TEXT,
+    line      INTEGER,
+    severity  TEXT NOT NULL
+);
+
+CREATE INDEX idx_build_issue_build ON build_issue(build_id);
+
+selectByBuildId:
+SELECT * FROM build_issue WHERE build_id = ? ORDER BY id ASC;
+
+insert:
+INSERT INTO build_issue (build_id, message, file_path, line, severity)
+VALUES (?, ?, ?, ?, ?);
+
+deleteByBuildId:
+DELETE FROM build_issue WHERE build_id = ?;
+
+deleteAll:
+DELETE FROM build_issue;
