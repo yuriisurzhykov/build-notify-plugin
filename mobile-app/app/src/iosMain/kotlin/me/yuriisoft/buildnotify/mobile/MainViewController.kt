@@ -6,6 +6,7 @@ import me.yuriisoft.buildnotify.mobile.tls.ClientIdentityManager
 import me.yuriisoft.buildnotify.mobile.tls.DarwinHttpClientProvider
 import me.yuriisoft.buildnotify.mobile.tls.IosClientIdentityProvider
 import me.yuriisoft.buildnotify.mobile.core.cache.db.CacheDatabaseFactory
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.ActiveBuildsDatabaseFactory
 import me.yuriisoft.buildnotify.mobile.tls.UserDefaultsTrustedServers
 import platform.UIKit.UIViewController
 
@@ -43,7 +44,12 @@ fun MainViewController(): UIViewController {
         clientProvider,
         IosClientIdentityProvider(clientIdentityManager),
         CacheDatabaseFactory(),
+        ActiveBuildsDatabaseFactory(),
     )
+
+    // Start the process-lifetime build-cache workers (they run from their init blocks).
+    component.buildCacheInvalidator
+    component.activeBuildsCacheSync
 
     return ComposeUIViewController {
         App(

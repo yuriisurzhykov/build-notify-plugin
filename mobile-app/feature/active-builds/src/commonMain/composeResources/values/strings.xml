@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="builds_title">Builds</string>
+    <string name="builds_section_running">Running</string>
+    <string name="builds_section_recent">Recent</string>
+    <string name="builds_empty_title">No builds yet</string>
+    <string name="builds_empty_body">Start a Gradle build in Android Studio and it will appear here in real time.</string>
+    <string name="builds_stream_error">Lost the build stream. Showing the last known state.</string>
+    <string name="build_preparing">Preparing…</string>
+    <string name="build_status_running">Running</string>
+    <string name="build_status_success">Succeeded</string>
+    <string name="build_status_failed">Failed</string>
+    <string name="build_status_cancelled">Cancelled</string>
+    <string name="build_issue_counts">%1$d errors · %2$d warnings</string>
+    <string name="build_more_errors">+%1$d more</string>
+    <string name="build_unknown_project">Unknown build</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_logs">Logs</string>
+    <string name="action_back">Back</string>
+    <string name="error_cancel_build">Could not stop the build</string>
+    <string name="logs_title">Build log</string>
+    <string name="logs_filter_all">All</string>
+    <string name="logs_filter_problems">Problems</string>
+    <string name="logs_filter_errors">Errors</string>
+    <string name="logs_section_errors">Errors</string>
+    <string name="logs_section_warnings">Warnings</string>
+    <string name="logs_section_output">Log</string>
+    <string name="logs_empty">No log lines yet.</string>
+    <string name="logs_filtered_empty">Nothing matches this filter.</string>
+    <string name="logs_not_found_title">Build not found</string>
+    <string name="logs_not_found_body">Its logs were cleared when the IDE disconnected.</string>
+</resources>

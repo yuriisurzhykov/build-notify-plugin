@@ -17,6 +17,10 @@ sqldelight {
     }
 }
 
+compose.resources {
+    packageOfResClass = "me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources"
+}
+
 kotlin {
     sourceSets {
         commonMain.dependencies {
@@ -26,6 +30,9 @@ kotlin {
             implementation(project(":core:network"))
             implementation(project(":core:ui"))
             implementation(project(":core:navigation"))
+            implementation(project(":core:toast"))
+            implementation(libs.lifecycle.viewmodel)
+            implementation(libs.jetbrains.compose.resources)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.sqldelight.coroutines)

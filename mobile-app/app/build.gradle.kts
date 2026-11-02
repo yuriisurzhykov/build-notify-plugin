@@ -22,7 +22,7 @@ kotlin {
             implementation(project(":core:navigation"))
             implementation(project(":core:ui"))
             implementation(project(":feature:discovery"))
-            implementation(project(":feature:build-status"))
+            implementation(project(":feature:active-builds"))
             implementation(project(":feature:history"))
             implementation(project(":feature:network-status"))
             implementation(project(":core:cache"))
@@ -30,6 +30,7 @@ kotlin {
             // TODO: This is just a temporary dependency to view all components catalog.
             implementation(project(":feature:ui-catalog"))
             implementation(libs.jetbrains.compose.runtime)
+            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.jetbrains.compose.ui)
             implementation(libs.jetbrains.compose.material)
             implementation(libs.jetbrains.compose.foundation)

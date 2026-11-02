@@ -2,6 +2,7 @@ package me.yuriisoft.buildnotify.mobile
 
 import android.app.Application
 import me.yuriisoft.buildnotify.mobile.core.cache.db.CacheDatabaseFactory
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.ActiveBuildsDatabaseFactory
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.AndroidNsdDiscovery
 import me.yuriisoft.buildnotify.mobile.tls.AndroidClientIdentityProvider
 import me.yuriisoft.buildnotify.mobile.tls.ClientCertificateManager
@@ -50,6 +51,11 @@ class BuildNotifyApp : Application() {
             clientProvider,
             AndroidClientIdentityProvider(clientCertManager),
             CacheDatabaseFactory(applicationContext),
+            ActiveBuildsDatabaseFactory(applicationContext),
         )
+
+        // Start the process-lifetime build-cache workers (they run from their init blocks).
+        component.buildCacheInvalidator
+        component.activeBuildsCacheSync
     }
 }

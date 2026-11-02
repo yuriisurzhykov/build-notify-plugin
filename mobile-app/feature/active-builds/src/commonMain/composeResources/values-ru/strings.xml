@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="builds_title">Сборки</string>
+    <string name="builds_section_running">Идут сейчас</string>
+    <string name="builds_section_recent">Недавние</string>
+    <string name="builds_empty_title">Сборок пока нет</string>
+    <string name="builds_empty_body">Запустите Gradle-сборку в Android Studio, и она появится здесь в реальном времени.</string>
+    <string name="builds_stream_error">Поток событий сборки прервался. Показано последнее известное состояние.</string>
+    <string name="build_preparing">Подготовка…</string>
+    <string name="build_status_running">Идёт</string>
+    <string name="build_status_success">Успешно</string>
+    <string name="build_status_failed">Ошибка</string>
+    <string name="build_status_cancelled">Отменена</string>
+    <string name="build_issue_counts">Ошибок: %1$d · предупреждений: %2$d</string>
+    <string name="build_more_errors">ещё %1$d</string>
+    <string name="build_unknown_project">Неизвестная сборка</string>
+    <string name="action_retry">Повторить</string>
+    <string name="action_stop">Остановить</string>
+    <string name="action_logs">Логи</string>
+    <string name="action_back">Назад</string>
+    <string name="error_cancel_build">Не удалось остановить сборку</string>
+    <string name="logs_title">Лог сборки</string>
+    <string name="logs_filter_all">Все</string>
+    <string name="logs_filter_problems">Проблемы</string>
+    <string name="logs_filter_errors">Ошибки</string>
+    <string name="logs_section_errors">Ошибки</string>
+    <string name="logs_section_warnings">Предупреждения</string>
+    <string name="logs_section_output">Лог</string>
+    <string name="logs_empty">Строк лога пока нет.</string>
+    <string name="logs_filtered_empty">Под этот фильтр ничего не подходит.</string>
+    <string name="logs_not_found_title">Сборка не найдена</string>
+    <string name="logs_not_found_body">Её логи были очищены после отключения от IDE.</string>
+</resources>

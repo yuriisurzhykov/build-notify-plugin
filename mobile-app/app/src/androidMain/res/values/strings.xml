@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Build Notifier</string>
+
+    <string name="notification_channel_connection">Connection status</string>
+    <string name="notification_channel_connection_description">Ongoing notification while connected to the IDE</string>
+    <string name="notification_channel_builds">Build results</string>
+    <string name="notification_channel_builds_description">Build success, failure and cancellation</string>
+
+    <string name="notification_waiting">Waiting for connection…</string>
+    <string name="notification_connected">Connected to %1$s</string>
+    <string name="notification_connecting">Connecting to %1$s…</string>
+    <string name="notification_pairing">Pairing with %1$s…</string>
+    <string name="notification_reconnecting">Reconnecting (attempt %1$d)…</string>
+    <string name="notification_connection_lost">Connection lost</string>
+    <string name="notification_building">Building %1$s</string>
+    <string name="notification_building_task">Building %1$s · %2$s</string>
+
+    <string name="notification_build_succeeded">%1$s: build succeeded</string>
+    <string name="notification_build_failed">%1$s: build failed</string>
+    <string name="notification_build_cancelled">%1$s: build cancelled</string>
+    <plurals name="notification_errors">
+        <item quantity="one">%d error</item>
+        <item quantity="other">%d errors</item>
+    </plurals>
+    <plurals name="notification_warnings">
+        <item quantity="one">%d warning</item>
+        <item quantity="other">%d warnings</item>
+    </plurals>
 </resources>

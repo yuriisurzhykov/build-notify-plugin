@@ -1,6 +1,9 @@
 package me.yuriisoft.buildnotify.mobile
 
 import com.yuriisurzhykov.buildnotifier.feature.catalog.CatalogComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.IntoSet
@@ -8,6 +11,7 @@ import me.tatarka.inject.annotations.Provides
 import me.yuriisoft.buildnotify.mobile.core.cache.db.CacheDatabase
 import me.yuriisoft.buildnotify.mobile.core.cache.db.CacheDatabaseFactory
 import me.yuriisoft.buildnotify.mobile.core.cache.db.CacheEntryQueries
+import me.yuriisoft.buildnotify.mobile.core.di.AppScope
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
 import me.yuriisoft.buildnotify.mobile.core.navigation.StartRoute
@@ -16,7 +20,10 @@ import me.yuriisoft.buildnotify.mobile.core.platform.DeviceIdentity
 import me.yuriisoft.buildnotify.mobile.core.platform.INetworkMonitor
 import me.yuriisoft.buildnotify.mobile.crypto.platformSha256
 import me.yuriisoft.buildnotify.mobile.data.protocol.HelloPayload
-import me.yuriisoft.buildnotify.mobile.feature.buildstatus.di.BuildStatusComponent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.ActiveBuildsDatabaseFactory
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.ActiveBuildsCacheSync
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.BuildCacheInvalidator
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.di.ActiveBuildsComponent
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.INsdDiscovery
 import me.yuriisoft.buildnotify.mobile.feature.discovery.di.DiscoveryComponent
 import me.yuriisoft.buildnotify.mobile.feature.networkstatus.di.NetworkStatusComponent
@@ -61,20 +68,35 @@ abstract class AppComponent(
     @get:Provides protected val serverCertCapture: ServerCertificateCapture,
     @get:Provides protected val clientIdentityProvider: ClientIdentityProvider,
     @get:Provides protected val cacheDatabaseFactory: CacheDatabaseFactory,
+    @get:Provides protected val activeBuildsDatabaseFactory: ActiveBuildsDatabaseFactory,
 ) : DiscoveryComponent,
     NetworkComponent,
-    BuildStatusComponent,
+    ActiveBuildsComponent,
     CatalogComponent,
     NetworkStatusComponent {
 
     abstract val screens: Set<Screen>
     abstract val connectionManager: ConnectionManager
     abstract val startRoute: StartRoute
+    abstract val activeSession: ActiveSession
+    abstract val buildStateSync: BuildStateSync
+
+    /**
+     * Process-lifetime build-cache workers. Platform entry points read these once at
+     * start-up so that kotlin-inject creates them (they work from their `init`).
+     */
+    abstract val buildCacheInvalidator: BuildCacheInvalidator
+    abstract val activeBuildsCacheSync: ActiveBuildsCacheSync
 
     // --- App-level bindings only ---
 
     @Provides
     protected fun dispatchers(): AppDispatchers = AppDispatchers.Default()
+
+    /** Lives as long as the component, i.e. the process. */
+    @AppScope
+    @Provides
+    protected fun appScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Provides
     protected fun json(): Json = Json { ignoreUnknownKeys = true }

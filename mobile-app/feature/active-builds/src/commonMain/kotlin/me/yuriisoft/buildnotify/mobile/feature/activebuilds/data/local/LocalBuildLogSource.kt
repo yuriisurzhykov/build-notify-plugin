@@ -46,18 +46,18 @@ class LocalBuildLogSource(
 
     override suspend fun save(params: String, data: List<BuildLogEntry>) {
         dispatchers.withBackground {
-            val existingCount = queries.logCount(params).executeAsOne().toInt()
-            val newEntries = data.drop(existingCount)
-            if (newEntries.isNotEmpty()) {
-                queries.transaction {
-                    newEntries.forEach { entry ->
-                        queries.insert(
-                            build_id = params,
-                            timestamp = entry.timestamp,
-                            message = entry.message,
-                            kind = entry.kind.toRecordKind().name,
-                        )
-                    }
+            // Count and insert in one transaction: several collectors (the screen and the
+            // app-wide cache sync) may save the same list concurrently, and a count read
+            // outside the transaction would let both append the same tail twice.
+            queries.transaction {
+                val existingCount = queries.logCount(params).executeAsOne().toInt()
+                data.drop(existingCount).forEach { entry ->
+                    queries.insert(
+                        build_id = params,
+                        timestamp = entry.timestamp,
+                        message = entry.message,
+                        kind = entry.kind.toRecordKind().name,
+                    )
                 }
             }
         }

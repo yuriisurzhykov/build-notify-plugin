@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel_connection">Статус подключения</string>
+    <string name="notification_channel_connection_description">Постоянное уведомление, пока есть подключение к IDE</string>
+    <string name="notification_channel_builds">Результаты сборок</string>
+    <string name="notification_channel_builds_description">Успех, ошибка или отмена сборки</string>
+
+    <string name="notification_waiting">Ожидание подключения…</string>
+    <string name="notification_connected">Подключено к %1$s</string>
+    <string name="notification_connecting">Подключение к %1$s…</string>
+    <string name="notification_pairing">Сопряжение с %1$s…</string>
+    <string name="notification_reconnecting">Переподключение (попытка %1$d)…</string>
+    <string name="notification_connection_lost">Соединение потеряно</string>
+    <string name="notification_building">Сборка %1$s</string>
+    <string name="notification_building_task">Сборка %1$s · %2$s</string>
+
+    <string name="notification_build_succeeded">%1$s: сборка успешна</string>
+    <string name="notification_build_failed">%1$s: сборка упала</string>
+    <string name="notification_build_cancelled">%1$s: сборка отменена</string>
+    <plurals name="notification_errors">
+        <item quantity="one">%d ошибка</item>
+        <item quantity="few">%d ошибки</item>
+        <item quantity="many">%d ошибок</item>
+        <item quantity="other">%d ошибки</item>
+    </plurals>
+    <plurals name="notification_warnings">
+        <item quantity="one">%d предупреждение</item>
+        <item quantity="few">%d предупреждения</item>
+        <item quantity="many">%d предупреждений</item>
+        <item quantity="other">%d предупреждения</item>
+    </plurals>
+</resources>
