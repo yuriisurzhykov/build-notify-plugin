@@ -33,6 +33,7 @@ class BuildLogsUiMapper {
                 }
                 .toImmutableList(),
             totalLines = logs.size,
+            filterCounts = LogFilter.entries.associateWith { f -> logs.count { f.accepts(it.kind) } },
             errors = finished?.outcome?.errors?.map { it.toUi() }?.toImmutableList()
                 ?: persistentListOf(),
             warnings = finished?.outcome?.warnings?.map { it.toUi() }?.toImmutableList()

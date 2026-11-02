@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import me.yuriisoft.buildnotify.mobile.toast.ToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastData
 import me.yuriisoft.buildnotify.mobile.toast.ui.animation.rememberPullRevealState
-import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 
 private val SwipeDismissThreshold = 56.dp
 private const val SwipeAlphaReduction = 0.5f
@@ -72,8 +72,8 @@ fun ToastHost(
                 data = toast,
                 onDismiss = { hostState.dismiss(toast.id) },
                 modifier = Modifier.padding(
-                    horizontal = BuildNotifyTheme.dimensions.spacing.regular,
-                    vertical = BuildNotifyTheme.dimensions.spacing.small,
+                    horizontal = GraphiteTheme.spacing.l,
+                    vertical = GraphiteTheme.spacing.s,
                 ),
             )
         }

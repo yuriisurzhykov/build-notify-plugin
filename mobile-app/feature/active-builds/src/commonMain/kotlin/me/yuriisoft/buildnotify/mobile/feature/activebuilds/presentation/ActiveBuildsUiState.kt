@@ -25,7 +25,34 @@ sealed interface ActiveBuildsUiState {
         val running: ImmutableList<RunningBuildUi>,
         val finished: ImmutableList<FinishedBuildUi>,
         val streamFailed: Boolean = false,
+        /** Open "hand off to an agent" sheet, or `null` when closed. */
+        val handoff: HandoffUi? = null,
     ) : ActiveBuildsUiState
+}
+
+/** Content of the "hand off to an agent" sheet for one failed build. */
+@Immutable
+data class HandoffUi(
+    val buildId: String,
+    val projectName: String,
+    val errorCount: Int,
+    /** Ready-to-send message: errors with locations, optionally the log. */
+    val prompt: String,
+    val includeLog: Boolean,
+    val logLineCount: Int,
+)
+
+/** Connection shown in the home top bar. */
+@Immutable
+sealed interface ConnectionUi {
+    @Immutable
+    data class Connected(val hostName: String) : ConnectionUi
+
+    @Immutable
+    data object Reconnecting : ConnectionUi
+
+    @Immutable
+    data object Offline : ConnectionUi
 }
 
 @Immutable
@@ -42,6 +69,7 @@ data class FinishedBuildUi(
     val buildId: String,
     val projectName: String,
     val status: FinishStatus,
+    val startedAt: Long,
     val durationMs: Long,
     val errorCount: Int,
     val warningCount: Int,

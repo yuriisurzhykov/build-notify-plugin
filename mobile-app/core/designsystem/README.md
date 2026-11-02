@@ -63,3 +63,15 @@ GraphiteTheme {                      // darkTheme = isSystemInDarkTheme() по �
 - Обратная связь при нажатии своя (лёгкое сжатие и затемнение), без Material ripple — одинаково на всех платформах.
 
 Прототип экранов: https://claude.ai/artifact/DZzSEyzU8ri9phJq9JTxtT
+
+## Движение — `motion/`
+
+| API | Где используется |
+|-----|------------------|
+| `GraphiteMotion` | общие длительности (`Fast 150`, `Medium 280`, `Slow 450`), шаг каскада `Stagger 55`, пружины `bouncy()` / `settle()` |
+| `Reveal(index)` | каскадное появление элементов экрана (fade + подъём) |
+| `PopIn` | пружинное «выпрыгивание» — бейдж успеха, цифры PIN |
+| `Modifier.shakeOn(trigger)` | встряска при ошибке |
+| `PulseRings` | кольца-радар вокруг иконки, пока идёт ожидание |
+| `BouncingDots` | «ещё работаем» |
+| `Modifier.breathing()` | мягкое «дыхание» элемента, который ждёт пользователя |

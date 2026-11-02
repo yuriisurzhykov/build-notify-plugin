@@ -133,7 +133,8 @@ interface ActiveBuildsComponent {
         repository: IActiveBuildRepository,
         cancelBuild: CancelBuildUseCase,
         dispatchers: AppDispatchers,
-    ): ActiveBuildsViewModel = ActiveBuildsViewModel(repository, cancelBuild, dispatchers)
+        connectionManager: ConnectionManager,
+    ): ActiveBuildsViewModel = ActiveBuildsViewModel(repository, cancelBuild, dispatchers, connectionManager)
 
     @IntoSet
     @Provides

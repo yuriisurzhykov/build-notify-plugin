@@ -17,6 +17,7 @@ class ActiveBuildsUiMapper(
     fun map(
         snapshots: List<BuildSnapshot>,
         logs: Map<String, List<BuildLogEntry>>,
+        handoff: HandoffRequest? = null,
     ): ActiveBuildsUiState {
         if (snapshots.isEmpty()) return ActiveBuildsUiState.Empty
 
@@ -33,6 +34,21 @@ class ActiveBuildsUiMapper(
         return ActiveBuildsUiState.Loaded(
             running = running.toImmutableList(),
             finished = finished.toImmutableList(),
+            handoff = handoff?.let { request ->
+                snapshots
+                    .filterIsInstance<BuildSnapshot.Finished>()
+                    .firstOrNull { it.buildId == request.buildId }
+                    ?.let { build ->
+                        HandoffUi(
+                            buildId = build.buildId,
+                            projectName = build.projectName,
+                            errorCount = build.outcome.errors.size,
+                            prompt = HandoffPrompt.build(build, request.logs.takeIf { request.includeLog }),
+                            includeLog = request.includeLog,
+                            logLineCount = request.logs.size,
+                        )
+                    }
+            },
         )
     }
 
@@ -50,6 +66,7 @@ class ActiveBuildsUiMapper(
         buildId = buildId,
         projectName = projectName,
         status = outcome.status,
+        startedAt = startedAt,
         durationMs = outcome.durationMs,
         errorCount = outcome.errors.size,
         warningCount = outcome.warnings.size,
@@ -61,6 +78,13 @@ class ActiveBuildsUiMapper(
         const val TOP_ERRORS = 3
     }
 }
+
+/** What the ViewModel knows about an open hand-off sheet. */
+data class HandoffRequest(
+    val buildId: String,
+    val includeLog: Boolean,
+    val logs: List<BuildLogEntry>,
+)
 
 internal fun BuildIssue.toUi(): BuildIssueUi = BuildIssueUi(
     message = message,

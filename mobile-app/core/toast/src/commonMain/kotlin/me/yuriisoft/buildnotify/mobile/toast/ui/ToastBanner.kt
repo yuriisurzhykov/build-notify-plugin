@@ -21,9 +21,10 @@ import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastData
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastType
 import me.yuriisoft.buildnotify.mobile.toast.ui.animation.auroraBackground
-import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.ui.components.icon.Icon
-import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 import me.yuriisoft.buildnotify.mobile.ui.theme.color.semantic.StatusRole
 
 private val MinContentHeight = 48.dp
@@ -42,7 +43,7 @@ internal fun ToastBanner(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(BuildNotifyTheme.shapes.medium)
+            .clip(GraphiteTheme.shapes.card)
             .auroraBackground(statusRole),
     ) {
         Row(
@@ -51,23 +52,23 @@ internal fun ToastBanner(
                 .windowInsetsPadding(contentInsets)
                 .defaultMinSize(minHeight = MinContentHeight)
                 .padding(
-                    start = BuildNotifyTheme.dimensions.spacing.regular,
-                    end = BuildNotifyTheme.dimensions.spacing.regular,
-                    bottom = BuildNotifyTheme.dimensions.spacing.small,
+                    start = GraphiteTheme.spacing.l,
+                    end = GraphiteTheme.spacing.l,
+                    bottom = GraphiteTheme.spacing.s,
                 ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
             Text(
                 modifier = Modifier.weight(1f),
-                text = data.message,
-                style = BuildNotifyTheme.typography.titleMedium,
+                text = data.message.resolve().toString(),
+                style = GraphiteTheme.typography.bodyStrong,
                 color = statusRole.onMain,
                 textAlign = TextAlign.Center,
             )
             data.icon?.let { iconResource ->
                 Icon(
-                    modifier = Modifier.size(BuildNotifyTheme.dimensions.icon.small),
+                    modifier = Modifier.size(GraphiteTheme.sizes.icon),
                     contentDescription = null,
                     image = iconResource,
                     tint = statusRole.onMain,
@@ -77,13 +78,24 @@ internal fun ToastBanner(
     }
 }
 
+/**
+ * Graphite tone colours in the shape the aurora animation expects, so the animated
+ * background keeps working while the banner follows the Graphite palette.
+ */
 @Composable
 private fun ToastType.toStatusRole(): StatusRole {
-    val status = BuildNotifyTheme.colors.status
-    return when (this) {
-        ToastType.Info    -> status.info
-        ToastType.Success -> status.success
-        ToastType.Warning -> status.warning
-        ToastType.Error   -> status.error
-    }
+    val tone = GraphiteTheme.colors.tone(
+        when (this) {
+            ToastType.Info    -> BuildTone.Running
+            ToastType.Success -> BuildTone.Success
+            ToastType.Warning -> BuildTone.Warning
+            ToastType.Error   -> BuildTone.Failure
+        },
+    )
+    return StatusRole(
+        main = tone.main,
+        onMain = tone.onMain,
+        container = tone.container,
+        onContainer = tone.main,
+    )
 }

@@ -15,6 +15,7 @@ kotlin {
             implementation(project(":core:network"))
             implementation(project(":core:navigation"))
             implementation(project(":core:ui"))
+            implementation(project(":core:designsystem"))
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.kotlin.inject.runtime)

@@ -21,6 +21,7 @@ kotlin {
             implementation(project(":core:network"))
             implementation(project(":core:navigation"))
             implementation(project(":core:ui"))
+            implementation(project(":core:designsystem"))
             implementation(project(":feature:discovery"))
             implementation(project(":feature:active-builds"))
             implementation(project(":feature:history"))

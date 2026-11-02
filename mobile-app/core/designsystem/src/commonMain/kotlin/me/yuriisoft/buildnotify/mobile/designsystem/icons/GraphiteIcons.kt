@@ -91,6 +91,14 @@ object GraphiteIcons {
         }
     }
 
+    val Info: ImageVector by lazy {
+        stroke("Info", width = 2f) {
+            circle(12f, 12f, 9f)
+            moveTo(12f, 11f); lineTo(12f, 16.5f)
+            moveTo(12f, 7.6f); lineTo(12f, 7.7f)
+        }
+    }
+
     val Stop: ImageVector by lazy {
         fill("Stop") {
             moveTo(7.5f, 5f); lineTo(16.5f, 5f)

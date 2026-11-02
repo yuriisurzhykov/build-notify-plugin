@@ -7,6 +7,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import me.yuriisoft.buildnotify.mobile.core.communication.EventCommunication
 import me.yuriisoft.buildnotify.mobile.core.communication.StateCommunication
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
@@ -22,11 +25,15 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLo
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.repository.IActiveBuildRepository
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.usecase.CancelBuildUseCase
+import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionManager
+import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionState
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ActiveBuildsViewModel(
     private val repository: IActiveBuildRepository,
     private val cancelBuild: CancelBuildUseCase,
     private val dispatchers: AppDispatchers,
+    connectionManager: ConnectionManager,
     private val mapper: ActiveBuildsUiMapper = ActiveBuildsUiMapper(),
     private val state: StateCommunication.Mutable<ActiveBuildsUiState> =
         StateCommunication(ActiveBuildsUiState.Loading),
@@ -36,6 +43,14 @@ class ActiveBuildsViewModel(
     val uiState: StateFlow<ActiveBuildsUiState> = state.observe
     val uiEvents: Flow<ActiveBuildsUiEvent> = events.observe
 
+    val connection: StateFlow<ConnectionUi> = connectionManager.state
+        .map { it.toUi() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, connectionManager.state.value.toUi())
+
+    /** Build whose hand-off sheet is open, and whether to attach its log. */
+    private val handoffTarget = MutableStateFlow<String?>(null)
+    private val handoffIncludeLog = MutableStateFlow(false)
+
     private var observeJob: Job? = null
 
     init {
@@ -44,20 +59,40 @@ class ActiveBuildsViewModel(
 
     fun onIntent(intent: ActiveBuildsIntent) {
         when (intent) {
-            is ActiveBuildsIntent.StopBuild   -> stopBuild(intent.buildId)
-            is ActiveBuildsIntent.OpenLogs    ->
+            is ActiveBuildsIntent.StopBuild     -> stopBuild(intent.buildId)
+            is ActiveBuildsIntent.OpenLogs      ->
                 events.trySend(ActiveBuildsUiEvent.NavigateToLogs(intent.buildId))
 
-            ActiveBuildsIntent.RetryStream    -> observeBuilds()
+            ActiveBuildsIntent.RetryStream      -> observeBuilds()
+            is ActiveBuildsIntent.OpenHandoff   -> {
+                handoffIncludeLog.value = false
+                handoffTarget.value = intent.buildId
+            }
+
+            ActiveBuildsIntent.CloseHandoff     -> handoffTarget.value = null
+            ActiveBuildsIntent.ToggleHandoffLog -> handoffIncludeLog.value = !handoffIncludeLog.value
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeBuilds() {
         observeJob?.cancel()
-        observeJob = repository.observeBuilds()
+
+        val builds = repository.observeBuilds()
             .flatMapLatest { snapshots -> withRunningLogs(snapshots) }
-            .map { (snapshots, logs) -> mapper.map(snapshots, logs) }
+
+        val handoff: Flow<HandoffRequest?> = handoffTarget.flatMapLatest { buildId ->
+            if (buildId == null) {
+                flowOf(null)
+            } else {
+                combine(repository.observeLogs(buildId), handoffIncludeLog) { logs, include ->
+                    HandoffRequest(buildId = buildId, includeLog = include, logs = logs)
+                }
+            }
+        }
+
+        observeJob = combine(builds, handoff) { (snapshots, logs), request ->
+            mapper.map(snapshots, logs, request)
+        }
             .onEach { state.put(it) }
             .catch { error ->
                 if (error is CancellationException) throw error
@@ -94,4 +129,15 @@ class ActiveBuildsViewModel(
             }
         }
     }
+}
+
+private fun ConnectionState.toUi(): ConnectionUi = when (this) {
+    is ConnectionState.Connected    -> ConnectionUi.Connected(host.name)
+    is ConnectionState.Reconnecting,
+    is ConnectionState.Connecting,
+    is ConnectionState.PairingRequired -> ConnectionUi.Reconnecting
+
+    ConnectionState.Idle,
+    ConnectionState.Disconnected,
+    is ConnectionState.Failed       -> ConnectionUi.Offline
 }

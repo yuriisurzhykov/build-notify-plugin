@@ -5,6 +5,15 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.logs_copied
+import me.yuriisoft.buildnotify.mobile.toast.LocalToastHostState
+import me.yuriisoft.buildnotify.mobile.toast.model.ToastData
+import me.yuriisoft.buildnotify.mobile.toast.model.ToastDuration
+import me.yuriisoft.buildnotify.mobile.toast.model.ToastType
+import me.yuriisoft.buildnotify.mobile.ui.resource.TextResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import me.tatarka.inject.annotations.Inject
@@ -35,10 +44,18 @@ class BuildLogsScreen(
         val state by vm.uiState.collectAsState()
 
         val onIntent = remember(vm) { { intent: BuildLogsIntent -> vm.onIntent(intent) } }
+        val toastHost = LocalToastHostState.current
+        val scope = rememberCoroutineScope()
+        val copied = TextResource.ResText(Res.string.logs_copied)
         BuildLogsContent(
             state = state,
             onIntent = onIntent,
             onBack = navigator::back,
+            onCopied = {
+                scope.launch {
+                    toastHost.show(ToastData(type = ToastType.Success, message = copied, duration = ToastDuration.Timed()))
+                }
+            },
         )
     }
 }

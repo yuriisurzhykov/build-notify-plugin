@@ -25,6 +25,8 @@ sealed interface BuildLogsUiState {
         val lines: ImmutableList<BuildLogLineUi>,
         /** Number of lines before filtering — distinguishes "no logs" from "filtered out". */
         val totalLines: Int,
+        /** How many lines each filter would show, for the chip counters. */
+        val filterCounts: Map<LogFilter, Int>,
         val errors: ImmutableList<BuildIssueUi>,
         val warnings: ImmutableList<BuildIssueUi>,
     ) : BuildLogsUiState

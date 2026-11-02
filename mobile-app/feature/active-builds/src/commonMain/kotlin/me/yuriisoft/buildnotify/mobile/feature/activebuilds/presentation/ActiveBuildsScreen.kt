@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ import me.yuriisoft.buildnotify.mobile.core.navigation.routes.BuildLogsDestinati
 import me.yuriisoft.buildnotify.mobile.core.navigation.routes.BuildStatusDestination
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.error_cancel_build
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.handoff_copied
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui.ActiveBuildsContent
 import me.yuriisoft.buildnotify.mobile.toast.LocalToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastData
@@ -62,7 +64,19 @@ class ActiveBuildsScreen(
             }
         }
 
+        val connection by vm.connection.collectAsState()
+        val scope = rememberCoroutineScope()
+        val copied = TextResource.ResText(Res.string.handoff_copied)
         val onIntent = remember(vm) { { intent: ActiveBuildsIntent -> vm.onIntent(intent) } }
-        ActiveBuildsContent(state = state, onIntent = onIntent)
+        ActiveBuildsContent(
+            state = state,
+            connection = connection,
+            onIntent = onIntent,
+            onCopied = {
+                scope.launch {
+                    toastHost.show(ToastData(type = ToastType.Success, message = copied, duration = ToastDuration.Timed()))
+                }
+            },
+        )
     }
 }

@@ -13,6 +13,16 @@ sealed interface ActiveBuildsIntent {
 
     @Immutable
     data object RetryStream : ActiveBuildsIntent
+
+    /** Open the "hand off to an agent" sheet for a failed build. */
+    @Immutable
+    data class OpenHandoff(val buildId: String) : ActiveBuildsIntent
+
+    @Immutable
+    data object CloseHandoff : ActiveBuildsIntent
+
+    @Immutable
+    data object ToggleHandoffLog : ActiveBuildsIntent
 }
 
 @Immutable

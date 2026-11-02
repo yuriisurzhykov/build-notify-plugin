@@ -1,40 +1,52 @@
 package me.yuriisoft.buildnotify.mobile.feature.discovery.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.discovery_subtitle
 import build_notify_mobile.feature.discovery.generated.resources.discovery_title
 import build_notify_mobile.feature.discovery.generated.resources.discovery_version_footer
+import me.yuriisoft.buildnotify.mobile.designsystem.components.Icon
+import me.yuriisoft.buildnotify.mobile.designsystem.components.ScreenSurface
+import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.GraphiteMotion
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.Reveal
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryUiState
 import me.yuriisoft.buildnotify.mobile.network.connection.DiscoveredHost
-import me.yuriisoft.buildnotify.mobile.ui.components.foundation.Text
-import me.yuriisoft.buildnotify.mobile.ui.components.icon.BodyIcon
-import me.yuriisoft.buildnotify.mobile.ui.components.layout.FlatRow
-import me.yuriisoft.buildnotify.mobile.ui.components.layout.FlatRowSlot
-import me.yuriisoft.buildnotify.mobile.ui.resource.ImageResource
-import me.yuriisoft.buildnotify.mobile.ui.resource.textResource
-import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
+import org.jetbrains.compose.resources.stringResource
 
-private val DiscoveryHeaderSlots = listOf(
-    FlatRowSlot(0.15f),
-    FlatRowSlot(0.85f),
-)
-
+/**
+ * Welcome / discovery flow.
+ *
+ * The body stage keeps the original directional transitions (forward → slide left,
+ * back → slide right, same step or network loss → cross-fade). Around it, the stage
+ * backdrop and the brand glyph re-tint smoothly to the state's [BuildTone].
+ */
 @Composable
 internal fun DiscoveryContent(
     state: DiscoveryUiState,
@@ -47,57 +59,58 @@ internal fun DiscoveryContent(
     onStartScan: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val spacing = BuildNotifyTheme.dimensions.spacing
-    val layout = BuildNotifyTheme.dimensions.layout
+    val colors = GraphiteTheme.colors
+    val spacing = GraphiteTheme.spacing
+    val tone = state.tone()
+    val backdrop by animateColorAsState(colors.tone(tone).hero, tween(GraphiteMotion.Slow), label = "backdrop")
+    val accent by animateColorAsState(colors.tone(tone).main, tween(GraphiteMotion.Slow), label = "accent")
+    val accentContainer by animateColorAsState(colors.tone(tone).container, tween(GraphiteMotion.Slow), label = "accentContainer")
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = layout.contentPadding),
-        ) {
-            Spacer(Modifier.height(spacing.xxLarge))
-
-            FlatRow(
-                modifier = Modifier.fillMaxWidth(),
-                slots = DiscoveryHeaderSlots,
-                horizontalSpacing = BuildNotifyTheme.dimensions.spacing.regular,
-                verticalSpacing = BuildNotifyTheme.dimensions.spacing.regular,
+    ScreenSurface(modifier.fillMaxSize().safeDrawingPadding()) {
+        Reveal(index = 0) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = spacing.screen, vertical = spacing.xxl),
+                horizontalArrangement = Arrangement.spacedBy(spacing.l),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                BodyIcon(
-                    modifier = Modifier.slot(0),
-                    containerColor = BuildNotifyTheme.colors.primary.container,
-                    contentColor = BuildNotifyTheme.colors.primary.onContainer,
-                    image = ImageResource.VectorImage(HubIcon),
-                )
-
-                Text(
-                    modifier = Modifier.slot(1),
-                    text = textResource(Res.string.discovery_title),
-                    style = BuildNotifyTheme.typography.displayLarge,
-                    color = BuildNotifyTheme.colors.content.primary,
-                    textAlign = TextAlign.Start,
-                )
-
-                Text(
-                    modifier = Modifier.slot(1),
-                    text = textResource(Res.string.discovery_subtitle),
-                    style = BuildNotifyTheme.typography.bodyMedium,
-                    color = BuildNotifyTheme.colors.content.secondary,
-                    textAlign = TextAlign.Start,
-                )
+                Box(
+                    Modifier
+                        .size(52.dp)
+                        .background(accentContainer, GraphiteTheme.shapes.pill),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(HubIcon, contentDescription = null, tint = accent, size = 26.dp)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.xxs)) {
+                    Text(stringResource(Res.string.discovery_title), style = GraphiteTheme.typography.display)
+                    Text(
+                        stringResource(Res.string.discovery_subtitle),
+                        style = GraphiteTheme.typography.bodySmall,
+                        color = colors.contentSecondary,
+                    )
+                }
             }
+        }
 
-            Spacer(Modifier.height(spacing.xLarge))
-
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = spacing.heroInset)
+                .clip(GraphiteTheme.shapes.hero)
+                .background(backdrop),
+        ) {
             AnimatedContent(
                 targetState = state,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxSize(),
                 transitionSpec = {
                     val isForward = targetState.animateOrder > initialState.animateOrder
                     val isBackward = targetState.animateOrder < initialState.animateOrder
                     val isFade = targetState.animateOrder == initialState.animateOrder ||
-                            targetState.animateOrder < 0
+                        targetState.animateOrder < 0
+                    // Same branch order as before the redesign: transitions are unchanged.
                     when {
                         isForward  -> slideInHorizontally { fullWidth -> fullWidth } togetherWith slideOutHorizontally { fullWidth -> -fullWidth }
                         isBackward -> slideInHorizontally { fullWidth -> -fullWidth } togetherWith slideOutHorizontally { fullWidth -> fullWidth }
@@ -106,15 +119,12 @@ internal fun DiscoveryContent(
                     }
                 },
                 contentKey = { it::class.qualifiedName },
+                label = "discoveryStage",
             ) { currentState ->
                 when (currentState) {
                     is DiscoveryUiState.Idle                -> IdleBody(onStartScan = onStartScan)
                     is DiscoveryUiState.Scanning            -> ScanningBody(onCancel = onCancel)
-                    is DiscoveryUiState.ServiceSelection    -> HostListBody(
-                        currentState.hosts,
-                        onHostSelected,
-                    )
-
+                    is DiscoveryUiState.ServiceSelection    -> HostListBody(currentState.hosts, onHostSelected)
                     is DiscoveryUiState.PairingConfirmation -> PairingConfirmationBody(
                         host = currentState.host,
                         pin = currentState.pin,
@@ -122,16 +132,8 @@ internal fun DiscoveryContent(
                         onReject = onRejectPairing,
                     )
 
-                    is DiscoveryUiState.WaitingForIde       -> WaitingForIdeBody(
-                        host = currentState.host,
-                        onCancel = onCancel,
-                    )
-
-                    is DiscoveryUiState.Connecting          -> ConnectingBody(
-                        host = currentState.host,
-                        onCancel = onCancel,
-                    )
-
+                    is DiscoveryUiState.WaitingForIde       -> WaitingForIdeBody(currentState.host, onCancel)
+                    is DiscoveryUiState.Connecting          -> ConnectingBody(currentState.host, onCancel)
                     is DiscoveryUiState.Connected           -> ConnectedBody(currentState.host)
                     is DiscoveryUiState.ConnectionFailed    -> ConnectionFailedBody(
                         host = currentState.hostResource,
@@ -140,24 +142,38 @@ internal fun DiscoveryContent(
                     )
 
                     is DiscoveryUiState.NothingFound        -> EmptyBody(onRetry = onRetry)
-                    is DiscoveryUiState.ScanError           -> ErrorBody(
-                        message = currentState.message,
-                        onRetry = onRetry,
-                    )
-
+                    is DiscoveryUiState.ScanError           -> ErrorBody(currentState.message, onRetry)
                     is DiscoveryUiState.NetworkUnavailable  -> NetworkUnavailableBody()
                 }
             }
-
-            Text(
-                text = textResource(Res.string.discovery_version_footer, appVersion),
-                style = BuildNotifyTheme.typography.bodySmall,
-                color = BuildNotifyTheme.colors.content.tertiary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = spacing.regular),
-            )
         }
+
+        Text(
+            text = stringResource(Res.string.discovery_version_footer, appVersion),
+            style = GraphiteTheme.typography.caption,
+            color = colors.contentTertiary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = spacing.m),
+        )
     }
+}
+
+/** The colour story of the flow: blue while working, amber when the user must act. */
+internal fun DiscoveryUiState.tone(): BuildTone = when (this) {
+    DiscoveryUiState.Idle,
+    DiscoveryUiState.Scanning,
+    is DiscoveryUiState.ServiceSelection,
+    is DiscoveryUiState.Connecting          -> BuildTone.Running
+
+    is DiscoveryUiState.PairingConfirmation,
+    is DiscoveryUiState.WaitingForIde,
+    DiscoveryUiState.NothingFound,
+    DiscoveryUiState.NetworkUnavailable     -> BuildTone.Warning
+
+    is DiscoveryUiState.Connected           -> BuildTone.Success
+
+    is DiscoveryUiState.ConnectionFailed,
+    is DiscoveryUiState.ScanError           -> BuildTone.Failure
 }

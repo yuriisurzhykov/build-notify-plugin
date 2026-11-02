@@ -29,6 +29,7 @@ kotlin {
             implementation(project(":core:data"))
             implementation(project(":core:network"))
             implementation(project(":core:ui"))
+            implementation(project(":core:designsystem"))
             implementation(project(":core:navigation"))
             implementation(project(":core:toast"))
             implementation(libs.lifecycle.viewmodel)

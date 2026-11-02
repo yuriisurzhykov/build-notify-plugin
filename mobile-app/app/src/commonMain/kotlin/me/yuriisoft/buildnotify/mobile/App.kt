@@ -19,6 +19,7 @@ import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionState
 import me.yuriisoft.buildnotify.mobile.toast.LocalToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.ToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.ui.ToastHost
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable
@@ -29,27 +30,30 @@ fun App(
     /** Routes requested from outside the UI, e.g. a tapped build notification. */
     externalRoutes: Flow<String> = emptyFlow(),
 ) {
+    // Graphite renders every screen. BuildNotifyTheme only backs the legacy ui-catalog.
     BuildNotifyTheme {
-        val toastHostState = remember { ToastHostState() }
-        val navController = rememberNavController()
-        val navigator = remember(navController) { AppNavigator(navController) }
+        GraphiteTheme {
+            val toastHostState = remember { ToastHostState() }
+            val navController = rememberNavController()
+            val navigator = remember(navController) { AppNavigator(navController) }
 
-        CompositionLocalProvider(LocalToastHostState provides toastHostState) {
-            Box(Modifier.fillMaxSize()) {
-                AppNavGraph(
-                    navController = navController,
-                    navigator = navigator,
-                    screens = screens,
-                    startRoute = remember { startRoute.resolve().route },
-                )
-                ToastHost(
-                    hostState = toastHostState,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-            }
-            NetworkStatusEffect(connectionState, toastHostState, navigator)
-            LaunchedEffect(navigator, externalRoutes) {
-                externalRoutes.collect { route -> navigator.navigateTo(route, false) }
+            CompositionLocalProvider(LocalToastHostState provides toastHostState) {
+                Box(Modifier.fillMaxSize()) {
+                    AppNavGraph(
+                        navController = navController,
+                        navigator = navigator,
+                        screens = screens,
+                        startRoute = remember { startRoute.resolve().route },
+                    )
+                    ToastHost(
+                        hostState = toastHostState,
+                        modifier = Modifier.align(Alignment.TopCenter),
+                    )
+                }
+                NetworkStatusEffect(connectionState, toastHostState, navigator)
+                LaunchedEffect(navigator, externalRoutes) {
+                    externalRoutes.collect { route -> navigator.navigateTo(route, false) }
+                }
             }
         }
     }
