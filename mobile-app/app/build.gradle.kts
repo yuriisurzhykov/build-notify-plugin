@@ -16,20 +16,22 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core:common"))
-            implementation(project(":core:data"))
-            implementation(project(":core:network"))
-            implementation(project(":core:navigation"))
+            // api: these modules declare types in AppComponent's public signature (its
+            // supertypes and constructor parameters), which :androidApp and iOS consume.
+            api(project(":core:common"))
+            api(project(":core:data"))
+            api(project(":core:network"))
+            api(project(":core:navigation"))
             implementation(project(":core:ui"))
             implementation(project(":core:designsystem"))
-            implementation(project(":feature:discovery"))
-            implementation(project(":feature:active-builds"))
+            api(project(":feature:discovery"))
+            api(project(":feature:active-builds"))
             implementation(project(":feature:history"))
-            implementation(project(":feature:network-status"))
-            implementation(project(":core:cache"))
+            api(project(":feature:network-status"))
+            api(project(":core:cache"))
             implementation(project(":core:toast"))
             // TODO: This is just a temporary dependency to view all components catalog.
-            implementation(project(":feature:ui-catalog"))
+            api(project(":feature:ui-catalog"))
             implementation(libs.jetbrains.compose.runtime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.jetbrains.compose.ui)
