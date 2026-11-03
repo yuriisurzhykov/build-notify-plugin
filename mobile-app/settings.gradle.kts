@@ -12,7 +12,6 @@ pluginManagement {
             }
         }
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space")
         gradlePluginPortal()
     }
 }
@@ -28,7 +27,6 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space")
     }
 }
 
