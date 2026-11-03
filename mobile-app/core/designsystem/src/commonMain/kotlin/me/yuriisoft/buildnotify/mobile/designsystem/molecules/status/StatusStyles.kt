@@ -7,7 +7,6 @@ import androidx.compose.foundation.style.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.StatusStyle
@@ -17,13 +16,14 @@ internal fun rememberStatusPillStyle(tone: BuildTone): Style {
     val status = GraphiteTheme.status(tone)
     val pill = GraphiteTheme.shapes.pill
     val height = GraphiteTheme.sizes.pill
-    return remember(status, pill, height) {
+    val metrics = GraphiteTheme.dimens.status
+    return remember(status, pill, height, metrics) {
         Style {
             shape(pill)
             background(status.container)
             minHeight(height)
-            contentPaddingStart(PillPaddingStart)
-            contentPaddingEnd(PillPaddingEnd)
+            contentPaddingStart(metrics.pillPaddingStart)
+            contentPaddingEnd(metrics.pillPaddingEnd)
         }
     }
 }
@@ -32,12 +32,13 @@ internal fun rememberStatusPillStyle(tone: BuildTone): Style {
 internal fun rememberTagStyle(tone: BuildTone): Style {
     val status = GraphiteTheme.status(tone)
     val surfaceShape = GraphiteTheme.shapes.tag
-    return remember(status, surfaceShape) {
+    val metrics = GraphiteTheme.dimens.status
+    return remember(status, surfaceShape, metrics) {
         Style {
             shape(surfaceShape)
             background(status.container)
-            contentPaddingHorizontal(TagPaddingHorizontal)
-            contentPaddingVertical(TagPaddingVertical)
+            contentPaddingHorizontal(metrics.tagPaddingHorizontal)
+            contentPaddingVertical(metrics.tagPaddingVertical)
         }
     }
 }
@@ -54,11 +55,3 @@ internal fun rememberToneCircleStyle(status: StatusStyle, diameter: Dp): Style {
         }
     }
 }
-
-private val PillPaddingStart = 8.dp
-
-private val PillPaddingEnd = 10.dp
-
-private val TagPaddingHorizontal = 6.dp
-
-private val TagPaddingVertical = 1.dp

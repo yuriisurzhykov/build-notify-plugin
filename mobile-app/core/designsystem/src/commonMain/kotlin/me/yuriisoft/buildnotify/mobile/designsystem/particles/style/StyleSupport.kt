@@ -14,18 +14,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteMotion
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 /** The Graphite reaction to touch, identical on every platform (no Material ripple). */
-internal val PressFeedback: Style = Style {
-    pressed {
-        animate(GraphiteMotion.fast()) {
-            scale(PressedScale)
-            alpha(PressedAlpha)
+@Composable
+internal fun rememberPressFeedback(): Style {
+    val motion = GraphiteTheme.motion
+    val opacity = GraphiteTheme.opacity
+    return remember(motion, opacity) {
+        Style {
+            pressed {
+                animate(motion.fast()) {
+                    scale(motion.scales.pressed)
+                    alpha(opacity.pressed)
+                }
+            }
+            disabled {
+                alpha(opacity.disabled)
+            }
         }
-    }
-    disabled {
-        alpha(DisabledAlpha)
     }
 }
 
@@ -39,7 +46,7 @@ internal fun Modifier.styled(style: Style): Modifier {
 
 /**
  * Makes the element clickable and drives [style] from its interaction state:
- * pressed/disabled come from [PressFeedback]; [selected] and [checked] let the style
+ * pressed/disabled come from [rememberPressFeedback]; [selected] and [checked] let the style
  * declare `selected { }` / `checked { }` variants.
  */
 @Composable
@@ -52,6 +59,7 @@ internal fun Modifier.styledClickable(
     role: Role = Role.Button,
 ): Modifier {
     val interaction = remember { MutableInteractionSource() }
+    val feedback = rememberPressFeedback()
     val state = rememberUpdatedStyleState(interaction) {
         it.isEnabled = enabled
         it.isSelected = selected
@@ -65,7 +73,7 @@ internal fun Modifier.styledClickable(
             role = role,
             onClick = onClick,
         )
-        .styleable(state, PressFeedback.then(style))
+        .styleable(state, feedback.then(style))
 }
 
 /** Applies [style] with its `checked { }` variant driven by [checked]; not clickable itself. */
@@ -82,9 +90,3 @@ internal fun Modifier.styledToggle(style: Style, checked: Boolean): Modifier {
  * These helpers bind a Style to an element; components never stack raw modifiers for
  * visuals.
  */
-
-private const val PressedScale = 0.97f
-
-private const val PressedAlpha = 0.85f
-
-private const val DisabledAlpha = 0.38f

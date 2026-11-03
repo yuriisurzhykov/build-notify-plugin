@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styledClickable
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -34,9 +33,14 @@ fun ChoiceCard(
                 selected = selected,
                 role = Role.RadioButton,
             ),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.xxs),
     ) {
         Text(title, style = GraphiteTheme.typography.chip, color = content, maxLines = 1)
-        Text(hint, style = GraphiteTheme.typography.caption, color = content.copy(alpha = 0.75f), maxLines = 1)
+        Text(
+            hint,
+            style = GraphiteTheme.typography.caption,
+            color = content.copy(alpha = GraphiteTheme.opacity.hint),
+            maxLines = 1,
+        )
     }
 }

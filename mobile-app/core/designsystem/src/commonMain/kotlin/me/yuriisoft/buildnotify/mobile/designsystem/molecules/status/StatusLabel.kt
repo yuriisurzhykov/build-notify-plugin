@@ -11,7 +11,7 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteThem
 
 /**
  * Inline status line at the top of a hero: coloured glyph + label,
- * e.g. "✕ Сборка упала · 2 мин назад".
+ * e.g. "✕ Build failed · 2 min ago".
  */
 @Composable
 fun StatusLabel(

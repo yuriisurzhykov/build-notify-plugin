@@ -25,7 +25,7 @@ internal fun rememberButtonAppearance(variant: ButtonVariant, size: ButtonSize):
         ButtonVariant.Danger    -> Triple(
             Color.Transparent,
             colors.failure.main,
-            colors.failure.main.copy(alpha = 0.4f),
+            colors.failure.main.copy(alpha = GraphiteTheme.opacity.dangerOutline),
         )
     }
     return remember(container, content, outline, controlShape, height, padding) {

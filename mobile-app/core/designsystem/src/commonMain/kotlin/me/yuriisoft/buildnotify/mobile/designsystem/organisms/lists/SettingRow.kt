@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styledClickable
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -35,7 +34,7 @@ fun SettingRow(
         horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.m),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.xxs)) {
             Text(title, style = GraphiteTheme.typography.bodyStrong)
             if (subtitle != null) {
                 Text(subtitle, style = GraphiteTheme.typography.caption, color = GraphiteTheme.colors.contentTertiary)

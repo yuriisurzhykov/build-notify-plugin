@@ -46,6 +46,27 @@ class ArchitectureTest {
     )
 
     @Test
+    fun `dimensions, colours and motion come only from GraphiteTheme`() = ratchet(
+        "no hardcoded dp / sp / colour / alpha / duration outside Graphite tokens",
+        ArchitectureRules.forbiddenCode(MobileSources.tokenConsumers, HARDCODED_TOKENS),
+        known = emptyList(),
+    )
+
+    @Test
+    fun `tokens are read through the GraphiteTheme object only`() = ratchet(
+        "no composition locals or token constructors outside the design system",
+        ArchitectureRules.forbiddenCode(MobileSources.styled, DIRECT_TOKEN_ACCESS),
+        known = emptyList(),
+    )
+
+    @Test
+    fun `user-facing texts come from resources`() = ratchet(
+        "no Cyrillic text in string literals",
+        ArchitectureRules.forbiddenCode(MobileSources.production, listOf(CYRILLIC_LITERAL)),
+        known = emptyList(),
+    )
+
+    @Test
     fun `the design system depends on nothing in the app`() = ratchet(
         "design system is a leaf",
         ArchitectureRules.forbiddenImports(
@@ -111,6 +132,24 @@ class ArchitectureTest {
             Regex("""\.sp\b"""),
             Regex("""(?<![\w.])TextStyle\("""),
         )
+
+        /** Literal metrics, colours and timings; `0.dp` is not a token and stays allowed. */
+        val HARDCODED_TOKENS = listOf(
+            Regex("""(?<![\w.])[1-9]\d*(?:\.\d+)?f?\.(?:dp|sp)\b"""),
+            Regex("""Color\(0x"""),
+            Regex("""\b(?:alpha|initialScale|targetScale)\s*=\s*\d"""),
+            Regex("""\btween\(\s*\d"""),
+            Regex("""\bdurationMillis\s*=\s*\d"""),
+            Regex("""\bdelayMillis\s*=\s*\d"""),
+            Regex("""\bfillMax(?:Width|Height|Size)\(\s*0?\.\d"""),
+        )
+
+        val DIRECT_TOKEN_ACCESS = listOf(
+            Regex("""\bLocalGraphite\w*"""),
+            Regex("""(?<![\w.])Graphite(?:Colors|Typography|Spacing|Sizes|Dimens|Shapes|Motion|Opacity)\("""),
+        )
+
+        val CYRILLIC_LITERAL = Regex(""""[^"\n]*\p{IsCyrillic}""")
 
         /** For a file in layer `key`, imports of the same feature's layers in `value` are forbidden. */
         val LAYER_RULES = mapOf(

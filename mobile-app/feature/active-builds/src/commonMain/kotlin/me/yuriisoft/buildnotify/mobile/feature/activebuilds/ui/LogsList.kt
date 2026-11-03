@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogKind
@@ -26,7 +25,11 @@ internal fun LogsList(
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = spacing.l, end = spacing.l, bottom = BottomInsetForButton),
+        contentPadding = PaddingValues(
+            start = spacing.l,
+            end = spacing.l,
+            bottom = GraphiteTheme.dimens.layout.floatingButtonClearance,
+        ),
     ) {
         if (state.filter.accepts(LogKind.ERROR)) {
             issueSection(Res.string.logs_section_errors, state.errors, BuildTone.Failure)
@@ -39,4 +42,3 @@ internal fun LogsList(
 }
 
 /** Room for the floating "to the end" button below the last line. */
-private val BottomInsetForButton = 96.dp

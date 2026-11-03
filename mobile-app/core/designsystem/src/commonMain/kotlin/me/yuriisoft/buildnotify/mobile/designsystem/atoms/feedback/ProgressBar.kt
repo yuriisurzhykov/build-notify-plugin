@@ -30,14 +30,16 @@ fun ProgressBar(
     progress: Float?,
     modifier: Modifier = Modifier,
     color: Color = GraphiteTheme.colors.running.main,
-    trackColor: Color = GraphiteTheme.colors.content.copy(alpha = 0.1f),
+    trackColor: Color = GraphiteTheme.colors.content.copy(alpha = GraphiteTheme.opacity.progressTrack),
 ) {
+    val loops = GraphiteTheme.motion.loops
+    val segment = loops.progressSegment
     val transition = rememberInfiniteTransition(label = "progress")
     // Determinate bars ignore the phase; the transition is cheap and keeps the call stable.
     val phase by transition.animateFloat(
-        initialValue = -0.3f,
+        initialValue = -segment,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(1_400, easing = LinearEasing), RepeatMode.Restart),
+        animationSpec = infiniteRepeatable(tween(loops.progressMillis, easing = LinearEasing), RepeatMode.Restart),
         label = "phase",
     )
     val range = if (progress == null) ProgressBarRangeInfo.Indeterminate
@@ -59,7 +61,7 @@ fun ProgressBar(
             )
         } else {
             val start = (size.width * phase).coerceAtLeast(0f)
-            val end = (size.width * (phase + 0.3f)).coerceAtMost(size.width)
+            val end = (size.width * (phase + segment)).coerceAtMost(size.width)
             if (end > start) {
                 drawRoundRect(
                     color,

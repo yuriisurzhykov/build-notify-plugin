@@ -11,20 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.discovery_subtitle
 import build_notify_mobile.feature.discovery.generated.resources.discovery_title
 import build_notify_mobile.feature.discovery.generated.resources.discovery_version_footer
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.IconBadge
-import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.ScreenSurface
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.TintedStage
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.IconBadge
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.IconBadgeSize
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteTransition
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Reveal
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.directional
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.ScreenSurface
+import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.TintedStage
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryUiState
 import me.yuriisoft.buildnotify.mobile.network.connection.DiscoveredHost
 import org.jetbrains.compose.resources.stringResource
@@ -58,8 +58,8 @@ internal fun DiscoveryContent(
                 targetState = state,
                 modifier = Modifier.fillMaxSize(),
                 // Unchanged since before the redesign: forward slides left, back slides
-                // right, the same step cross-fades (see `directional`).
-                transition = { directional(initialState.animateOrder, targetState.animateOrder) },
+                // right, the same step cross-fades (see GraphiteTransition.Directional).
+                transition = GraphiteTransition.Directional<DiscoveryUiState> { it.animateOrder },
                 contentKey = { it::class.qualifiedName },
                 label = "discoveryStage",
             ) { currentState ->
@@ -91,7 +91,7 @@ private fun DiscoveryHeader(tone: BuildTone) {
             horizontalArrangement = Arrangement.spacedBy(spacing.l),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconBadge(HubIcon, tone, diameter = BrandBadgeDiameter, iconSize = BrandBadgeIconSize)
+            IconBadge(HubIcon, tone, size = IconBadgeSize.Small)
             Column(verticalArrangement = Arrangement.spacedBy(spacing.xxs)) {
                 Text(stringResource(Res.string.discovery_title), style = GraphiteTheme.typography.display)
                 Text(
@@ -171,6 +171,3 @@ internal fun DiscoveryUiState.tone(): BuildTone = when (this) {
     is DiscoveryUiState.ConnectionFailed,
     is DiscoveryUiState.ScanError           -> BuildTone.Failure
 }
-
-private val BrandBadgeDiameter = 52.dp
-private val BrandBadgeIconSize = 26.dp

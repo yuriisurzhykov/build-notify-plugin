@@ -11,16 +11,15 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.feedback.BouncingDots
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.ConsoleSegment
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.ConsoleSegmentPosition
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.IssueCard
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogLine
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusPill
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.feedback.BouncingDots
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.IssueCard
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Reveal
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -66,7 +65,7 @@ internal fun LazyListScope.issueSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SectionHeader(stringResource(title))
-            StatusPill(tone, issues.size.toString(), Modifier.padding(bottom = IssueCountGap))
+            StatusPill(tone, issues.size.toString(), Modifier.padding(bottom = GraphiteTheme.spacing.inline))
         }
     }
     itemsIndexed(issues, key = { index, _ -> "issue_${tone}_$index" }) { index, issue ->
@@ -114,5 +113,3 @@ private fun LazyListScope.olderLinesTrigger(oldestId: Long?, onLoadOlder: () -> 
         }
     }
 }
-
-private val IssueCountGap = 6.dp

@@ -11,10 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.IconButton
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.IconButton
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.text.TextValue
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.text.joined
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.action_back
@@ -32,7 +33,7 @@ internal fun LogsTopBar(state: BuildLogsUiState, onBack: () -> Unit, onCopied: (
     @Suppress("DEPRECATION")
     val clipboard = LocalClipboardManager.current
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().padding(GraphiteTheme.spacing.inline),
         horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -42,7 +43,7 @@ internal fun LogsTopBar(state: BuildLogsUiState, onBack: () -> Unit, onCopied: (
             onClick = onBack,
             tint = GraphiteTheme.colors.content,
         )
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.xxs)) {
             Text(
                 loaded?.projectName ?: stringResource(Res.string.logs_title),
                 style = GraphiteTheme.typography.title,
@@ -75,7 +76,7 @@ private fun StatusLine(status: BuildStatusUi) {
     val text = when (status) {
         is BuildStatusUi.Running  -> {
             val elapsed = formatTimer(rememberElapsedMs(status.startedAt))
-            status.currentTask?.let { "$elapsed · $it" } ?: elapsed
+            listOfNotNull(elapsed, status.currentTask).map(TextValue::of).joined(TextValue.DotSeparator).string()
         }
 
         is BuildStatusUi.Finished -> formatDuration(status.durationMs)

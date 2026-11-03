@@ -10,8 +10,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.Res
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_intro
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.ScreenSurface
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Living reference of every Graphite token and component, in the current theme.
@@ -37,9 +40,9 @@ fun GraphiteCatalog(modifier: Modifier = Modifier) {
                 Modifier.padding(horizontal = spacing.screen),
                 verticalArrangement = Arrangement.spacedBy(spacing.s),
             ) {
-                Text("Graphite", style = type.display)
+                Text(CatalogSamples.PRODUCT_NAME, style = type.display)
                 Text(
-                    "Тихий интерфейс, громкие сигналы. Цвет появляется только там, где есть статус.",
+                    stringResource(Res.string.catalog_intro),
                     style = type.bodySmall,
                     color = colors.contentSecondary,
                 )
@@ -65,6 +68,3 @@ fun GraphiteCatalog(modifier: Modifier = Modifier) {
         }
     }
 }
-
-
-

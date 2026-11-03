@@ -44,14 +44,13 @@ internal fun rememberConsoleStyle(translucent: Boolean): Style {
     val colors = GraphiteTheme.colors
     val surfaceShape = GraphiteTheme.shapes.inset
     val spacing = GraphiteTheme.spacing
-    return remember(colors, surfaceShape, spacing, translucent) {
+    val translucentAlpha = GraphiteTheme.opacity.translucentConsole
+    return remember(colors, surfaceShape, spacing, translucentAlpha, translucent) {
         Style {
             shape(surfaceShape)
-            background(if (translucent) colors.console.copy(alpha = TranslucentConsoleAlpha) else colors.console)
+            background(if (translucent) colors.console.copy(alpha = translucentAlpha) else colors.console)
             contentPaddingHorizontal(spacing.s)
             contentPaddingVertical(spacing.m)
         }
     }
 }
-
-private const val TranslucentConsoleAlpha = 0.6f

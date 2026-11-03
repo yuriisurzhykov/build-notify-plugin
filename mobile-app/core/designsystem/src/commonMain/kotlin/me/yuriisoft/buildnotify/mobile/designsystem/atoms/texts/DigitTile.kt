@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
@@ -26,15 +25,12 @@ fun DigitTile(
 internal fun rememberDigitTileStyle(): Style {
     val colors = GraphiteTheme.colors
     val surfaceShape = GraphiteTheme.shapes.control
-    return remember(colors, surfaceShape) {
+    val tile = GraphiteTheme.dimens.tile
+    return remember(colors, surfaceShape, tile) {
         Style {
-            size(DigitTileWidth, DigitTileHeight)
+            size(tile.digitWidth, tile.digitHeight)
             shape(surfaceShape)
             background(colors.surfaceRaised)
         }
     }
 }
-
-private val DigitTileWidth = 40.dp
-
-private val DigitTileHeight = 52.dp

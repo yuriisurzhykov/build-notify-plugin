@@ -15,12 +15,14 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteThem
 internal fun rememberLogLineStyle(highlighted: Boolean): Style {
     val colors = GraphiteTheme.colors
     val surfaceShape = GraphiteTheme.shapes.log
-    return remember(colors, surfaceShape, highlighted) {
+    val console = GraphiteTheme.dimens.console
+    val highlight = GraphiteTheme.opacity.logHighlight
+    return remember(colors, surfaceShape, console, highlight, highlighted) {
         Style {
             shape(surfaceShape)
-            background(if (highlighted) colors.consoleError.copy(alpha = LogHighlightAlpha) else Color.Transparent)
-            contentPaddingHorizontal(LogPaddingHorizontal)
-            contentPaddingVertical(LogPaddingVertical)
+            background(if (highlighted) colors.consoleError.copy(alpha = highlight) else Color.Transparent)
+            contentPaddingHorizontal(console.linePaddingHorizontal)
+            contentPaddingVertical(console.linePaddingVertical)
         }
     }
 }
@@ -30,25 +32,16 @@ internal fun rememberLogLineStyle(highlighted: Boolean): Style {
 internal fun rememberConsoleSegmentStyle(position: ConsoleSegmentPosition): Style {
     val colors = GraphiteTheme.colors
     val padding = GraphiteTheme.spacing.s
-    return remember(colors, padding, position) {
-        val top = if (position.isFirst) ConsoleRadius else 0.dp
-        val bottom = if (position.isLast) ConsoleRadius else 0.dp
+    val console = GraphiteTheme.dimens.console
+    return remember(colors, padding, console, position) {
+        val top = if (position.isFirst) console.cornerRadius else 0.dp
+        val bottom = if (position.isLast) console.cornerRadius else 0.dp
         Style {
             shape(RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom))
             background(colors.console)
             contentPaddingHorizontal(padding)
-            contentPaddingTop(if (position.isFirst) ConsoleEdgePadding else 0.dp)
-            contentPaddingBottom(if (position.isLast) ConsoleEdgePadding else 0.dp)
+            contentPaddingTop(if (position.isFirst) console.edgePadding else 0.dp)
+            contentPaddingBottom(if (position.isLast) console.edgePadding else 0.dp)
         }
     }
 }
-
-private val LogPaddingHorizontal = 6.dp
-
-private val LogPaddingVertical = 3.dp
-
-private const val LogHighlightAlpha = 0.08f
-
-private val ConsoleRadius = 16.dp
-
-private val ConsoleEdgePadding = 6.dp

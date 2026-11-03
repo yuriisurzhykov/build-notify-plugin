@@ -5,19 +5,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.Console
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.DangerButton
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogLine
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.feedback.ProgressBar
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.RollingText
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.SecondaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusLabel
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.DangerButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.SecondaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogLine
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusLabel
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.Console
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteTransition
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.rise
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
@@ -37,13 +36,13 @@ internal fun RunningHero(build: RunningBuildUi, onIntent: (ActiveBuildsIntent) -
     val elapsed = rememberElapsedMs(build.startedAt)
 
     HeroPanel(BuildTone.Running) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.inline)) {
             StatusLabel(BuildTone.Running, stringResource(Res.string.hero_running))
             RollingText(formatTimer(elapsed), style = type.timer)
             Text(build.projectName, style = type.headline)
         }
         Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.s)) {
-            Swap(targetState = build.currentTask, transition = { rise() }, label = "currentTask") { task ->
+            Swap(targetState = build.currentTask, transition = GraphiteTransition.Rise, label = "currentTask") { task ->
                 Text(
                     task ?: stringResource(Res.string.build_preparing),
                     style = type.mono,

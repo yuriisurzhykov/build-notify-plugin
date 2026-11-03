@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.layout.Divider
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.status.StatusDot
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
@@ -25,7 +24,7 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteThem
  * One build in the history: dot · title / (tag) subtitle · duration · time.
  * Plain row, no card — history is secondary to the hero.
  *
- * @param statusDescription spoken status for the dot, e.g. "Успешно".
+ * @param statusDescription spoken status for the dot, e.g. "Succeeded".
  */
 @Composable
 fun HistoryRow(
@@ -51,10 +50,10 @@ fun HistoryRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             StatusDot(tone, contentDescription = statusDescription)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.hairline)) {
                 Text(title, style = typography.bodyStrong, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.inline),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (tag != null) Tag(tag)
@@ -70,7 +69,7 @@ fun HistoryRow(
             Text(duration, style = typography.mono, color = colors.contentSecondary)
             Text(
                 time,
-                modifier = Modifier.width(40.dp),
+                modifier = Modifier.width(GraphiteTheme.dimens.list.timeColumn),
                 style = typography.log,
                 color = colors.contentTertiary,
                 textAlign = TextAlign.End,

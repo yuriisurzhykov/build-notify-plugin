@@ -5,11 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.SecondaryButton
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusLabel
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -26,7 +25,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun CancelledHero(build: FinishedBuildUi, onIntent: (ActiveBuildsIntent) -> Unit) {
     val finishedAt = build.startedAt + build.durationMs
     HeroPanel(BuildTone.Warning) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.group)) {
             StatusLabel(BuildTone.Warning, stringResource(Res.string.hero_cancelled_label, relativeTime(finishedAt)))
             Text(
                 stringResource(Res.string.hero_cancelled_title, build.projectName),

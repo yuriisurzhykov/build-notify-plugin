@@ -15,9 +15,10 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.ToneColors
 @Composable
 fun animateStatus(tone: BuildTone): StatusStyle {
     val target = GraphiteTheme.status(tone)
-    val main by animateColorAsState(target.main, GraphiteMotion.slow(), label = "statusMain")
-    val container by animateColorAsState(target.container, GraphiteMotion.slow(), label = "statusContainer")
-    val hero by animateColorAsState(target.hero, GraphiteMotion.slow(), label = "statusHero")
-    val onMain by animateColorAsState(target.onMain, GraphiteMotion.slow(), label = "statusOnMain")
+    val motion = GraphiteTheme.motion
+    val main by animateColorAsState(target.main, motion.slow(), label = "statusMain")
+    val container by animateColorAsState(target.container, motion.slow(), label = "statusContainer")
+    val hero by animateColorAsState(target.hero, motion.slow(), label = "statusHero")
+    val onMain by animateColorAsState(target.onMain, motion.slow(), label = "statusOnMain")
     return target.copy(colors = ToneColors(main = main, container = container, hero = hero, onMain = onMain))
 }

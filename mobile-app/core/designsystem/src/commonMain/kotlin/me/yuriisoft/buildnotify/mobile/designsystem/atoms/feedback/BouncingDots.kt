@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 /** Three dots bouncing in sequence — "still working". */
@@ -24,24 +22,27 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteThem
 fun BouncingDots(
     modifier: Modifier = Modifier,
     color: Color = GraphiteTheme.colors.contentSecondary,
-    dotSize: Dp = 6.dp,
 ) {
+    val dotSize = GraphiteTheme.dimens.visual.bouncingDot
+    val loops = GraphiteTheme.motion.loops
+    val restingAlpha = GraphiteTheme.opacity.restingDot
     val transition = rememberInfiniteTransition(label = "dots")
     Row(
         modifier,
         horizontalArrangement = Arrangement.spacedBy(dotSize),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        repeat(3) { i ->
+        repeat(DOTS) { i ->
             val lift by transition.animateFloat(
                 initialValue = 0f,
                 targetValue = 0f,
                 animationSpec = infiniteRepeatable(
                     keyframes {
-                        durationMillis = 1_200
-                        0f at (i * 150)
-                        -1f at (i * 150 + 220) using FastOutSlowInEasing
-                        0f at (i * 150 + 440)
+                        val start = i * loops.dotsStepMillis
+                        durationMillis = loops.dotsCycleMillis
+                        0f at start
+                        -1f at (start + loops.dotsPeakMillis) using FastOutSlowInEasing
+                        0f at (start + loops.dotsLandMillis)
                     },
                 ),
                 label = "dot$i",
@@ -51,8 +52,10 @@ fun BouncingDots(
                     .size(dotSize)
                     .graphicsLayer { translationY = lift * dotSize.toPx() },
             ) {
-                drawCircle(color.copy(alpha = 0.55f + 0.45f * -lift))
+                drawCircle(color.copy(alpha = restingAlpha + (1f - restingAlpha) * -lift))
             }
         }
     }
 }
+
+private const val DOTS = 3

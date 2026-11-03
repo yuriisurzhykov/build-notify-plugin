@@ -5,12 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
-/** Large round status badge for the hero ("✓" on "Всё собрано"). */
+/** Large round status badge for the hero ("✓" on "All built"). */
 @Composable
 fun StatusBadge(
     tone: BuildTone,
@@ -25,7 +24,7 @@ fun StatusBadge(
         StatusGlyph(
             status,
             size = GraphiteTheme.sizes.iconLarge,
-            dotSize = 12.dp,
+            dotSize = GraphiteTheme.dimens.status.badgeDot,
             contentDescription = contentDescription,
         )
     }

@@ -6,12 +6,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.icons.Icon
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.animateStatus
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 /**
  * Round badge with an arbitrary [icon] in the colours of [tone]; the colours glide when
@@ -22,19 +21,19 @@ fun IconBadge(
     icon: ImageVector,
     tone: BuildTone,
     modifier: Modifier = Modifier,
-    diameter: Dp = IconBadgeDiameter,
-    iconSize: Dp = IconBadgeIconSize,
+    size: IconBadgeSize = IconBadgeSize.Regular,
     contentDescription: String? = null,
 ) {
     val status = animateStatus(tone)
+    val metrics = GraphiteTheme.dimens.status
+    val badge = when (size) {
+        IconBadgeSize.Regular -> metrics.iconBadge
+        IconBadgeSize.Small   -> metrics.iconBadgeSmall
+    }
     Box(
-        modifier = modifier.styled(rememberToneCircleStyle(status, diameter)),
+        modifier = modifier.styled(rememberToneCircleStyle(status, badge.diameter)),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription = contentDescription, tint = status.main, size = iconSize)
+        Icon(icon, contentDescription = contentDescription, tint = status.main, size = badge.icon)
     }
 }
-
-private val IconBadgeDiameter = 76.dp
-
-private val IconBadgeIconSize = 32.dp

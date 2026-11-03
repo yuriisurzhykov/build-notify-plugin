@@ -5,13 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.SecondaryButton
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusBadge
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.PopIn
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.text.TextValue
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.text.joined
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
@@ -29,11 +30,13 @@ internal fun SuccessHero(build: FinishedBuildUi, onIntent: (ActiveBuildsIntent) 
     val finishedAt = build.startedAt + build.durationMs
 
     HeroPanel(BuildTone.Success) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.group)) {
             PopIn { StatusBadge(BuildTone.Success) }
             Text(stringResource(Res.string.hero_success_title), style = type.display)
             Text(
-                "${build.projectName} · ${formatDuration(build.durationMs)} · ${relativeTime(finishedAt)}",
+                listOf(build.projectName, formatDuration(build.durationMs), relativeTime(finishedAt))
+                    .map(TextValue::of)
+                    .joined(TextValue.DotSeparator),
                 style = type.bodySmall,
                 color = GraphiteTheme.colors.contentSecondary,
             )

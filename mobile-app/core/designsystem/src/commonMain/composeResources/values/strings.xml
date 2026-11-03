@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Component defaults -->
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
+
+    <!-- Catalog -->
+    <string name="catalog_intro">Quiet interface, loud signals. Colour appears only where there is a status.</string>
+    <string name="catalog_section_colors">Colour</string>
+    <string name="catalog_section_typography">Typography</string>
+    <string name="catalog_section_status">Status</string>
+    <string name="catalog_section_buttons">Buttons</string>
+    <string name="catalog_section_hero_failed">Hero · build failed</string>
+    <string name="catalog_section_hero_running">Hero · build running</string>
+    <string name="catalog_section_history">History</string>
+    <string name="catalog_section_log">Log</string>
+    <string name="catalog_section_sheet">Sheet · hand off to an agent</string>
+
+    <string name="catalog_status_running">Running</string>
+    <string name="catalog_status_success">Succeeded</string>
+    <string name="catalog_status_failed">Failed</string>
+    <string name="catalog_status_cancelled">Cancelled</string>
+    <string name="catalog_tag_agent">agent</string>
+
+    <string name="catalog_action_hand_off">Hand off to an agent</string>
+    <string name="catalog_action_rerun">Rerun</string>
+    <string name="catalog_action_log">Log</string>
+    <string name="catalog_action_stop">Stop</string>
+    <string name="catalog_action_unavailable">Unavailable</string>
+    <string name="catalog_action_back">Back</string>
+    <string name="catalog_action_copy_log">Copy log</string>
+    <string name="catalog_action_settings">Settings</string>
+    <string name="catalog_action_open_in">Open in %1$s</string>
+
+    <string name="catalog_hero_build_failed">Build failed</string>
+    <string name="catalog_hero_build_running">Build running</string>
+    <string name="catalog_hero_not_built">%1$s did not build</string>
+    <string name="catalog_minutes_ago">%1$d min ago</string>
+    <string name="catalog_all_built">All built</string>
+    <plurals name="catalog_more_errors">
+        <item quantity="one">and %1$d more compile error</item>
+        <item quantity="other">and %1$d more compile errors</item>
+    </plurals>
+    <plurals name="catalog_compile_errors">
+        <item quantity="one">%1$d compile error</item>
+        <item quantity="other">%1$d compile errors</item>
+    </plurals>
+
+    <string name="catalog_section_today">Today</string>
+    <string name="catalog_section_run_again">Run again</string>
+    <string name="catalog_filter_all">All</string>
+    <string name="catalog_filter_problems">Problems</string>
+    <string name="catalog_filter_errors">Errors</string>
+
+    <string name="catalog_agent_last_used">last used</string>
+    <string name="catalog_agent_installed">installed</string>
+    <string name="catalog_agent_copy">Copy</string>
+    <string name="catalog_agent_any">any agent</string>
+    <string name="catalog_attach_log">Attach the full log</string>
+    <string name="catalog_attach_log_size">%1$d lines, %2$d KB</string>
+</resources>

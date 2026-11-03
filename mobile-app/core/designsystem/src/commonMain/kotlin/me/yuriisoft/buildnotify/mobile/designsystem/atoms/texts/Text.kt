@@ -9,6 +9,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.text.TextValue
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.LocalGraphiteContentColor
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.LocalGraphiteTextStyle
 
@@ -55,6 +56,21 @@ fun Text(
         softWrap = softWrap,
         maxLines = maxLines,
     )
+}
+
+/** Text described as a [TextValue] (resource, plural, composition, spans), resolved here. */
+@Composable
+fun Text(
+    text: TextValue,
+    modifier: Modifier = Modifier,
+    style: TextStyle = LocalGraphiteTextStyle.current,
+    color: Color = Color.Unspecified,
+    textAlign: TextAlign? = null,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+) {
+    Text(text.annotated(), modifier, style, color, textAlign, maxLines, overflow, softWrap)
 }
 
 @Composable

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -26,10 +25,8 @@ fun HeroPanel(
     CompositionLocalProvider(LocalGraphiteContentColor provides GraphiteTheme.colors.content) {
         Column(
             modifier = modifier.fillMaxWidth().styled(rememberHeroStyle(tone)),
-            verticalArrangement = Arrangement.spacedBy(HeroGap),
+            verticalArrangement = Arrangement.spacedBy(GraphiteTheme.dimens.surface.heroGap),
             content = content,
         )
     }
 }
-
-private val HeroGap = 18.dp

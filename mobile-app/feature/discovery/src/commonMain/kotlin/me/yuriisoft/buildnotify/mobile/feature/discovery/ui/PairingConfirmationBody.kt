@@ -9,19 +9,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.pairing_body
 import build_notify_mobile.feature.discovery.generated.resources.pairing_confirm
 import build_notify_mobile.feature.discovery.generated.resources.pairing_pin_label
 import build_notify_mobile.feature.discovery.generated.resources.pairing_reject
 import build_notify_mobile.feature.discovery.generated.resources.pairing_title
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.DigitTile
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.Button
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.ButtonSize
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.ButtonVariant
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.DigitTile
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.OutlineButton
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.PopIn
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.breathing
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
@@ -72,11 +71,11 @@ internal fun PairingConfirmationBody(
 private fun PinDigits(pin: String) {
     Row(
         modifier = Modifier.breathing(),
-        horizontalArrangement = Arrangement.spacedBy(PinDigitGap),
+        horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.inline),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         pin.forEachIndexed { index, digit ->
-            if (index > 0 && index % PIN_GROUP_SIZE == 0) Spacer(Modifier.width(PinGroupGap))
+            if (index > 0 && index % PIN_GROUP_SIZE == 0) Spacer(Modifier.width(GraphiteTheme.spacing.group))
             PopIn(delayMillis = PIN_POP_DELAY_MS + index * PIN_POP_STAGGER_MS) {
                 DigitTile(digit)
             }
@@ -89,7 +88,3 @@ private const val PIN_GROUP_SIZE = 3
 private const val PIN_POP_DELAY_MS = 200
 
 private const val PIN_POP_STAGGER_MS = 70
-
-private val PinDigitGap = 6.dp
-
-private val PinGroupGap = 10.dp

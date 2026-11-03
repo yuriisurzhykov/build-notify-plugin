@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 data class GraphiteShapes(
     /** Highlighted log line. */
     val log: Shape = RoundedCornerShape(6.dp),
-    /** Tags ("агент"). */
+    /** Tags ("agent"). */
     val tag: Shape = RoundedCornerShape(6.dp),
     /** Buttons and inputs. */
     val control: Shape = RoundedCornerShape(14.dp),

@@ -12,17 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.ChoiceCard
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.Console
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.PrimaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.lists.SettingRow
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.Switch
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.PrimaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.ChoiceCard
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.Switch
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.Console
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.lists.SettingRow
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteTransition
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.crossfade
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.smoothSize
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
@@ -80,7 +79,11 @@ internal fun HandoffPreview(prompt: String) {
     Column {
         SectionHeader(stringResource(Res.string.handoff_preview))
         Console(Modifier.smoothSize()) {
-            Box(Modifier.heightIn(max = PreviewMaxHeight).verticalScroll(rememberScrollState())) {
+            Box(
+                Modifier.heightIn(max = GraphiteTheme.dimens.console.previewMaxHeight).verticalScroll(
+                    rememberScrollState(),
+                ),
+            ) {
                 Text(prompt, modifier = Modifier.fillMaxWidth())
             }
         }
@@ -115,7 +118,7 @@ internal fun HandoffSendButton(
     @Suppress("DEPRECATION")
     val clipboard = LocalClipboardManager.current
 
-    Swap(targetState = target, transition = { crossfade() }, label = "handoffCta") { current ->
+    Swap(targetState = target, transition = GraphiteTransition.Crossfade, label = "handoffCta") { current ->
         when (current) {
             HandoffTarget.Share -> PrimaryButton(
                 text = stringResource(Res.string.handoff_send_share),
@@ -140,5 +143,3 @@ internal fun HandoffSendButton(
         }
     }
 }
-
-private val PreviewMaxHeight = 220.dp

@@ -16,6 +16,9 @@ internal val LocalGraphiteTypography = staticCompositionLocalOf<GraphiteTypograp
 internal val LocalGraphiteSpacing = staticCompositionLocalOf { GraphiteSpacing() }
 internal val LocalGraphiteShapes = staticCompositionLocalOf { GraphiteShapes() }
 internal val LocalGraphiteSizes = staticCompositionLocalOf { GraphiteSizes() }
+internal val LocalGraphiteDimens = staticCompositionLocalOf { GraphiteDimens() }
+internal val LocalGraphiteMotion = staticCompositionLocalOf { GraphiteMotion() }
+internal val LocalGraphiteOpacity = staticCompositionLocalOf { GraphiteOpacity() }
 
 /** Colour that [Text][me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text] and icons use when none is given. */
 val LocalGraphiteContentColor = compositionLocalOf { Color.Unspecified }
@@ -25,10 +28,12 @@ val LocalGraphiteTextStyle = compositionLocalOf { TextStyle.Default }
 
 /**
  * Root of every Graphite screen. Works the same on Android, iOS, desktop and web.
+ * Every token is provided here once; components read them only through the
+ * [GraphiteTheme] object, never through literals or the composition locals.
  *
  * ```kotlin
  * GraphiteTheme {
- *     Text("Всё собрано", style = GraphiteTheme.typography.display)
+ *     Text(stringResource(Res.string.all_built), style = GraphiteTheme.typography.display)
  * }
  * ```
  */
@@ -36,22 +41,35 @@ val LocalGraphiteTextStyle = compositionLocalOf { TextStyle.Default }
 fun GraphiteTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colors: GraphiteColors = if (darkTheme) GraphiteDarkColors else GraphiteLightColors,
+    spacing: GraphiteSpacing = GraphiteSpacing(),
+    sizes: GraphiteSizes = GraphiteSizes(),
+    dimens: GraphiteDimens = GraphiteDimens(),
+    shapes: GraphiteShapes = GraphiteShapes(),
+    motion: GraphiteMotion = GraphiteMotion(),
+    opacity: GraphiteOpacity = GraphiteOpacity(),
     content: @Composable () -> Unit,
 ) {
     val typography = rememberGraphiteTypography()
     CompositionLocalProvider(
         LocalGraphiteColors provides colors,
         LocalGraphiteTypography provides typography,
-        LocalGraphiteSpacing provides GraphiteSpacing(),
-        LocalGraphiteShapes provides GraphiteShapes(),
-        LocalGraphiteSizes provides GraphiteSizes(),
+        LocalGraphiteSpacing provides spacing,
+        LocalGraphiteShapes provides shapes,
+        LocalGraphiteSizes provides sizes,
+        LocalGraphiteDimens provides dimens,
+        LocalGraphiteMotion provides motion,
+        LocalGraphiteOpacity provides opacity,
         LocalGraphiteContentColor provides colors.content,
         LocalGraphiteTextStyle provides typography.body,
         content = content,
     )
 }
 
-/** Token accessors: `GraphiteTheme.colors.failure.main`, `GraphiteTheme.typography.mono`, … */
+/**
+ * The single entry point to Graphite tokens: `GraphiteTheme.colors.failure.main`,
+ * `GraphiteTheme.spacing.l`, `GraphiteTheme.dimens.status.pillGlyph`,
+ * `GraphiteTheme.motion.enter()`, …
+ */
 object GraphiteTheme {
     val colors: GraphiteColors
         @Composable @ReadOnlyComposable get() = LocalGraphiteColors.current
@@ -67,6 +85,16 @@ object GraphiteTheme {
 
     val sizes: GraphiteSizes
         @Composable @ReadOnlyComposable get() = LocalGraphiteSizes.current
+
+    /** Fixed metrics of Graphite components, by component family. */
+    val dimens: GraphiteDimens
+        @Composable @ReadOnlyComposable get() = LocalGraphiteDimens.current
+
+    val motion: GraphiteMotion
+        @Composable @ReadOnlyComposable get() = LocalGraphiteMotion.current
+
+    val opacity: GraphiteOpacity
+        @Composable @ReadOnlyComposable get() = LocalGraphiteOpacity.current
 
     /** Icon and colours of [tone] — the single source for anything status-coloured. */
     @Composable

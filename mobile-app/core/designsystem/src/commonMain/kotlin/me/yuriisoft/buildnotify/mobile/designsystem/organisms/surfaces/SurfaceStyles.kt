@@ -9,7 +9,6 @@ import androidx.compose.foundation.style.externalPaddingHorizontal
 import androidx.compose.foundation.style.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.animateStatus
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -20,14 +19,15 @@ internal fun rememberHeroStyle(tone: BuildTone): Style {
     val hero = animateStatus(tone).hero
     val surfaceShape = GraphiteTheme.shapes.hero
     val inset = GraphiteTheme.spacing.heroInset
-    return remember(hero, surfaceShape, inset) {
+    val surface = GraphiteTheme.dimens.surface
+    return remember(hero, surfaceShape, inset, surface) {
         Style {
             externalPaddingHorizontal(inset)
             shape(surfaceShape)
             background(hero)
-            contentPaddingHorizontal(HeroPaddingHorizontal)
-            contentPaddingTop(HeroPaddingTop)
-            contentPaddingBottom(HeroPaddingBottom)
+            contentPaddingHorizontal(surface.heroPaddingHorizontal)
+            contentPaddingTop(surface.heroPaddingTop)
+            contentPaddingBottom(surface.heroPaddingBottom)
         }
     }
 }
@@ -54,12 +54,14 @@ internal fun rememberInsetStyle(): Style {
     val colors = GraphiteTheme.colors
     val surfaceShape = GraphiteTheme.shapes.inset
     val padding = GraphiteTheme.spacing.l
-    return remember(colors, surfaceShape, padding) {
+    val surface = GraphiteTheme.dimens.surface
+    val insetAlpha = GraphiteTheme.opacity.inset
+    return remember(colors, surfaceShape, padding, surface, insetAlpha) {
         Style {
             shape(surfaceShape)
-            background(colors.console.copy(alpha = InsetAlpha))
+            background(colors.console.copy(alpha = insetAlpha))
             contentPaddingHorizontal(padding)
-            contentPaddingVertical(InsetPaddingVertical)
+            contentPaddingVertical(surface.insetPaddingVertical)
         }
     }
 }
@@ -68,13 +70,14 @@ internal fun rememberInsetStyle(): Style {
 internal fun rememberSheetStyle(): Style {
     val colors = GraphiteTheme.colors
     val surfaceShape = GraphiteTheme.shapes.sheet
-    return remember(colors, surfaceShape) {
+    val surface = GraphiteTheme.dimens.surface
+    return remember(colors, surfaceShape, surface) {
         Style {
             shape(surfaceShape)
             background(colors.surface)
-            contentPaddingHorizontal(SheetPaddingHorizontal)
-            contentPaddingTop(SheetPaddingTop)
-            contentPaddingBottom(SheetPaddingBottom)
+            contentPaddingHorizontal(surface.sheetPaddingHorizontal)
+            contentPaddingTop(surface.sheetPaddingTop)
+            contentPaddingBottom(surface.sheetPaddingBottom)
         }
     }
 }
@@ -83,9 +86,10 @@ internal fun rememberSheetStyle(): Style {
 internal fun rememberSheetHandleStyle(): Style {
     val colors = GraphiteTheme.colors
     val pill = GraphiteTheme.shapes.pill
-    return remember(colors, pill) {
+    val surface = GraphiteTheme.dimens.surface
+    return remember(colors, pill, surface) {
         Style {
-            size(36.dp, 4.dp)
+            size(surface.sheetHandleWidth, surface.sheetHandleHeight)
             shape(pill)
             background(colors.lineStrong)
         }
@@ -97,19 +101,3 @@ internal fun rememberSheetHandleStyle(): Style {
  * shape, border, padding, size — is one of these Styles. Change the look here, never at
  * the call site.
  */
-
-private val HeroPaddingHorizontal = 20.dp
-
-private val HeroPaddingTop = 24.dp
-
-private val HeroPaddingBottom = 20.dp
-
-private val InsetPaddingVertical = 14.dp
-
-private val SheetPaddingHorizontal = 20.dp
-
-private val SheetPaddingTop = 10.dp
-
-private val SheetPaddingBottom = 28.dp
-
-private const val InsetAlpha = 0.55f

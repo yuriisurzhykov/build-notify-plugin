@@ -23,7 +23,7 @@ import org.jetbrains.compose.resources.Font
  */
 @Immutable
 data class GraphiteTypography(
-    /** 30/36 bold — the hero statement ("Всё собрано"). */
+    /** 30/36 bold — the hero statement ("All built"). */
     val display: TextStyle,
     /** 22/28 semibold — screen and sheet titles. */
     val headline: TextStyle,
@@ -35,7 +35,7 @@ data class GraphiteTypography(
     val bodyStrong: TextStyle,
     /** 14/20 — error messages, secondary paragraphs. */
     val bodySmall: TextStyle,
-    /** 13/18 — metadata ("Успешно · 1m 45s"). */
+    /** 13/18 — metadata ("Succeeded · 1m 45s"). */
     val meta: TextStyle,
     /** 13/18 semibold — section headers, status labels. */
     val label: TextStyle,

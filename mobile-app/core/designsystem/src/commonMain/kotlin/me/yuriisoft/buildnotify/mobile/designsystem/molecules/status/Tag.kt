@@ -7,7 +7,7 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
-/** Small source tag in list rows — "агент". */
+/** Small source tag in list rows — "agent". */
 @Composable
 fun Tag(
     text: String,

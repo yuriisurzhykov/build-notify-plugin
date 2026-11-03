@@ -1,12 +1,10 @@
 package me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons
 
-
-
 /**
- * - [Primary]   — the one action the screen exists for ("Передать агенту"). Max one per screen.
- * - [Secondary] — neutral filled action ("Лог").
- * - [Outline]   — neutral action on a tinted hero ("Перезапустить").
- * - [Danger]    — destructive, never filled ("Остановить").
+ * - [Primary]   — the one action the screen exists for ("Hand off to an agent"). Max one per screen.
+ * - [Secondary] — neutral filled action ("Log").
+ * - [Outline]   — neutral action on a tinted hero ("Rerun").
+ * - [Danger]    — destructive, never filled ("Stop").
  */
 enum class ButtonVariant {
     Primary,

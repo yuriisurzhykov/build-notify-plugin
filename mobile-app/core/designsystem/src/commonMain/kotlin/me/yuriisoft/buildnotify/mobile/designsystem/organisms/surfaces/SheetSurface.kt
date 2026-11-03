@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.LocalGraphiteContentColor
@@ -23,12 +22,10 @@ fun SheetSurface(
     CompositionLocalProvider(LocalGraphiteContentColor provides GraphiteTheme.colors.content) {
         Column(
             modifier = modifier.fillMaxWidth().styled(rememberSheetStyle()),
-            verticalArrangement = Arrangement.spacedBy(SheetGap),
+            verticalArrangement = Arrangement.spacedBy(GraphiteTheme.dimens.surface.sheetGap),
         ) {
             Box(Modifier.align(Alignment.CenterHorizontally).styled(rememberSheetHandleStyle()))
             content()
         }
     }
 }
-
-private val SheetGap = 18.dp

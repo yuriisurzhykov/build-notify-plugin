@@ -8,12 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styledClickable
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
-/** Filter chip: "Все 12", "Ошибки 4". Selected is a solid inverse pill. */
+/** Filter chip: "All 12", "Errors 4". Selected is a solid inverse pill. */
 @Composable
 fun FilterChip(
     text: String,
@@ -28,14 +27,14 @@ fun FilterChip(
         modifier = modifier
             .semantics { this.selected = selected }
             .styledClickable(rememberChipStyle(), onClick = onClick, selected = selected, role = Role.Tab),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.inline),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(text, style = GraphiteTheme.typography.chip, color = content)
         if (count != null) Text(
             count.toString(),
             style = GraphiteTheme.typography.mono,
-            color = content.copy(alpha = 0.8f),
+            color = content.copy(alpha = GraphiteTheme.opacity.secondaryContent),
         )
     }
 }

@@ -13,15 +13,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.Res
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_action_hand_off
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_all_built
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_section_colors
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_section_today
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_section_typography
+import me.yuriisoft.buildnotify.mobile.designsystem.generated.resources.catalog_status_success
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.text.TextValue
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ColorsSection() {
     val spacing = GraphiteTheme.spacing
     val colors = GraphiteTheme.colors
-    Section("Цвет") {
+    Section(stringResource(Res.string.catalog_section_colors)) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(spacing.s),
             verticalArrangement = Arrangement.spacedBy(spacing.s),
@@ -41,25 +49,33 @@ internal fun ColorsSection() {
 @Composable
 internal fun TypographySection() {
     val type = GraphiteTheme.typography
-    Section("Типографика") {
-        TypeSample("display", type.display, "Всё собрано")
-        TypeSample("headline", type.headline, "Передать агенту")
-        TypeSample("title", type.title, "shop-android")
-        TypeSample("body", type.body, "Unresolved reference: PaymentProcessor")
-        TypeSample("meta", type.meta, "Успешно · 1m 45s")
-        TypeSample("label", type.label, "Сегодня")
-        TypeSample("timer", type.timer, "1:12")
-        TypeSample("mono", type.mono, ":app:compileDebugKotlin")
-        TypeSample("log", type.log, "w: Parameter 'context' is never used")
+    Section(stringResource(Res.string.catalog_section_typography)) {
+        TypeSample("display", type.display, stringResource(Res.string.catalog_all_built))
+        TypeSample("headline", type.headline, stringResource(Res.string.catalog_action_hand_off))
+        TypeSample("title", type.title, CatalogSamples.SHOP_ANDROID)
+        TypeSample("body", type.body, CatalogSamples.ERROR_UNRESOLVED)
+        TypeSample(
+            "meta",
+            type.meta,
+            TextValue.join(
+                listOf(TextValue.of(Res.string.catalog_status_success), TextValue.of(CatalogSamples.DURATION_SUCCESS)),
+                separator = TextValue.DotSeparator,
+            ).string(),
+        )
+        TypeSample("label", type.label, stringResource(Res.string.catalog_section_today))
+        TypeSample("timer", type.timer, CatalogSamples.ELAPSED)
+        TypeSample("mono", type.mono, CatalogSamples.TASK_COMPILE_APP)
+        TypeSample("log", type.log, CatalogSamples.LOG_UNUSED)
     }
 }
 
 @Composable
 private fun Swatch(name: String, color: Color) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    val catalog = GraphiteTheme.dimens.catalog
+    Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.inline)) {
         Box(
             Modifier
-                .size(width = 72.dp, height = 48.dp)
+                .size(width = catalog.swatchWidth, height = catalog.swatchHeight)
                 .background(color, GraphiteTheme.shapes.control)
                 .border(GraphiteTheme.sizes.hairline, GraphiteTheme.colors.line, GraphiteTheme.shapes.control),
         )
@@ -72,7 +88,7 @@ private fun TypeSample(name: String, style: TextStyle, sample: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.l)) {
         Text(
             name,
-            modifier = Modifier.width(72.dp),
+            modifier = Modifier.width(GraphiteTheme.dimens.catalog.sampleLabelColumn),
             style = GraphiteTheme.typography.log,
             color = GraphiteTheme.colors.contentTertiary,
         )

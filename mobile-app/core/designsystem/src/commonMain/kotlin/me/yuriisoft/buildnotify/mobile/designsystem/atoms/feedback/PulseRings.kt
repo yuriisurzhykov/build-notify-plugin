@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 /**
@@ -27,15 +25,18 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteThem
 fun PulseRings(
     modifier: Modifier = Modifier,
     color: Color = GraphiteTheme.colors.running.main,
-    size: Dp = 168.dp,
-    rings: Int = 3,
+    rings: Int = DEFAULT_RINGS,
     content: @Composable () -> Unit = {},
 ) {
+    val size = GraphiteTheme.dimens.visual.stage
+    val stroke = GraphiteTheme.dimens.visual.ringStroke
+    val loops = GraphiteTheme.motion.loops
+    val ringAlpha = GraphiteTheme.opacity.pulseRing
     val transition = rememberInfiniteTransition(label = "pulse")
     val phase by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2_400, easing = LinearEasing), RepeatMode.Restart),
+        animationSpec = infiniteRepeatable(tween(loops.pulseMillis, easing = LinearEasing), RepeatMode.Restart),
         label = "phase",
     )
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
@@ -44,12 +45,14 @@ fun PulseRings(
             repeat(rings) { i ->
                 val t = (phase + i.toFloat() / rings) % 1f
                 drawCircle(
-                    color = color.copy(alpha = (1f - t) * 0.35f),
-                    radius = maxRadius * (0.35f + 0.65f * t),
-                    style = Stroke(width = 1.5.dp.toPx()),
+                    color = color.copy(alpha = (1f - t) * ringAlpha),
+                    radius = maxRadius * (loops.pulseInnerRadius + (1f - loops.pulseInnerRadius) * t),
+                    style = Stroke(width = stroke.toPx()),
                 )
             }
         }
         content()
     }
 }
+
+private const val DEFAULT_RINGS = 3

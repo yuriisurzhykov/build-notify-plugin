@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteTransition
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.roll
 
 /**
  * Text whose characters roll like a split-flap board: only the characters that changed
@@ -22,7 +22,7 @@ fun RollingText(
     Row(modifier) {
         text.forEachIndexed { index, char ->
             key(text.length - index) {
-                Swap(targetState = char, transition = { roll() }, label = "rollingChar") { value ->
+                Swap(targetState = char, transition = GraphiteTransition.Roll, label = "rollingChar") { value ->
                     Text(value.toString(), style = style)
                 }
             }

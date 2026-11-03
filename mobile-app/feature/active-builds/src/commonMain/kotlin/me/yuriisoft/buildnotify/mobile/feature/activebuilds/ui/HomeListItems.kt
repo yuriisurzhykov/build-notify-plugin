@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteTransition
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.morph
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.FinishStatus
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
@@ -33,7 +33,12 @@ internal fun LazyListScope.streamErrorItem(onIntent: (ActiveBuildsIntent) -> Uni
 /** The hero morphs between states (fade + scale + size) when the build in focus changes. */
 internal fun LazyListScope.heroItem(hero: HeroUi?, onIntent: (ActiveBuildsIntent) -> Unit) {
     item(key = "hero") {
-        Swap(targetState = hero, transition = { morph() }, contentKey = { it?.key }, label = "hero") { current ->
+        Swap(
+            targetState = hero,
+            transition = GraphiteTransition.Morph,
+            contentKey = { it?.key },
+            label = "hero",
+        ) { current ->
             Hero(current, onIntent)
         }
     }

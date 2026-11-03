@@ -7,23 +7,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 /** Horizontal shake whenever [trigger] changes — attention for failures and rejections. */
 @Composable
 fun Modifier.shakeOn(trigger: Any?): Modifier {
+    val shake = GraphiteTheme.motion.shake
     val offset = remember { Animatable(0f) }
-    LaunchedEffect(trigger) {
+    LaunchedEffect(trigger, shake) {
         if (trigger == null) return@LaunchedEffect
         offset.snapTo(0f)
         offset.animateTo(
             targetValue = 0f,
             animationSpec = keyframes {
-                durationMillis = 420
-                -14f at 60
-                12f at 130
-                -8f at 200
-                5f at 270
-                -2f at 340
+                durationMillis = shake.durationMillis
+                shake.keyframes.forEach { (offsetDp, atMillis) -> offsetDp at atMillis }
             },
         )
     }

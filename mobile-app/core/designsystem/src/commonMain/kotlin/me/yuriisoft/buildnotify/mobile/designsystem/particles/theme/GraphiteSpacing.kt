@@ -4,12 +4,21 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** 4 pt spacing scale plus the two layout constants every screen uses. */
+/**
+ * 4 pt spacing scale, the two half steps the components use, and the layout constants
+ * every screen uses. Read through [GraphiteTheme.spacing]; never write a `dp` literal.
+ */
 @Immutable
 data class GraphiteSpacing(
+    /** Between lines that belong together visually (title and its meta). */
+    val hairline: Dp = 1.dp,
     val xxs: Dp = 2.dp,
     val xs: Dp = 4.dp,
+    /** Between an inline glyph and its label, or tightly related lines. */
+    val inline: Dp = 6.dp,
     val s: Dp = 8.dp,
+    /** Between the items of one group: hero lines, PIN digit groups, a log offset and its text. */
+    val group: Dp = 10.dp,
     val m: Dp = 12.dp,
     val l: Dp = 16.dp,
     val xl: Dp = 20.dp,

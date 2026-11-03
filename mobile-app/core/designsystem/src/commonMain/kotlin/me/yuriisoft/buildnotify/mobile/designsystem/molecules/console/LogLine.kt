@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styled
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
@@ -36,12 +35,12 @@ fun LogLine(
     }
     Row(
         modifier = modifier.fillMaxWidth().styled(rememberLogLineStyle(highlighted = tone == LogTone.Error)),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.group),
     ) {
         if (offset != null) {
             Text(
                 offset,
-                modifier = Modifier.width(52.dp),
+                modifier = Modifier.width(GraphiteTheme.dimens.console.offsetColumn),
                 color = colors.consoleGutter,
                 textAlign = TextAlign.End,
                 maxLines = 1,

@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 /** Shows or hides [content] with one of the Graphite [AppearTransition]s. */
 @Composable
@@ -21,25 +22,24 @@ fun Appear(
     transition: AppearTransition = AppearTransition.Fade,
     content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
+    val popScale = GraphiteTheme.motion.scales.appearPop
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = transition.enter(),
-        exit = transition.exit(),
+        enter = transition.enter(popScale),
+        exit = transition.exit(popScale),
         content = content,
     )
 }
 
-private fun AppearTransition.enter(): EnterTransition = when (this) {
+private fun AppearTransition.enter(popScale: Float): EnterTransition = when (this) {
     AppearTransition.Fade  -> fadeIn()
-    AppearTransition.Pop   -> fadeIn() + scaleIn(initialScale = POP_SCALE)
+    AppearTransition.Pop   -> fadeIn() + scaleIn(initialScale = popScale)
     AppearTransition.Sheet -> slideInVertically { it } + fadeIn()
 }
 
-private fun AppearTransition.exit(): ExitTransition = when (this) {
+private fun AppearTransition.exit(popScale: Float): ExitTransition = when (this) {
     AppearTransition.Fade  -> fadeOut()
-    AppearTransition.Pop   -> fadeOut() + scaleOut(targetScale = POP_SCALE)
+    AppearTransition.Pop   -> fadeOut() + scaleOut(targetScale = popScale)
     AppearTransition.Sheet -> slideOutVertically { it } + fadeOut()
 }
-
-private const val POP_SCALE = 0.8f

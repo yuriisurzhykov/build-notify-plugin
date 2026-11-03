@@ -13,11 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.Card
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.icons.Icon
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.status.StatusDot
 import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.Card
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Reveal
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
@@ -32,7 +31,7 @@ internal fun HostListBody(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(GraphiteTheme.spacing.l),
         verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.s),
     ) {
         itemsIndexed(hosts, key = { _, host -> "${host.host}:${host.port}" }) { index, host ->
@@ -53,7 +52,7 @@ private fun HostRow(host: DiscoveredHost, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             StatusDot(BuildTone.Success)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.xxs)) {
                 Text(host.name, style = GraphiteTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
                     "${host.host}:${host.port}",

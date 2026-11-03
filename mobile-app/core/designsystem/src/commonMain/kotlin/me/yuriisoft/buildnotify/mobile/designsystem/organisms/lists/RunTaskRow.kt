@@ -17,7 +17,7 @@ import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcon
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.style.styledClickable
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
-/** "Запустить снова": a Gradle task with its usual duration and a run glyph. */
+/** "Run again": a Gradle task with its usual duration and a run glyph. */
 @Composable
 fun RunTaskRow(
     task: String,
@@ -43,6 +43,6 @@ fun RunTaskRow(
             Text(estimate, style = GraphiteTheme.typography.caption, color = colors.contentTertiary)
             Icon(GraphiteIcons.Play, contentDescription = null, tint = colors.success.main)
         }
-        if (showDivider) Divider(color = colors.content.copy(alpha = 0.08f))
+        if (showDivider) Divider(color = colors.content.copy(alpha = GraphiteTheme.opacity.divider))
     }
 }

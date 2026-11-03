@@ -70,7 +70,8 @@ style:
     max: 3
   MagicNumber:
     active: true
-    excludes: ['**/test/**', '**/*Test.kt', '**/commonTest/**']
+    # Graphite token files are where the numbers are defined; everything else reads them.
+    excludes: ['**/test/**', '**/*Test.kt', '**/commonTest/**', '**/designsystem/particles/theme/**']
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreNamedArgument: true

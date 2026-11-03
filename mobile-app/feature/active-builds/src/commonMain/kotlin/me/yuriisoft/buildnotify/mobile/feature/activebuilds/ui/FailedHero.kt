@@ -6,15 +6,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.Button
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.ButtonVariant
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
-import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.InsetPanel
-import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.IssueText
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.PrimaryButton
 import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusLabel
-import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.IssueText
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.InsetPanel
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Reveal
 import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.shakeOn
@@ -40,7 +39,7 @@ internal fun FailedHero(build: FinishedBuildUi, onIntent: (ActiveBuildsIntent) -
     val finishedAt = build.startedAt + build.durationMs
 
     HeroPanel(BuildTone.Failure) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.group)) {
             StatusLabel(
                 BuildTone.Failure,
                 stringResource(Res.string.hero_failed_label, relativeTime(finishedAt)),
@@ -89,12 +88,10 @@ private fun FailedHeroIssue(build: FinishedBuildUi) {
         if (more > 0) {
             Text(
                 stringResource(Res.string.hero_more_errors, more),
-                modifier = Modifier.padding(top = MoreErrorsGap),
+                modifier = Modifier.padding(top = GraphiteTheme.spacing.inline),
                 style = type.meta,
                 color = colors.contentSecondary,
             )
         }
     }
 }
-
-private val MoreErrorsGap = 6.dp

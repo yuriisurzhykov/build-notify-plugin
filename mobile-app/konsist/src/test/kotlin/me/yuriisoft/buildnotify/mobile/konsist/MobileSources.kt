@@ -23,7 +23,27 @@ object MobileSources {
         }
     }
 
+    /**
+     * Graphite components (every level above the token particles). Token files are where
+     * the literals live; vector icon files hold path coordinates, which are asset data.
+     */
+    val designSystemComponents: List<SourceFile> by lazy {
+        production.filter {
+            it.path.startsWith(DESIGN_SYSTEM) &&
+                !it.path.startsWith("$DESIGN_SYSTEM/particles/theme/") &&
+                !it.path.startsWith("$DESIGN_SYSTEM/particles/icons/")
+        }
+    }
+
+    /** Code that must take every metric, colour and timing from `GraphiteTheme`. */
+    val tokenConsumers: List<SourceFile> by lazy {
+        (designSystemComponents + styled).filterNot { it.fileName.endsWith("Icons.kt") }
+    }
+
     const val FEATURE_ROOT = "me.yuriisoft.buildnotify.mobile.feature"
+
+    private const val DESIGN_SYSTEM =
+        "core/designsystem/src/commonMain/kotlin/me/yuriisoft/buildnotify/mobile/designsystem"
 
     private fun toSource(file: KoFileDeclaration): SourceFile =
         SourceFile(path = file.path.replace('\\', '/').substringAfter("/mobile-app/"), text = file.text)
