@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.01f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.08f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.10f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.15f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.33f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.50f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.5f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.60f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.80f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$0.90f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$AuroraBackgroundNode$0.5f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$AuroraBackgroundNode$180f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$AuroraBackgroundNode$25f</ID>
+    <ID>MagicNumber:AuroraGradientBrush.kt$AuroraBackgroundNode$35f</ID>
+    <ID>ReturnCount:ToastCommand.kt$ToastCommand.Dismiss$override fun reduce(snapshot: ToastSnapshot): ToastTransition</ID>
+  </CurrentIssues>
+</SmellBaseline>

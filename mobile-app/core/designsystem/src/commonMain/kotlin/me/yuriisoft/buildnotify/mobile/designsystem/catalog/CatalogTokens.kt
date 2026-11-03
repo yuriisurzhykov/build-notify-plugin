@@ -22,7 +22,10 @@ internal fun ColorsSection() {
     val spacing = GraphiteTheme.spacing
     val colors = GraphiteTheme.colors
     Section("Цвет") {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(spacing.s), verticalArrangement = Arrangement.spacedBy(spacing.s)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(spacing.s),
+            verticalArrangement = Arrangement.spacedBy(spacing.s),
+        ) {
             Swatch("background", colors.background)
             Swatch("surface", colors.surface)
             Swatch("raised", colors.surfaceRaised)
@@ -67,7 +70,12 @@ private fun Swatch(name: String, color: Color) {
 @Composable
 private fun TypeSample(name: String, style: TextStyle, sample: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.l)) {
-        Text(name, modifier = Modifier.width(72.dp), style = GraphiteTheme.typography.log, color = GraphiteTheme.colors.contentTertiary)
+        Text(
+            name,
+            modifier = Modifier.width(72.dp),
+            style = GraphiteTheme.typography.log,
+            color = GraphiteTheme.colors.contentTertiary,
+        )
         Text(sample, style = style, maxLines = 1)
     }
 }

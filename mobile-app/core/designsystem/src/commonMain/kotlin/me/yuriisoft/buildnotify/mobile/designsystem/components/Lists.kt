@@ -93,7 +93,13 @@ fun RunTaskRow(
             horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.m),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(task, modifier = Modifier.weight(1f), style = GraphiteTheme.typography.code, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(
+                task,
+                modifier = Modifier.weight(1f),
+                style = GraphiteTheme.typography.code,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             Text(estimate, style = GraphiteTheme.typography.caption, color = colors.contentTertiary)
             Icon(GraphiteIcons.Play, contentDescription = null, tint = colors.success.main)
         }

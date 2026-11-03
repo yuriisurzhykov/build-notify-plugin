@@ -55,7 +55,12 @@ private fun HostRow(host: DiscoveredHost, onClick: () -> Unit) {
             StatusDot(BuildTone.Success)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(host.name, style = GraphiteTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text("${host.host}:${host.port}", style = GraphiteTheme.typography.mono, color = colors.contentTertiary, maxLines = 1)
+                Text(
+                    "${host.host}:${host.port}",
+                    style = GraphiteTheme.typography.mono,
+                    color = colors.contentTertiary,
+                    maxLines = 1,
+                )
             }
             Icon(GraphiteIcons.ArrowRight, contentDescription = null, tint = colors.contentTertiary)
         }

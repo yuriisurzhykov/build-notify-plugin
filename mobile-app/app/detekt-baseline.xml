@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:MainViewController.kt$fun MainViewController(): UIViewController</ID>
+    <ID>LateinitUsage:BuildNotifyApp.kt$BuildNotifyApp$lateinit var component: AppComponent private set</ID>
+    <ID>LongParameterList:AppComponent.kt$AppComponent$( @get:Provides protected val nsdDiscovery: INsdDiscovery, @get:Provides protected val networkMonitor: INetworkMonitor, @get:Provides val appVersionProvider: AppVersionProvider, @get:Provides protected val deviceIdentity: DeviceIdentity, @get:Provides protected val trustedServers: TrustedServers, @get:Provides protected val httpClientProvider: HttpClientProvider, @get:Provides protected val serverCertCapture: ServerCertificateCapture, @get:Provides protected val clientIdentityProvider: ClientIdentityProvider, @get:Provides protected val cacheDatabaseFactory: CacheDatabaseFactory, @get:Provides protected val activeBuildsDatabaseFactory: ActiveBuildsDatabaseFactory, )</ID>
+    <ID>LongParameterList:AppComponent.kt$AppComponent$( transport: Transport, reconnection: ReconnectionStrategy, errorMapping: ErrorMapping, pairingCoordinator: PairingCoordinator, session: SecureSession, serverCertCapture: ServerCertificateCapture, deviceIdentity: DeviceIdentity, appVersionProvider: AppVersionProvider, dispatchers: AppDispatchers, )</ID>
+    <ID>MagicNumber:ClientIdentityManager.kt$ClientIdentityManager$0xFF</ID>
+    <ID>MagicNumber:DarwinHttpClientProvider.kt$DarwinHttpClientProvider$0xFF</ID>
+    <ID>MagicNumber:NotificationHelper.kt$1_000</ID>
+    <ID>MagicNumber:NotificationHelper.kt$60</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$0x05</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$0x100</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$0x7F</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$0x80</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$0xFF</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$11</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$113549</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$128</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$3</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$4</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$40</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$5</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$7</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$8</ID>
+    <ID>MagicNumber:SelfSignedCertificateFactory.kt$SelfSignedCertificateFactory$840</ID>
+    <ID>MaxLineLength:NotificationHelper.kt$NotificationHelper$append(context.resources.getQuantityString(R.plurals.notification_errors, result.errorCount, result.errorCount))</ID>
+    <ID>MaxLineLength:NotificationHelper.kt$NotificationHelper$append(context.resources.getQuantityString(R.plurals.notification_warnings, result.warningCount, result.warningCount))</ID>
+    <ID>ReturnCount:ClientIdentityManager.kt$ClientIdentityManager$fun fingerprint(): String?</ID>
+    <ID>ReturnCount:ClientIdentityManager.kt$ClientIdentityManager$private fun generateAndStoreIdentity()</ID>
+    <ID>ReturnCount:DarwinHttpClientProvider.kt$DarwinHttpClientProvider$private fun handleServerTrustChallenge( expectedFingerprint: String, challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -&gt; Unit, )</ID>
+  </CurrentIssues>
+</SmellBaseline>

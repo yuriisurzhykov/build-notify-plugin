@@ -25,7 +25,8 @@ fun Button(
     enabled: Boolean = true,
 ) {
     val appearance = rememberButtonAppearance(variant, size)
-    val textStyle = if (size == ButtonSize.Large) GraphiteTheme.typography.buttonLarge else GraphiteTheme.typography.button
+    val typography = GraphiteTheme.typography
+    val textStyle = if (size == ButtonSize.Large) typography.buttonLarge else typography.button
     val iconSize = GraphiteTheme.sizes.icon
 
     CompositionLocalProvider(LocalGraphiteContentColor provides appearance.content) {

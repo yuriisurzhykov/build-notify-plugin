@@ -19,6 +19,7 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_cancelled_title
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ActiveBuildsIntent
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.FinishedBuildUi
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.formatDuration
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -27,8 +28,15 @@ internal fun CancelledHero(build: FinishedBuildUi, onIntent: (ActiveBuildsIntent
     HeroPanel(BuildTone.Warning) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             StatusLabel(BuildTone.Warning, stringResource(Res.string.hero_cancelled_label, relativeTime(finishedAt)))
-            Text(stringResource(Res.string.hero_cancelled_title, build.projectName), style = GraphiteTheme.typography.display)
-            Text(formatDuration(build.durationMs), style = GraphiteTheme.typography.mono, color = GraphiteTheme.colors.contentSecondary)
+            Text(
+                stringResource(Res.string.hero_cancelled_title, build.projectName),
+                style = GraphiteTheme.typography.display,
+            )
+            Text(
+                formatDuration(build.durationMs),
+                style = GraphiteTheme.typography.mono,
+                color = GraphiteTheme.colors.contentSecondary,
+            )
         }
         SecondaryButton(
             text = stringResource(Res.string.action_logs),

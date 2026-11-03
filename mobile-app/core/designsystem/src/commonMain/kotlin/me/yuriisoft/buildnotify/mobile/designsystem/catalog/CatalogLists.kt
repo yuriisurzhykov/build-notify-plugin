@@ -24,8 +24,24 @@ internal fun HistorySection() {
         Column {
             SectionHeader("Сегодня")
             HistoryRow(BuildTone.Success, "Успешно", "shop-android", ":app:assembleDebug", "1m 45s", "14:02")
-            HistoryRow(BuildTone.Failure, "Ошибка", "shop-android", ":app:testDebugUnitTest", "1m 52s", "13:51", tag = "агент")
-            HistoryRow(BuildTone.Warning, "Отменена", "design-kit", ":lib:publishToMavenLocal", "12s", "13:40", showDivider = false)
+            HistoryRow(
+                BuildTone.Failure,
+                "Ошибка",
+                "shop-android",
+                ":app:testDebugUnitTest",
+                "1m 52s",
+                "13:51",
+                tag = "агент",
+            )
+            HistoryRow(
+                BuildTone.Warning,
+                "Отменена",
+                "design-kit",
+                ":lib:publishToMavenLocal",
+                "12s",
+                "13:40",
+                showDivider = false,
+            )
         }
         Column {
             SectionHeader("Запустить снова")

@@ -27,7 +27,11 @@ fun BouncingDots(
     dotSize: Dp = 6.dp,
 ) {
     val transition = rememberInfiniteTransition(label = "dots")
-    Row(modifier, horizontalArrangement = Arrangement.spacedBy(dotSize), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(dotSize),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         repeat(3) { i ->
             val lift by transition.animateFloat(
                 initialValue = 0f,

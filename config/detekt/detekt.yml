@@ -1,0 +1,135 @@
+# Shared detekt rules for ide-plugin and mobile-app.
+#
+# Applied on top of detekt's default config (buildUponDefaultConfig = true): only the
+# differences live here. The goal is short files, short functions and flat logic.
+# Existing violations are frozen in each module's detekt-baseline.xml; new code must pass.
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  # A class longer than this is doing more than one thing.
+  LargeClass:
+    active: true
+    threshold: 300
+  LongMethod:
+    active: true
+    threshold: 50
+  LongParameterList:
+    active: true
+    functionThreshold: 6
+    constructorThreshold: 8
+    ignoreDefaultParameters: true
+    # Composables expose parameters as their public API (modifier, callbacks, slots).
+    ignoreAnnotated: ['Composable']
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 12
+    # A flat exhaustive `when` over a sealed type is the clearest form, not complexity.
+    ignoreSimpleWhenEntries: true
+  CognitiveComplexMethod:
+    active: true
+    threshold: 15
+  NestedBlockDepth:
+    active: true
+    threshold: 4
+  ComplexCondition:
+    active: true
+    threshold: 4
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 15
+    thresholdInClasses: 15
+    thresholdInInterfaces: 12
+    thresholdInObjects: 15
+    thresholdInEnums: 8
+    ignorePrivate: true
+    ignoreOverridden: true
+  NestedScopeFunctions:
+    active: true
+    threshold: 1
+  StringLiteralDuplication:
+    active: true
+    excludes: ['**/test/**', '**/*Test.kt', '**/commonTest/**']
+
+style:
+  # Formatting belongs to ktlint; detekt checks structure and design.
+  NewLineAtEndOfFile:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludeCommentStatements: true
+  ReturnCount:
+    active: true
+    max: 3
+    excludeGuardClauses: true
+  ThrowsCount:
+    active: true
+    max: 3
+  MagicNumber:
+    active: true
+    excludes: ['**/test/**', '**/*Test.kt', '**/commonTest/**']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+    ignoreEnums: true
+    # Design tokens and colours are literal by nature.
+    ignoreAnnotated: ['Composable', 'Preview']
+  WildcardImport:
+    active: true
+    excludeImports: []
+  ForbiddenComment:
+    active: true
+    comments:
+      - reason: 'Track the work in an issue instead of leaving a FIXME.'
+        value: 'FIXME:'
+      - reason: 'Remove or resolve before merging.'
+        value: 'STOPSHIP:'
+  UnusedPrivateMember:
+    active: true
+  UnnecessaryAbstractClass:
+    active: true
+  UseCheckOrError:
+    active: true
+  DestructuringDeclarationWithTooManyEntries:
+    active: true
+    maxDestructuringEntries: 3
+
+naming:
+  FunctionNaming:
+    active: true
+    # Composables are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    active: true
+    # SCREAMING_CASE constants plus PascalCase Compose tokens (`val Fast`, icons).
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: true
+  LateinitUsage:
+    active: true
+    excludes: ['**/test/**', '**/*Test.kt']
+    ignoreOnClassesPattern: '.*(Service|Activity|Application)'
+
+coroutines:
+  GlobalCoroutineUsage:
+    active: true
+  InjectDispatcher:
+    active: true
+    excludes: ['**/test/**', '**/*Test.kt', '**/commonTest/**']
+  SuspendFunWithFlowReturnType:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    # Boundaries (transport, VMs) map any failure to a user-visible state.
+    allowedExceptionNameRegex: '_|(ignore|expected).*'
+  SwallowedException:
+    active: true
+    allowedExceptionNameRegex: '_|(ignore|expected).*'

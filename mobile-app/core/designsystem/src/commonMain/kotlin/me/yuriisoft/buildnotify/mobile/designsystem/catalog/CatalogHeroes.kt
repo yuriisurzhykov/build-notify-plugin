@@ -38,7 +38,12 @@ internal fun FailedHeroSection() {
                 IssueText("Unresolved reference: PaymentProcessor", "PaymentService.kt:42")
                 Text("и ещё 2 ошибки компиляции", style = type.meta, color = colors.contentSecondary)
             }
-            PrimaryButton("Передать агенту", onClick = {}, modifier = Modifier.fillMaxWidth(), trailingIcon = GraphiteIcons.ArrowRight)
+            PrimaryButton(
+                "Передать агенту",
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = GraphiteIcons.ArrowRight,
+            )
         }
     }
 }
@@ -65,8 +70,18 @@ internal fun RunningHeroSection() {
                 LogLine("w: Parameter 'context' is never used", tone = LogTone.Warning, singleLine = true)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(spacing.s)) {
-                DangerButton("Остановить", onClick = {}, modifier = Modifier.weight(1f), leadingIcon = GraphiteIcons.Stop)
-                SecondaryButton("Лог", onClick = {}, modifier = Modifier.weight(1f), leadingIcon = GraphiteIcons.Terminal)
+                DangerButton(
+                    "Остановить",
+                    onClick = {},
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = GraphiteIcons.Stop,
+                )
+                SecondaryButton(
+                    "Лог",
+                    onClick = {},
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = GraphiteIcons.Terminal,
+                )
             }
         }
     }

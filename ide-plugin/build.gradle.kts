@@ -1,5 +1,7 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.date
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.getSupportedKotlinVersion
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -9,6 +11,8 @@ plugins {
     alias(libs.plugins.jetbrains.platform)
     alias(libs.plugins.jetbrains.qodana)
     alias(libs.plugins.jetbrains.changelog)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
 group = providers.gradleProperty("plugin.groupId")
@@ -113,6 +117,68 @@ kotlin {
     }
 }
 
+
+// ── Code quality ─────────────────────────────────────────────────────────────
+// Same rules as mobile-app: /config/detekt/detekt.yml, /.editorconfig, /config/konsist.
+// Existing findings are frozen in detekt-baseline.xml / ktlint-baseline.xml.
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(rootDir.parentFile.resolve("config/detekt/detekt.yml"))
+    baseline = file("detekt-baseline.xml")
+    source.setFrom(files("src"))
+    parallel = true
+}
+
+tasks.withType<Detekt>().configureEach {
+    jvmTarget = "21"
+    exclude("**/build/**")
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        txt.required.set(false)
+        sarif.required.set(false)
+        md.required.set(false)
+    }
+}
+
+// detekt runs on its own Kotlin compiler; keep Gradle from aligning it to the project's Kotlin.
+configurations.matching { it.name == "detekt" }.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") useVersion(getSupportedKotlinVersion())
+    }
+}
+
+ktlint {
+    version.set(libs.versions.ktlint)
+    baseline.set(file("ktlint-baseline.xml"))
+    filter {
+        exclude { it.file.path.contains("/build/") }
+    }
+}
+
+// Architecture tests (Konsist) in their own source set, isolated from the IntelliJ
+// Platform test classpath (which bundles its own Kotlin compiler).
+val konsistTest: SourceSet by sourceSets.creating {
+    kotlin.srcDir(rootDir.parentFile.resolve("config/konsist/src"))
+}
+
+dependencies {
+    "konsistTestImplementation"(libs.konsist)
+    "konsistTestImplementation"(kotlin("test-junit5"))
+    "konsistTestImplementation"(libs.test.junit)
+    "konsistTestRuntimeOnly"(libs.test.junit.platform.launcher)
+}
+
+val konsistTestTask = tasks.register<Test>("konsistTest") {
+    description = "Runs the Konsist architecture tests."
+    group = "verification"
+    testClassesDirs = konsistTest.output.classesDirs
+    classpath = konsistTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named("check") { dependsOn(konsistTestTask) }
 
 changelog {
     version = providers.gradleProperty("plugin.version").get()

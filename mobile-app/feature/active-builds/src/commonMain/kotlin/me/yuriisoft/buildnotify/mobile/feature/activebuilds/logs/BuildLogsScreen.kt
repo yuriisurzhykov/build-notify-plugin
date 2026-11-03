@@ -53,7 +53,9 @@ class BuildLogsScreen(
             onBack = navigator::back,
             onCopied = {
                 scope.launch {
-                    toastHost.show(ToastData(type = ToastType.Success, message = copied, duration = ToastDuration.Timed()))
+                    toastHost.show(
+                        ToastData(type = ToastType.Success, message = copied, duration = ToastDuration.Timed()),
+                    )
                 }
             },
         )

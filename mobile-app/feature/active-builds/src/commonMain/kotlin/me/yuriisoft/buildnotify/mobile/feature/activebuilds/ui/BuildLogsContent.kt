@@ -46,7 +46,11 @@ private fun NotFound() {
         verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.s),
         modifier = Modifier.padding(GraphiteTheme.spacing.xxl),
     ) {
-        Text(stringResource(Res.string.logs_not_found_title), style = GraphiteTheme.typography.headline, textAlign = TextAlign.Center)
+        Text(
+            stringResource(Res.string.logs_not_found_title),
+            style = GraphiteTheme.typography.headline,
+            textAlign = TextAlign.Center,
+        )
         Text(
             stringResource(Res.string.logs_not_found_body),
             style = GraphiteTheme.typography.bodySmall,

@@ -25,7 +25,10 @@ import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 internal fun StatusSection() {
     val spacing = GraphiteTheme.spacing
     Section("Статусы") {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(spacing.s), verticalArrangement = Arrangement.spacedBy(spacing.s)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(spacing.s),
+            verticalArrangement = Arrangement.spacedBy(spacing.s),
+        ) {
             StatusPill(BuildTone.Running, "Идёт")
             StatusPill(BuildTone.Success, "Успешно")
             StatusPill(BuildTone.Failure, "Ошибка")
@@ -45,14 +48,30 @@ internal fun StatusSection() {
 internal fun ButtonsSection() {
     val spacing = GraphiteTheme.spacing
     Section("Кнопки") {
-        PrimaryButton("Передать агенту", onClick = {}, modifier = Modifier.fillMaxWidth(), trailingIcon = GraphiteIcons.ArrowRight)
+        PrimaryButton(
+            "Передать агенту",
+            onClick = {},
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = GraphiteIcons.ArrowRight,
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(spacing.s)) {
-            OutlineButton("Перезапустить", onClick = {}, modifier = Modifier.weight(1f), leadingIcon = GraphiteIcons.Rerun)
+            OutlineButton(
+                "Перезапустить",
+                onClick = {},
+                modifier = Modifier.weight(1f),
+                leadingIcon = GraphiteIcons.Rerun,
+            )
             SecondaryButton("Лог", onClick = {}, modifier = Modifier.weight(1f), leadingIcon = GraphiteIcons.Terminal)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(spacing.s)) {
             DangerButton("Остановить", onClick = {}, modifier = Modifier.weight(1f), leadingIcon = GraphiteIcons.Stop)
-            Button("Недоступно", onClick = {}, modifier = Modifier.weight(1f), variant = ButtonVariant.Secondary, enabled = false)
+            Button(
+                "Недоступно",
+                onClick = {},
+                modifier = Modifier.weight(1f),
+                variant = ButtonVariant.Secondary,
+                enabled = false,
+            )
         }
         Row {
             IconButton(GraphiteIcons.ArrowBack, contentDescription = "Назад", onClick = {})

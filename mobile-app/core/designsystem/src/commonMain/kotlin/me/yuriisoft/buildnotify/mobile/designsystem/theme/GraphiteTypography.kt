@@ -75,8 +75,20 @@ internal fun rememberGraphiteTypography(): GraphiteTypography {
 
 /** Builds the scale from explicit families; also used by previews and tests. */
 fun graphiteTypography(sans: FontFamily, mono: FontFamily): GraphiteTypography = GraphiteTypography(
-    display = TextStyle(fontFamily = sans, fontWeight = FontWeight.Bold, fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.02).em),
-    headline = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 22.sp, lineHeight = 28.sp, letterSpacing = (-0.01).em),
+    display = TextStyle(
+        fontFamily = sans,
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp,
+        lineHeight = 36.sp,
+        letterSpacing = (-0.02).em,
+    ),
+    headline = TextStyle(
+        fontFamily = sans,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = (-0.01).em,
+    ),
     title = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, lineHeight = 22.sp),
     body = TextStyle(fontFamily = sans, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 21.sp),
     bodyStrong = TextStyle(fontFamily = sans, fontWeight = FontWeight.Medium, fontSize = 15.sp, lineHeight = 21.sp),
@@ -88,7 +100,13 @@ fun graphiteTypography(sans: FontFamily, mono: FontFamily): GraphiteTypography =
     tag = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp),
     button = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 20.sp),
     buttonLarge = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 20.sp),
-    timer = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 64.sp, lineHeight = 70.sp, letterSpacing = (-0.03).em),
+    timer = TextStyle(
+        fontFamily = mono,
+        fontWeight = FontWeight.Normal,
+        fontSize = 64.sp,
+        lineHeight = 70.sp,
+        letterSpacing = (-0.03).em,
+    ),
     mono = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp),
     code = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
     log = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 17.sp),

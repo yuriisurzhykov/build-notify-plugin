@@ -33,7 +33,10 @@ fun GraphiteCatalog(modifier: Modifier = Modifier) {
                 .padding(vertical = spacing.xxxl),
             verticalArrangement = Arrangement.spacedBy(spacing.section),
         ) {
-            Column(Modifier.padding(horizontal = spacing.screen), verticalArrangement = Arrangement.spacedBy(spacing.s)) {
+            Column(
+                Modifier.padding(horizontal = spacing.screen),
+                verticalArrangement = Arrangement.spacedBy(spacing.s),
+            ) {
                 Text("Graphite", style = type.display)
                 Text(
                     "Тихий интерфейс, громкие сигналы. Цвет появляется только там, где есть статус.",

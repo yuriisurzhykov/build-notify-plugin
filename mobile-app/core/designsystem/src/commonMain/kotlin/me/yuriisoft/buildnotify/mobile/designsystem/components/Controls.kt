@@ -61,12 +61,21 @@ fun ProgressBar(
         val radius = CornerRadius(size.height / 2, size.height / 2)
         drawRoundRect(trackColor, cornerRadius = radius)
         if (progress != null) {
-            drawRoundRect(color, size = Size(size.width * progress.coerceIn(0f, 1f), size.height), cornerRadius = radius)
+            drawRoundRect(
+                color,
+                size = Size(size.width * progress.coerceIn(0f, 1f), size.height),
+                cornerRadius = radius,
+            )
         } else {
             val start = (size.width * phase).coerceAtLeast(0f)
             val end = (size.width * (phase + 0.3f)).coerceAtMost(size.width)
             if (end > start) {
-                drawRoundRect(color, topLeft = Offset(start, 0f), size = Size(end - start, size.height), cornerRadius = radius)
+                drawRoundRect(
+                    color,
+                    topLeft = Offset(start, 0f),
+                    size = Size(end - start, size.height),
+                    cornerRadius = radius,
+                )
             }
         }
     }
@@ -91,7 +100,11 @@ fun FilterChip(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(text, style = GraphiteTheme.typography.chip, color = content)
-        if (count != null) Text(count.toString(), style = GraphiteTheme.typography.mono, color = content.copy(alpha = 0.8f))
+        if (count != null) Text(
+            count.toString(),
+            style = GraphiteTheme.typography.mono,
+            color = content.copy(alpha = 0.8f),
+        )
     }
 }
 
@@ -108,7 +121,12 @@ fun Switch(
     Box(
         modifier = modifier
             .semantics { stateDescription = if (checked) stateDescriptionOn else stateDescriptionOff }
-            .styledClickable(styles.track, onClick = { onCheckedChange(!checked) }, checked = checked, role = Role.Switch),
+            .styledClickable(
+                styles.track,
+                onClick = { onCheckedChange(!checked) },
+                checked = checked,
+                role = Role.Switch,
+            ),
     ) {
         Box(Modifier.styledToggle(styles.thumb, checked))
     }
@@ -130,7 +148,12 @@ fun ChoiceCard(
     Column(
         modifier = modifier
             .semantics { this.selected = selected }
-            .styledClickable(rememberChoiceCardStyle(), onClick = onClick, selected = selected, role = Role.RadioButton),
+            .styledClickable(
+                rememberChoiceCardStyle(),
+                onClick = onClick,
+                selected = selected,
+                role = Role.RadioButton,
+            ),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(title, style = GraphiteTheme.typography.chip, color = content, maxLines = 1)

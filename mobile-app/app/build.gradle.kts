@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.application)
     id("apple-ios-targets")
+    id("quality-conventions")
 }
 
 kotlin {

@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("com.android.library")
     id("apple-ios-targets")
+    id("quality-conventions")
 }
 
 kotlin {

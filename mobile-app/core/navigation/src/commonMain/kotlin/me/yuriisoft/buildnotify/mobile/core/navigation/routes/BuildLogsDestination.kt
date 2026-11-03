@@ -32,8 +32,8 @@ private fun encodePathSegment(value: String): String = buildString {
         } else {
             char.toString().encodeToByteArray().forEach { byte ->
                 append('%')
-                append(HEX[(byte.toInt() shr 4) and 0x0F])
-                append(HEX[byte.toInt() and 0x0F])
+                append(HEX[(byte.toInt() shr NIBBLE_BITS) and LOW_NIBBLE])
+                append(HEX[byte.toInt() and LOW_NIBBLE])
             }
         }
     }
@@ -41,3 +41,5 @@ private fun encodePathSegment(value: String): String = buildString {
 
 private const val UNRESERVED = "-._~:"
 private const val HEX = "0123456789ABCDEF"
+private const val NIBBLE_BITS = 4
+private const val LOW_NIBBLE = 0x0F

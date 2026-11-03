@@ -23,6 +23,7 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.logs_title
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.logs.BuildLogsUiState
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.logs.BuildStatusUi
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.formatDuration
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -80,5 +81,11 @@ private fun StatusLine(status: BuildStatusUi) {
         is BuildStatusUi.Finished -> formatDuration(status.durationMs)
         is BuildStatusUi.Unknown  -> stringResource(Res.string.build_unknown_project)
     }
-    Text(text, style = GraphiteTheme.typography.mono, color = GraphiteTheme.colors.contentSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    Text(
+        text,
+        style = GraphiteTheme.typography.mono,
+        color = GraphiteTheme.colors.contentSecondary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }

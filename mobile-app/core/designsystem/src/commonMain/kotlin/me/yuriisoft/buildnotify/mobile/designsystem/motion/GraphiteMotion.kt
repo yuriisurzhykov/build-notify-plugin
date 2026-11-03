@@ -14,9 +14,19 @@ object GraphiteMotion {
     /** Delay between items of a staggered reveal. */
     const val Stagger = 55
 
-    fun <T> enter(delay: Int = 0): FiniteAnimationSpec<T> = tween(Medium, delayMillis = delay, easing = FastOutSlowInEasing)
-    fun <T> bouncy(): FiniteAnimationSpec<T> = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow)
-    fun <T> settle(): FiniteAnimationSpec<T> = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
+    fun <T> enter(delay: Int = 0): FiniteAnimationSpec<T> = tween(
+        Medium,
+        delayMillis = delay,
+        easing = FastOutSlowInEasing,
+    )
+    fun <T> bouncy(): FiniteAnimationSpec<T> = spring(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessMediumLow,
+    )
+    fun <T> settle(): FiniteAnimationSpec<T> = spring(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessMediumLow,
+    )
     fun <T> fast(): FiniteAnimationSpec<T> = tween(Fast)
     fun <T> slow(): FiniteAnimationSpec<T> = tween(Slow)
 }

@@ -22,7 +22,11 @@ internal fun rememberButtonAppearance(variant: ButtonVariant, size: ButtonSize):
         ButtonVariant.Primary   -> Triple(colors.inverse, colors.onInverse, Color.Transparent)
         ButtonVariant.Secondary -> Triple(colors.surfaceRaised, colors.content, Color.Transparent)
         ButtonVariant.Outline   -> Triple(Color.Transparent, colors.content, colors.lineStrong)
-        ButtonVariant.Danger    -> Triple(Color.Transparent, colors.failure.main, colors.failure.main.copy(alpha = 0.4f))
+        ButtonVariant.Danger    -> Triple(
+            Color.Transparent,
+            colors.failure.main,
+            colors.failure.main.copy(alpha = 0.4f),
+        )
     }
     return remember(container, content, outline, controlShape, height, padding) {
         ButtonAppearance(

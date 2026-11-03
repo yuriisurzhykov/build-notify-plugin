@@ -30,6 +30,7 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_no_errors
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ActiveBuildsIntent
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.FinishedBuildUi
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.formatDuration
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

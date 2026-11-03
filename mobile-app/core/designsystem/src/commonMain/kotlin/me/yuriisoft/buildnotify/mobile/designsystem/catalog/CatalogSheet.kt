@@ -33,14 +33,37 @@ internal fun SheetSection() {
                 Text("payment-sdk · 3 ошибки компиляции", style = type.bodySmall, color = colors.contentSecondary)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(spacing.s)) {
-                ChoiceCard("Claude Code", "последний", selected = agent == 0, onClick = { agent = 0 }, modifier = Modifier.weight(1f))
-                ChoiceCard("Codex", "установлен", selected = agent == 1, onClick = { agent = 1 }, modifier = Modifier.weight(1f))
-                ChoiceCard("Копировать", "любой агент", selected = agent == 2, onClick = { agent = 2 }, modifier = Modifier.weight(1f))
+                ChoiceCard(
+                    "Claude Code",
+                    "последний",
+                    selected = agent == 0,
+                    onClick = { agent = 0 },
+                    modifier = Modifier.weight(1f),
+                )
+                ChoiceCard(
+                    "Codex",
+                    "установлен",
+                    selected = agent == 1,
+                    onClick = { agent = 1 },
+                    modifier = Modifier.weight(1f),
+                )
+                ChoiceCard(
+                    "Копировать",
+                    "любой агент",
+                    selected = agent == 2,
+                    onClick = { agent = 2 },
+                    modifier = Modifier.weight(1f),
+                )
             }
             SettingRow("Приложить полный лог", onClick = { fullLog = !fullLog }, subtitle = "218 строк, 14 КБ") {
                 Switch(checked = fullLog, onCheckedChange = { fullLog = it })
             }
-            PrimaryButton("Открыть в Claude Code", onClick = {}, modifier = Modifier.fillMaxWidth(), trailingIcon = GraphiteIcons.ArrowRight)
+            PrimaryButton(
+                "Открыть в Claude Code",
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = GraphiteIcons.ArrowRight,
+            )
         }
     }
 }

@@ -83,7 +83,12 @@ fun StatusBadge(
         modifier = modifier.styled(rememberToneCircleStyle(status, GraphiteTheme.sizes.touchTarget)),
         contentAlignment = Alignment.Center,
     ) {
-        StatusGlyph(status, size = GraphiteTheme.sizes.iconLarge, dotSize = 12.dp, contentDescription = contentDescription)
+        StatusGlyph(
+            status,
+            size = GraphiteTheme.sizes.iconLarge,
+            dotSize = 12.dp,
+            contentDescription = contentDescription,
+        )
     }
 }
 

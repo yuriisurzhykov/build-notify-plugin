@@ -2,7 +2,6 @@ package me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation
 
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui.formatDuration
 
 /**
  * Turns a failed build into a message a coding agent (Claude Code, Codex, …) can act on.
@@ -30,7 +29,9 @@ object HandoffPrompt {
             }
         }
         if (outcome.warnings.isNotEmpty()) {
-            append("\n${outcome.warnings.size} warning(s) were also reported; leave them unless they cause the failure.\n")
+            append(
+                "\n${outcome.warnings.size} warning(s) were also reported; leave them unless they cause the failure.\n",
+            )
         }
         if (!logs.isNullOrEmpty()) {
             val tail = logs.takeLast(MAX_LOG_LINES)

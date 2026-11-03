@@ -4,6 +4,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.TimeUnits
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.toUi
 
 class BuildLogsUiMapper {
@@ -51,12 +52,12 @@ private fun BuildSnapshot?.toStatusUi(): BuildStatusUi = when (this) {
 /** `+0.0s`, `+12.4s`, `+3m 05s`. */
 internal fun formatOffset(deltaMs: Long): String {
     val safe = deltaMs.coerceAtLeast(0)
-    val totalSeconds = safe / 1_000
-    if (totalSeconds < 60) {
-        val tenths = (safe % 1_000) / 100
+    val totalSeconds = safe / TimeUnits.MILLIS_PER_SECOND
+    if (totalSeconds < TimeUnits.SECONDS_PER_MINUTE) {
+        val tenths = (safe % TimeUnits.MILLIS_PER_SECOND) / TimeUnits.MILLIS_PER_TENTH
         return "+$totalSeconds.${tenths}s"
     }
-    val minutes = totalSeconds / 60
-    val seconds = (totalSeconds % 60).toString().padStart(2, '0')
+    val minutes = totalSeconds / TimeUnits.SECONDS_PER_MINUTE
+    val seconds = (totalSeconds % TimeUnits.SECONDS_PER_MINUTE).toString().padStart(2, '0')
     return "+${minutes}m ${seconds}s"
 }
