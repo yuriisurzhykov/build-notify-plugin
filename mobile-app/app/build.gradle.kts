@@ -63,7 +63,7 @@ android {
     defaultConfig {
         applicationId = "me.yuriisoft.buildnotify.mobile"
         minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.compileSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0.0"
     }

@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.1"
+agp = "9.1.1"
 kotlin = "2.3.20"
 ksp = "2.3.6"
 compose-multiplatform = "1.12.2"
@@ -13,7 +13,8 @@ sqldelight = "2.3.2"
 lifecycle = "2.10.0"
 activity-compose = "1.13.0"
 navigation = "2.9.2"
-android-compileSdk = "36"
+android-compileSdk = "37"
+android-targetSdk = "36"
 android-minSdk = "26"
 
 # Code quality — shared rules live in /config at the repository root.
