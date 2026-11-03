@@ -1,13 +1,14 @@
 package me.yuriisoft.buildnotify.mobile.network.connection
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.core.mapper.Mapper
@@ -22,6 +23,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.hours
 
+/**
+ * Uses [runCurrent], never `advanceUntilIdle()`: the connection has a heartbeat
+ * timeout, and skipping virtual time to idle would fire it and fail every connection.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ManagedConnectionTest {
 
@@ -87,7 +92,7 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = transport)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
         val state = connection.state.value
         val isConnectingOrConnected =
@@ -103,10 +108,10 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = transport)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
         transport.payloads.emit(HeartbeatPayload())
-        advanceUntilIdle()
+        runCurrent()
 
         assertIs<ConnectionState.Connected>(connection.state.value)
     }
@@ -117,10 +122,10 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = transport)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
         connection.disconnect()
-        advanceUntilIdle()
+        runCurrent()
 
         assertIs<ConnectionState.Disconnected>(connection.state.value)
     }
@@ -135,13 +140,14 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = transport)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
+        // `incoming` has no replay: subscribe before the payload arrives.
+        val received = async { connection.incoming.first() }
         val payload = HeartbeatPayload()
         transport.payloads.emit(payload)
 
-        val received = connection.incoming.first()
-        assertEquals(payload, received)
+        assertEquals(payload, received.await())
     }
 
     // endregion
@@ -156,7 +162,7 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = failingTransport)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
         val state = connection.state.value
         assertIs<ConnectionState.Failed>(state)
@@ -181,7 +187,7 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = transport, reconnection = retryTwice)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
         assertIs<ConnectionState.Connected>(connection.state.value)
         assertEquals(3, attempts)
@@ -197,17 +203,17 @@ class ManagedConnectionTest {
         val connection = createConnection(transport = transport)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
         connection.disconnect()
-        advanceUntilIdle()
+        runCurrent()
 
         assertIs<ConnectionState.Disconnected>(connection.state.value)
 
         connection.connect(host)
-        advanceUntilIdle()
+        runCurrent()
 
         transport.payloads.emit(HeartbeatPayload())
-        advanceUntilIdle()
+        runCurrent()
 
         assertEquals(2, transport.openCount)
     }
