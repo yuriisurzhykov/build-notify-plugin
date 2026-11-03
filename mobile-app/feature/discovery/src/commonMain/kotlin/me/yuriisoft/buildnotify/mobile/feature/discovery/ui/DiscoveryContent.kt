@@ -1,39 +1,28 @@
 package me.yuriisoft.buildnotify.mobile.feature.discovery.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.discovery_subtitle
 import build_notify_mobile.feature.discovery.generated.resources.discovery_title
 import build_notify_mobile.feature.discovery.generated.resources.discovery_version_footer
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Icon
+import me.yuriisoft.buildnotify.mobile.designsystem.components.IconBadge
 import me.yuriisoft.buildnotify.mobile.designsystem.components.ScreenSurface
 import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.GraphiteMotion
+import me.yuriisoft.buildnotify.mobile.designsystem.components.TintedStage
 import me.yuriisoft.buildnotify.mobile.designsystem.motion.Reveal
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.Swap
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.directional
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.discovery.presentation.DiscoveryUiState
@@ -59,121 +48,129 @@ internal fun DiscoveryContent(
     onStartScan: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = GraphiteTheme.colors
-    val spacing = GraphiteTheme.spacing
     val tone = state.tone()
-    val backdrop by animateColorAsState(colors.tone(tone).hero, tween(GraphiteMotion.Slow), label = "backdrop")
-    val accent by animateColorAsState(colors.tone(tone).main, tween(GraphiteMotion.Slow), label = "accent")
-    val accentContainer by animateColorAsState(colors.tone(tone).container, tween(GraphiteMotion.Slow), label = "accentContainer")
 
     ScreenSurface(modifier.fillMaxSize().safeDrawingPadding()) {
-        Reveal(index = 0) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = spacing.screen, vertical = spacing.xxl),
-                horizontalArrangement = Arrangement.spacedBy(spacing.l),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    Modifier
-                        .size(52.dp)
-                        .background(accentContainer, GraphiteTheme.shapes.pill),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(HubIcon, contentDescription = null, tint = accent, size = 26.dp)
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(spacing.xxs)) {
-                    Text(stringResource(Res.string.discovery_title), style = GraphiteTheme.typography.display)
-                    Text(
-                        stringResource(Res.string.discovery_subtitle),
-                        style = GraphiteTheme.typography.bodySmall,
-                        color = colors.contentSecondary,
-                    )
-                }
-            }
-        }
+        DiscoveryHeader(tone)
 
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = spacing.heroInset)
-                .clip(GraphiteTheme.shapes.hero)
-                .background(backdrop),
-        ) {
-            AnimatedContent(
+        TintedStage(tone = tone, modifier = Modifier.weight(1f).fillMaxWidth()) {
+            Swap(
                 targetState = state,
                 modifier = Modifier.fillMaxSize(),
-                transitionSpec = {
-                    val isForward = targetState.animateOrder > initialState.animateOrder
-                    val isBackward = targetState.animateOrder < initialState.animateOrder
-                    val isFade = targetState.animateOrder == initialState.animateOrder ||
-                        targetState.animateOrder < 0
-                    // Same branch order as before the redesign: transitions are unchanged.
-                    when {
-                        isForward  -> slideInHorizontally { fullWidth -> fullWidth } togetherWith slideOutHorizontally { fullWidth -> -fullWidth }
-                        isBackward -> slideInHorizontally { fullWidth -> -fullWidth } togetherWith slideOutHorizontally { fullWidth -> fullWidth }
-                        isFade     -> fadeIn() togetherWith fadeOut()
-                        else       -> fadeIn() togetherWith fadeOut()
-                    }
-                },
+                // Unchanged since before the redesign: forward slides left, back slides
+                // right, the same step cross-fades (see `directional`).
+                transition = { directional(initialState.animateOrder, targetState.animateOrder) },
                 contentKey = { it::class.qualifiedName },
                 label = "discoveryStage",
             ) { currentState ->
-                when (currentState) {
-                    is DiscoveryUiState.Idle                -> IdleBody(onStartScan = onStartScan)
-                    is DiscoveryUiState.Scanning            -> ScanningBody(onCancel = onCancel)
-                    is DiscoveryUiState.ServiceSelection    -> HostListBody(currentState.hosts, onHostSelected)
-                    is DiscoveryUiState.PairingConfirmation -> PairingConfirmationBody(
-                        host = currentState.host,
-                        pin = currentState.pin,
-                        onConfirm = onConfirmPairing,
-                        onReject = onRejectPairing,
-                    )
-
-                    is DiscoveryUiState.WaitingForIde       -> WaitingForIdeBody(currentState.host, onCancel)
-                    is DiscoveryUiState.Connecting          -> ConnectingBody(currentState.host, onCancel)
-                    is DiscoveryUiState.Connected           -> ConnectedBody(currentState.host)
-                    is DiscoveryUiState.ConnectionFailed    -> ConnectionFailedBody(
-                        host = currentState.hostResource,
-                        reason = currentState.reasonResource,
-                        onRetry = { onHostSelected(currentState.host) },
-                    )
-
-                    is DiscoveryUiState.NothingFound        -> EmptyBody(onRetry = onRetry)
-                    is DiscoveryUiState.ScanError           -> ErrorBody(currentState.message, onRetry)
-                    is DiscoveryUiState.NetworkUnavailable  -> NetworkUnavailableBody()
-                }
+                DiscoveryStage(
+                    state = currentState,
+                    onHostSelected = onHostSelected,
+                    onConfirmPairing = onConfirmPairing,
+                    onRejectPairing = onRejectPairing,
+                    onRetry = onRetry,
+                    onCancel = onCancel,
+                    onStartScan = onStartScan,
+                )
             }
         }
 
-        Text(
-            text = stringResource(Res.string.discovery_version_footer, appVersion),
-            style = GraphiteTheme.typography.caption,
-            color = colors.contentTertiary,
-            textAlign = TextAlign.Center,
+        VersionFooter(appVersion)
+    }
+}
+
+/** Brand glyph and title; the glyph re-tints with the state's tone. */
+@Composable
+private fun DiscoveryHeader(tone: BuildTone) {
+    val spacing = GraphiteTheme.spacing
+    Reveal(index = 0) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = spacing.m),
+                .padding(horizontal = spacing.screen, vertical = spacing.xxl),
+            horizontalArrangement = Arrangement.spacedBy(spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconBadge(HubIcon, tone, diameter = BrandBadgeDiameter, iconSize = BrandBadgeIconSize)
+            Column(verticalArrangement = Arrangement.spacedBy(spacing.xxs)) {
+                Text(stringResource(Res.string.discovery_title), style = GraphiteTheme.typography.display)
+                Text(
+                    stringResource(Res.string.discovery_subtitle),
+                    style = GraphiteTheme.typography.bodySmall,
+                    color = GraphiteTheme.colors.contentSecondary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun VersionFooter(appVersion: String) {
+    Text(
+        text = stringResource(Res.string.discovery_version_footer, appVersion),
+        style = GraphiteTheme.typography.caption,
+        color = GraphiteTheme.colors.contentTertiary,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = GraphiteTheme.spacing.m),
+    )
+}
+
+/** Renders one discovery step. */
+@Composable
+private fun DiscoveryStage(
+    state: DiscoveryUiState,
+    onHostSelected: (DiscoveredHost) -> Unit,
+    onConfirmPairing: () -> Unit,
+    onRejectPairing: () -> Unit,
+    onRetry: () -> Unit,
+    onCancel: () -> Unit,
+    onStartScan: () -> Unit,
+) {
+    when (state) {
+        is DiscoveryUiState.Idle                -> IdleBody(onStartScan = onStartScan)
+        is DiscoveryUiState.Scanning            -> ScanningBody(onCancel = onCancel)
+        is DiscoveryUiState.ServiceSelection    -> HostListBody(state.hosts, onHostSelected)
+        is DiscoveryUiState.PairingConfirmation -> PairingConfirmationBody(
+            host = state.host,
+            pin = state.pin,
+            onConfirm = onConfirmPairing,
+            onReject = onRejectPairing,
         )
+
+        is DiscoveryUiState.WaitingForIde       -> WaitingForIdeBody(state.host, onCancel)
+        is DiscoveryUiState.Connecting          -> ConnectingBody(state.host, onCancel)
+        is DiscoveryUiState.Connected           -> ConnectedBody(state.host)
+        is DiscoveryUiState.ConnectionFailed    -> ConnectionFailedBody(
+            host = state.hostResource,
+            reason = state.reasonResource,
+            onRetry = { onHostSelected(state.host) },
+        )
+
+        is DiscoveryUiState.NothingFound        -> EmptyBody(onRetry = onRetry)
+        is DiscoveryUiState.ScanError           -> ErrorBody(state.message, onRetry)
+        is DiscoveryUiState.NetworkUnavailable  -> NetworkUnavailableBody()
     }
 }
 
 /** The colour story of the flow: blue while working, amber when the user must act. */
 internal fun DiscoveryUiState.tone(): BuildTone = when (this) {
-    DiscoveryUiState.Idle,
-    DiscoveryUiState.Scanning,
+    is DiscoveryUiState.Idle,
+    is DiscoveryUiState.Scanning,
     is DiscoveryUiState.ServiceSelection,
     is DiscoveryUiState.Connecting          -> BuildTone.Running
 
     is DiscoveryUiState.PairingConfirmation,
     is DiscoveryUiState.WaitingForIde,
-    DiscoveryUiState.NothingFound,
-    DiscoveryUiState.NetworkUnavailable     -> BuildTone.Warning
+    is DiscoveryUiState.NothingFound,
+    is DiscoveryUiState.NetworkUnavailable  -> BuildTone.Warning
 
     is DiscoveryUiState.Connected           -> BuildTone.Success
 
     is DiscoveryUiState.ConnectionFailed,
     is DiscoveryUiState.ScanError           -> BuildTone.Failure
 }
+
+private val BrandBadgeDiameter = 52.dp
+private val BrandBadgeIconSize = 26.dp

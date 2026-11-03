@@ -1,6 +1,5 @@
 package me.yuriisoft.buildnotify.network.server
 
-import me.yuriisoft.buildnotify.security.TrustedClients
 import me.yuriisoft.buildnotify.security.sha256Fingerprint
 import org.java_websocket.WebSocket
 import java.security.cert.X509Certificate
@@ -14,15 +13,6 @@ import java.security.cert.X509Certificate
  */
 fun interface SessionAuthorizer {
     fun isAuthorized(clientFingerprint: String?): Boolean
-}
-
-/** Authorized = presented a certificate whose fingerprint is currently trusted. */
-class TrustedClientAuthorizer(
-    private val trustedClients: () -> TrustedClients,
-) : SessionAuthorizer {
-
-    override fun isAuthorized(clientFingerprint: String?): Boolean =
-        clientFingerprint != null && trustedClients().isTrusted(clientFingerprint)
 }
 
 /**

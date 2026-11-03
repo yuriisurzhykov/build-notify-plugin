@@ -79,13 +79,6 @@ class ActiveBuildsUiMapper(
     }
 }
 
-/** What the ViewModel knows about an open hand-off sheet. */
-data class HandoffRequest(
-    val buildId: String,
-    val includeLog: Boolean,
-    val logs: List<BuildLogEntry>,
-)
-
 internal fun BuildIssue.toUi(): BuildIssueUi = BuildIssueUi(
     message = message,
     location = filePath?.let { path -> line?.let { "$path:$it" } ?: path },

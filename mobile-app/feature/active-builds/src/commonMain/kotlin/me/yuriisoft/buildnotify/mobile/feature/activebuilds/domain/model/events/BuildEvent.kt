@@ -18,10 +18,3 @@ internal fun Map<String, List<BuildLogEntry>>.appendLog(
     buildId: String,
     entry: BuildLogEntry,
 ): Map<String, List<BuildLogEntry>> = this + (buildId to (this[buildId].orEmpty() + entry))
-
-data class SnapshotBuild(
-    val buildId: String,
-    val projectName: String,
-    val startedAt: Long,
-    val currentTask: String?,
-)

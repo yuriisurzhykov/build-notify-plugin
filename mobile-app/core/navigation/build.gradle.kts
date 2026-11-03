@@ -10,6 +10,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.jetbrains.compose.navigation)
+            implementation(projects.core.designsystem)
         }
     }
 }

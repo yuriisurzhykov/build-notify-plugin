@@ -24,13 +24,3 @@ sealed interface ActiveBuildsIntent {
     @Immutable
     data object ToggleHandoffLog : ActiveBuildsIntent
 }
-
-@Immutable
-sealed interface ActiveBuildsUiEvent {
-
-    @Immutable
-    data class NavigateToLogs(val buildId: String) : ActiveBuildsUiEvent
-
-    @Immutable
-    data object CancelFailed : ActiveBuildsUiEvent
-}

@@ -7,9 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.components.ScreenSurface
 
 @Composable
 fun AppNavGraph(
@@ -32,11 +30,7 @@ fun AppNavGraph(
                 popEnterTransition = screen.transitions.popEnter,
                 popExitTransition = screen.transitions.popExit,
             ) { backStackEntry ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(GraphiteTheme.colors.background),
-                ) {
+                ScreenSurface(Modifier.fillMaxSize()) {
                     screen.Content(backStackEntry, navigator)
                 }
             }

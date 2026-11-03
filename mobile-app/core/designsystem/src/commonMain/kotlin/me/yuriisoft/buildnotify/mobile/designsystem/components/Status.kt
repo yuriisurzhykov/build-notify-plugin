@@ -1,12 +1,8 @@
 package me.yuriisoft.buildnotify.mobile.designsystem.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,18 +11,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.animateStatus
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
-
-/** Default glyph of a tone; `null` means "draw a dot" (running, neutral). */
-fun BuildTone.icon(): ImageVector? = when (this) {
-    BuildTone.Success -> GraphiteIcons.Check
-    BuildTone.Failure -> GraphiteIcons.Close
-    BuildTone.Warning -> GraphiteIcons.Minus
-    BuildTone.Running,
-    BuildTone.Neutral -> null
-}
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.StatusStyle
 
 /** 8 dp status dot for dense lists. Give [contentDescription] unless the row says the status in text. */
 @Composable
@@ -41,12 +29,7 @@ fun StatusDot(
     } else {
         Modifier
     }
-    Box(
-        modifier
-            .size(size)
-            .background(GraphiteTheme.colors.tone(tone).main, GraphiteTheme.shapes.pill)
-            .then(described),
-    )
+    Box(modifier.styled(rememberStatusDotStyle(tone, size)).then(described))
 }
 
 /** Tinted status pill: "✕ Ошибка", "● Идёт". */
@@ -56,22 +39,14 @@ fun StatusPill(
     label: String,
     modifier: Modifier = Modifier,
 ) {
-    val colors = GraphiteTheme.colors.tone(tone)
+    val status = GraphiteTheme.status(tone)
     Row(
-        modifier = modifier
-            .height(GraphiteTheme.sizes.pill)
-            .background(colors.container, GraphiteTheme.shapes.pill)
-            .padding(start = 8.dp, end = 10.dp),
+        modifier = modifier.styled(rememberStatusPillStyle(tone)),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val glyph = tone.icon()
-        if (glyph != null) {
-            Icon(glyph, contentDescription = null, tint = colors.main, size = 12.dp)
-        } else {
-            StatusDot(tone, size = 6.dp)
-        }
-        Text(label, style = GraphiteTheme.typography.caption.copy(fontWeight = GraphiteTheme.typography.label.fontWeight), color = colors.main)
+        StatusGlyph(status, size = 12.dp, dotSize = 6.dp)
+        Text(label, style = GraphiteTheme.typography.tag, color = status.main)
     }
 }
 
@@ -85,16 +60,14 @@ fun StatusLabel(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    val main = GraphiteTheme.colors.tone(tone).main
+    val status = GraphiteTheme.status(tone)
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val glyph = tone.icon()
-        if (glyph != null) Icon(glyph, contentDescription = null, tint = main, size = GraphiteTheme.sizes.iconSmall)
-        else StatusDot(tone)
-        Text(text, style = GraphiteTheme.typography.label, color = main)
+        StatusGlyph(status, size = GraphiteTheme.sizes.iconSmall, dotSize = GraphiteTheme.sizes.statusDot)
+        Text(text, style = GraphiteTheme.typography.label, color = status.main)
     }
 }
 
@@ -105,16 +78,12 @@ fun StatusBadge(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
 ) {
-    val colors = GraphiteTheme.colors.tone(tone)
+    val status = GraphiteTheme.status(tone)
     Box(
-        modifier = modifier
-            .size(GraphiteTheme.sizes.touchTarget)
-            .background(colors.container, GraphiteTheme.shapes.pill),
+        modifier = modifier.styled(rememberToneCircleStyle(status, GraphiteTheme.sizes.touchTarget)),
         contentAlignment = Alignment.Center,
     ) {
-        val glyph = tone.icon()
-        if (glyph != null) Icon(glyph, contentDescription, tint = colors.main, size = GraphiteTheme.sizes.iconLarge)
-        else StatusDot(tone, size = 12.dp, contentDescription = contentDescription)
+        StatusGlyph(status, size = GraphiteTheme.sizes.iconLarge, dotSize = 12.dp, contentDescription = contentDescription)
     }
 }
 
@@ -125,14 +94,12 @@ fun Tag(
     modifier: Modifier = Modifier,
     tone: BuildTone = BuildTone.Running,
 ) {
-    val colors = GraphiteTheme.colors.tone(tone)
+    val status = GraphiteTheme.status(tone)
     Text(
         text = text,
-        modifier = modifier
-            .background(colors.container, GraphiteTheme.shapes.tag)
-            .padding(horizontal = 6.dp, vertical = 1.dp),
-        style = GraphiteTheme.typography.caption.copy(fontWeight = GraphiteTheme.typography.label.fontWeight),
-        color = colors.main,
+        modifier = modifier.styled(rememberTagStyle(tone)),
+        style = GraphiteTheme.typography.tag,
+        color = status.main,
     )
 }
 
@@ -152,3 +119,44 @@ fun ConnectionBadge(
         Text(text, style = GraphiteTheme.typography.meta, color = GraphiteTheme.colors.contentSecondary, maxLines = 1)
     }
 }
+
+/** The status glyph, or a dot for tones without one — the only place that choice is made. */
+@Composable
+private fun StatusGlyph(
+    status: StatusStyle,
+    size: Dp,
+    dotSize: Dp,
+    contentDescription: String? = null,
+) {
+    val icon = status.icon
+    if (icon != null) {
+        Icon(icon, contentDescription = contentDescription, tint = status.main, size = size)
+    } else {
+        StatusDot(status.tone, size = dotSize, contentDescription = contentDescription)
+    }
+}
+
+/**
+ * Round badge with an arbitrary [icon] in the colours of [tone]; the colours glide when
+ * [tone] changes. Used for the big glyphs of multi-step flows.
+ */
+@Composable
+fun IconBadge(
+    icon: ImageVector,
+    tone: BuildTone,
+    modifier: Modifier = Modifier,
+    diameter: Dp = IconBadgeDiameter,
+    iconSize: Dp = IconBadgeIconSize,
+    contentDescription: String? = null,
+) {
+    val status = animateStatus(tone)
+    Box(
+        modifier = modifier.styled(rememberToneCircleStyle(status, diameter)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = contentDescription, tint = status.main, size = iconSize)
+    }
+}
+
+private val IconBadgeDiameter = 76.dp
+private val IconBadgeIconSize = 32.dp

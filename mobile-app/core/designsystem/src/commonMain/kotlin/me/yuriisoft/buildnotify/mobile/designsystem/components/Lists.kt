@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.style.Style
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,7 +39,7 @@ fun HistoryRow(
 ) {
     val colors = GraphiteTheme.colors
     val typography = GraphiteTheme.typography
-    val click = if (onClick != null) Modifier.pressable(onClick = onClick) else Modifier
+    val click = if (onClick != null) Modifier.styledClickable(Style, onClick) else Modifier
 
     Column(modifier.fillMaxWidth().then(click)) {
         Row(
@@ -85,7 +87,7 @@ fun RunTaskRow(
     showDivider: Boolean = true,
 ) {
     val colors = GraphiteTheme.colors
-    Column(modifier.fillMaxWidth().pressable(onClick = onRun)) {
+    Column(modifier.fillMaxWidth().styledClickable(Style, onRun)) {
         Row(
             modifier = Modifier.fillMaxWidth().heightIn(min = GraphiteTheme.sizes.listRow),
             horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.m),
@@ -115,7 +117,7 @@ fun SettingRow(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = GraphiteTheme.sizes.touchTarget)
-            .pressable(onClick = onClick, role = androidx.compose.ui.semantics.Role.Switch),
+            .styledClickable(Style, onClick, role = Role.Switch),
         horizontalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.m),
         verticalAlignment = Alignment.CenterVertically,
     ) {

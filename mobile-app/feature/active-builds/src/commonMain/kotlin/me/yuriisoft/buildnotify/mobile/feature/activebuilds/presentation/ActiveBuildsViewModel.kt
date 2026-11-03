@@ -63,14 +63,14 @@ class ActiveBuildsViewModel(
             is ActiveBuildsIntent.OpenLogs      ->
                 events.trySend(ActiveBuildsUiEvent.NavigateToLogs(intent.buildId))
 
-            ActiveBuildsIntent.RetryStream      -> observeBuilds()
+            is ActiveBuildsIntent.RetryStream      -> observeBuilds()
             is ActiveBuildsIntent.OpenHandoff   -> {
                 handoffIncludeLog.value = false
                 handoffTarget.value = intent.buildId
             }
 
-            ActiveBuildsIntent.CloseHandoff     -> handoffTarget.value = null
-            ActiveBuildsIntent.ToggleHandoffLog -> handoffIncludeLog.value = !handoffIncludeLog.value
+            is ActiveBuildsIntent.CloseHandoff     -> handoffTarget.value = null
+            is ActiveBuildsIntent.ToggleHandoffLog -> handoffIncludeLog.value = !handoffIncludeLog.value
         }
     }
 
@@ -137,7 +137,7 @@ private fun ConnectionState.toUi(): ConnectionUi = when (this) {
     is ConnectionState.Connecting,
     is ConnectionState.PairingRequired -> ConnectionUi.Reconnecting
 
-    ConnectionState.Idle,
-    ConnectionState.Disconnected,
+    is ConnectionState.Idle,
+    is ConnectionState.Disconnected,
     is ConnectionState.Failed       -> ConnectionUi.Offline
 }

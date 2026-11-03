@@ -4,6 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import kotlinx.coroutines.delay
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.time_hours
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.time_minutes
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.time_now
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -33,4 +38,24 @@ internal fun rememberElapsedMs(startedAt: Long): Long {
         }
     }
     return (now - startedAt).coerceAtLeast(0)
+}
+
+/** `m:ss` for the live timer, `h:mm:ss` past an hour. */
+internal fun formatTimer(elapsedMs: Long): String {
+    val total = elapsedMs.coerceAtLeast(0) / 1_000
+    val h = total / 3_600
+    val m = (total % 3_600) / 60
+    val s = (total % 60).toString().padStart(2, '0')
+    return if (h > 0) "$h:${m.toString().padStart(2, '0')}:$s" else "$m:$s"
+}
+
+/** "сейчас", "5 мин назад", "2 ч назад" — re-evaluated every second while shown. */
+@Composable
+internal fun relativeTime(atMillis: Long): String {
+    val minutes = rememberElapsedMs(atMillis) / 60_000
+    return when {
+        minutes < 1  -> stringResource(Res.string.time_now)
+        minutes < 60 -> stringResource(Res.string.time_minutes, minutes.toInt())
+        else         -> stringResource(Res.string.time_hours, (minutes / 60).toInt())
+    }
 }

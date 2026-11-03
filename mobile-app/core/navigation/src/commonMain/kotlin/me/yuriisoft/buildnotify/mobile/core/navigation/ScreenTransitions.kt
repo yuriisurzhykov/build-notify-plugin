@@ -3,12 +3,12 @@ package me.yuriisoft.buildnotify.mobile.core.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavBackStackEntry
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.GraphiteMotion
 
 data class ScreenTransitions(
     val enter: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null,
@@ -29,10 +29,10 @@ data class ScreenTransitions(
         )
 
         val Fade = ScreenTransitions(
-            enter = { fadeIn(tween(300)) },
-            exit = { fadeOut(tween(300)) },
-            popEnter = { fadeIn(tween(300)) },
-            popExit = { fadeOut(tween(300)) },
+            enter = { fadeIn(GraphiteMotion.enter()) },
+            exit = { fadeOut(GraphiteMotion.fast()) },
+            popEnter = { fadeIn(GraphiteMotion.enter()) },
+            popExit = { fadeOut(GraphiteMotion.fast()) },
         )
     }
 }

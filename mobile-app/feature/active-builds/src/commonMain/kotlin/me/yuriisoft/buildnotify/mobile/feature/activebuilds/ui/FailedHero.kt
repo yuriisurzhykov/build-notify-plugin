@@ -1,0 +1,99 @@
+package me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import me.yuriisoft.buildnotify.mobile.designsystem.components.Button
+import me.yuriisoft.buildnotify.mobile.designsystem.components.ButtonVariant
+import me.yuriisoft.buildnotify.mobile.designsystem.components.HeroPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.components.InsetPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.components.IssueText
+import me.yuriisoft.buildnotify.mobile.designsystem.components.PrimaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.components.StatusLabel
+import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.Reveal
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.shakeOn
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.action_handoff
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.action_logs
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_failed_label
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_failed_title
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_handoff_hint
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_more_errors
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.hero_no_errors
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ActiveBuildsIntent
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.FinishedBuildUi
+import org.jetbrains.compose.resources.stringResource
+
+@Composable
+internal fun FailedHero(build: FinishedBuildUi, onIntent: (ActiveBuildsIntent) -> Unit) {
+    val type = GraphiteTheme.typography
+    val colors = GraphiteTheme.colors
+    val finishedAt = build.startedAt + build.durationMs
+
+    HeroPanel(BuildTone.Failure) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatusLabel(
+                BuildTone.Failure,
+                stringResource(Res.string.hero_failed_label, relativeTime(finishedAt)),
+                Modifier.shakeOn(build.buildId),
+            )
+            Text(stringResource(Res.string.hero_failed_title, build.projectName), style = type.display)
+            Text(formatDuration(build.durationMs), style = type.mono, color = colors.contentSecondary)
+        }
+        Reveal(1) { FailedHeroIssue(build) }
+        Reveal(2) {
+            Column(verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.s)) {
+                PrimaryButton(
+                    text = stringResource(Res.string.action_handoff),
+                    onClick = { onIntent(ActiveBuildsIntent.OpenHandoff(build.buildId)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = GraphiteIcons.ArrowRight,
+                )
+                HeroHint(stringResource(Res.string.hero_handoff_hint))
+            }
+        }
+        Reveal(3) {
+            Button(
+                text = stringResource(Res.string.action_logs),
+                onClick = { onIntent(ActiveBuildsIntent.OpenLogs(build.buildId)) },
+                modifier = Modifier.fillMaxWidth(),
+                variant = ButtonVariant.Outline,
+                leadingIcon = GraphiteIcons.Terminal,
+            )
+        }
+    }
+}
+
+/** The first compiler error on an inset panel, with a count of the rest. */
+@Composable
+private fun FailedHeroIssue(build: FinishedBuildUi) {
+    val type = GraphiteTheme.typography
+    val colors = GraphiteTheme.colors
+    InsetPanel {
+        val first = build.topErrors.firstOrNull()
+        if (first == null) {
+            Text(stringResource(Res.string.hero_no_errors), style = type.bodySmall, color = colors.contentSecondary)
+            return@InsetPanel
+        }
+        IssueText(first.message, first.location)
+        val more = build.errorCount - 1
+        if (more > 0) {
+            Text(
+                stringResource(Res.string.hero_more_errors, more),
+                modifier = Modifier.padding(top = MoreErrorsGap),
+                style = type.meta,
+                color = colors.contentSecondary,
+            )
+        }
+    }
+}
+
+private val MoreErrorsGap = 6.dp

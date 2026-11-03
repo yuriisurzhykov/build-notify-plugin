@@ -51,7 +51,7 @@ class ActiveBuildsScreen(
                     is ActiveBuildsUiEvent.NavigateToLogs ->
                         navigator.navigateTo(BuildLogsDestination.routeFor(event.buildId), false)
 
-                    ActiveBuildsUiEvent.CancelFailed      -> launch {
+                    is ActiveBuildsUiEvent.CancelFailed      -> launch {
                         toastHost.show(
                             ToastData(
                                 type = ToastType.Error,

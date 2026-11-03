@@ -39,8 +39,12 @@ data class GraphiteTypography(
     val meta: TextStyle,
     /** 13/18 semibold — section headers, status labels. */
     val label: TextStyle,
-    /** 12/16 — hints under buttons, tags. */
+    /** 12/16 — hints under buttons. */
     val caption: TextStyle,
+    /** 12/16 semibold — status pills and tags. */
+    val tag: TextStyle,
+    /** 14/20 semibold — chips and choice cards. */
+    val chip: TextStyle,
     /** 15/20 semibold — regular buttons. */
     val button: TextStyle,
     /** 16/20 semibold — large primary buttons. */
@@ -53,6 +57,8 @@ data class GraphiteTypography(
     val code: TextStyle,
     /** 12/17 mono — log lines. */
     val log: TextStyle,
+    /** 26/32 mono — one digit of a pairing PIN. */
+    val pin: TextStyle,
 )
 
 @Composable
@@ -78,10 +84,13 @@ fun graphiteTypography(sans: FontFamily, mono: FontFamily): GraphiteTypography =
     meta = TextStyle(fontFamily = sans, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp),
     label = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp),
     caption = TextStyle(fontFamily = sans, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp),
+    chip = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 20.sp),
+    tag = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp),
     button = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 20.sp),
     buttonLarge = TextStyle(fontFamily = sans, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 20.sp),
     timer = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 64.sp, lineHeight = 70.sp, letterSpacing = (-0.03).em),
     mono = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp),
     code = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
     log = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 17.sp),
+    pin = TextStyle(fontFamily = mono, fontWeight = FontWeight.Normal, fontSize = 26.sp, lineHeight = 32.sp),
 )

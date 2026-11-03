@@ -1,7 +1,5 @@
 package me.yuriisoft.buildnotify.mobile.feature.activebuilds.data
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.dropWhile
 import me.yuriisoft.buildnotify.mobile.core.cache.source.CachedReadableDataSource
 import me.yuriisoft.buildnotify.mobile.core.cache.source.MutableDataSource
 import me.yuriisoft.buildnotify.mobile.core.cache.source.ReadableDataSource
@@ -22,11 +20,3 @@ class ActiveBuildCachedSource(
     remote: ReadableDataSource<Unit, List<BuildSnapshot>>,
     local: MutableDataSource<Unit, List<BuildSnapshot>>,
 ) : CachedReadableDataSource<Unit, List<BuildSnapshot>>(SkipLeadingEmpty(remote), local)
-
-private class SkipLeadingEmpty(
-    private val origin: ReadableDataSource<Unit, List<BuildSnapshot>>,
-) : ReadableDataSource<Unit, List<BuildSnapshot>> {
-
-    override fun observe(params: Unit): Flow<List<BuildSnapshot>> =
-        origin.observe(params).dropWhile { it.isEmpty() }
-}

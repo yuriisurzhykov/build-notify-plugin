@@ -1,26 +1,20 @@
 package me.yuriisoft.buildnotify.mobile.designsystem.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.LocalGraphiteContentColor
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.LocalGraphiteTextStyle
-
-/** How a log line reads. Map your domain's log kinds onto these. */
-enum class LogTone { Muted, Default, Warning, Error }
 
 /**
  * Dark mono block for build output. Stays dark in the light theme too.
@@ -33,17 +27,12 @@ fun Console(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = GraphiteTheme.colors
-    val background = if (translucent) colors.console.copy(alpha = 0.6f) else colors.console
     CompositionLocalProvider(
         LocalGraphiteContentColor provides colors.consoleContent,
         LocalGraphiteTextStyle provides GraphiteTheme.typography.log,
     ) {
         Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(GraphiteTheme.shapes.inset)
-                .background(background)
-                .padding(horizontal = GraphiteTheme.spacing.s, vertical = GraphiteTheme.spacing.m),
+            modifier = modifier.fillMaxWidth().styled(rememberConsoleStyle(translucent)),
             verticalArrangement = Arrangement.spacedBy(GraphiteTheme.spacing.xxs),
             content = content,
         )
@@ -71,16 +60,8 @@ fun LogLine(
         LogTone.Warning -> colors.consoleWarning
         LogTone.Error   -> colors.consoleError
     }
-    val highlight = if (tone == LogTone.Error) {
-        Modifier.clip(GraphiteTheme.shapes.log).background(colors.consoleError.copy(alpha = 0.08f))
-    } else {
-        Modifier
-    }
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(highlight)
-            .padding(horizontal = 6.dp, vertical = 3.dp),
+        modifier = modifier.fillMaxWidth().styled(rememberLogLineStyle(highlighted = tone == LogTone.Error)),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (offset != null) {

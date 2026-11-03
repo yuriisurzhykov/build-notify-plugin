@@ -1,29 +1,22 @@
 package me.yuriisoft.buildnotify.mobile.designsystem.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -49,6 +42,7 @@ fun ProgressBar(
     trackColor: Color = GraphiteTheme.colors.content.copy(alpha = 0.1f),
 ) {
     val transition = rememberInfiniteTransition(label = "progress")
+    // Determinate bars ignore the phase; the transition is cheap and keeps the call stable.
     val phase by transition.animateFloat(
         initialValue = -0.3f,
         targetValue = 1f,
@@ -88,23 +82,15 @@ fun FilterChip(
     count: Int? = null,
 ) {
     val colors = GraphiteTheme.colors
-    val shape = GraphiteTheme.shapes.pill
-    val container = if (selected) colors.inverse else Color.Transparent
     val content = if (selected) colors.onInverse else colors.contentSecondary
-    val border = if (selected) colors.inverse else colors.line
     Row(
         modifier = modifier
-            .height(GraphiteTheme.sizes.chip)
             .semantics { this.selected = selected }
-            .pressable(onClick = onClick, role = Role.Tab)
-            .clip(shape)
-            .background(container, shape)
-            .border(GraphiteTheme.sizes.hairline, border, shape)
-            .padding(horizontal = 14.dp),
+            .styledClickable(rememberChipStyle(), onClick = onClick, selected = selected, role = Role.Tab),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text, style = GraphiteTheme.typography.label.copy(fontSize = GraphiteTheme.typography.bodySmall.fontSize), color = content)
+        Text(text, style = GraphiteTheme.typography.chip, color = content)
         if (count != null) Text(count.toString(), style = GraphiteTheme.typography.mono, color = content.copy(alpha = 0.8f))
     }
 }
@@ -118,25 +104,13 @@ fun Switch(
     stateDescriptionOn: String = "On",
     stateDescriptionOff: String = "Off",
 ) {
-    val colors = GraphiteTheme.colors
-    val track by animateColorAsState(if (checked) colors.success.main else colors.lineStrong, label = "track")
-    val thumb by animateColorAsState(if (checked) colors.success.onMain else colors.contentSecondary, label = "thumb")
-    val x by animateDpAsState(if (checked) 18.dp else 0.dp, label = "thumbX")
+    val styles = rememberSwitchStyles()
     Box(
         modifier = modifier
-            .size(width = 46.dp, height = 28.dp)
             .semantics { stateDescription = if (checked) stateDescriptionOn else stateDescriptionOff }
-            .pressable(onClick = { onCheckedChange(!checked) }, role = Role.Switch)
-            .clip(GraphiteTheme.shapes.pill)
-            .background(track)
-            .padding(3.dp),
+            .styledClickable(styles.track, onClick = { onCheckedChange(!checked) }, checked = checked, role = Role.Switch),
     ) {
-        Box(
-            Modifier
-                .offset(x = x)
-                .size(22.dp)
-                .background(thumb, GraphiteTheme.shapes.pill),
-        )
+        Box(Modifier.styledToggle(styles.thumb, checked))
     }
 }
 
@@ -152,19 +126,14 @@ fun ChoiceCard(
     modifier: Modifier = Modifier,
 ) {
     val colors = GraphiteTheme.colors
-    val shape = GraphiteTheme.shapes.control
     val content = if (selected) colors.onInverse else colors.content
-    androidx.compose.foundation.layout.Column(
+    Column(
         modifier = modifier
             .semantics { this.selected = selected }
-            .pressable(onClick = onClick, role = Role.RadioButton)
-            .clip(shape)
-            .background(if (selected) colors.inverse else Color.Transparent, shape)
-            .border(GraphiteTheme.sizes.hairline, if (selected) colors.inverse else colors.line, shape)
-            .padding(horizontal = 10.dp, vertical = 10.dp),
+            .styledClickable(rememberChoiceCardStyle(), onClick = onClick, selected = selected, role = Role.RadioButton),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Text(title, style = GraphiteTheme.typography.label.copy(fontSize = GraphiteTheme.typography.bodySmall.fontSize), color = content, maxLines = 1)
+        Text(title, style = GraphiteTheme.typography.chip, color = content, maxLines = 1)
         Text(hint, style = GraphiteTheme.typography.caption, color = content.copy(alpha = 0.75f), maxLines = 1)
     }
 }

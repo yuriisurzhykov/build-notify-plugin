@@ -108,7 +108,7 @@ class BuildMonitorService : Service() {
         is ConnectionState.PairingRequired -> getString(R.string.notification_pairing, state.host.name)
         is ConnectionState.Reconnecting    -> getString(R.string.notification_reconnecting, state.attempt)
         is ConnectionState.Failed          -> getString(R.string.notification_connection_lost)
-        ConnectionState.Disconnected,
-        ConnectionState.Idle               -> getString(R.string.notification_waiting)
+        is ConnectionState.Disconnected,
+        is ConnectionState.Idle               -> getString(R.string.notification_waiting)
     }
 }

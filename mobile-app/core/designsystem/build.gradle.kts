@@ -25,6 +25,12 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            // Graphite components are built on the Compose Styles API (foundation 1.12+).
+            // It is experimental; opting in module-wide keeps `Style` out of public
+            // signatures, so consumers never depend on the experimental type.
+            languageSettings.optIn("androidx.compose.foundation.style.ExperimentalFoundationStyleApi")
+        }
         commonMain.dependencies {
             api(libs.jetbrains.compose.runtime)
             api(libs.jetbrains.compose.ui)

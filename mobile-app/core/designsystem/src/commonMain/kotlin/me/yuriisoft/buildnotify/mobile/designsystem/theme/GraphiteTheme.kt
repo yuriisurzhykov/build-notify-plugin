@@ -67,4 +67,9 @@ object GraphiteTheme {
 
     val sizes: GraphiteSizes
         @Composable @ReadOnlyComposable get() = LocalGraphiteSizes.current
+
+    /** Icon and colours of [tone] — the single source for anything status-coloured. */
+    @Composable
+    @ReadOnlyComposable
+    fun status(tone: BuildTone): StatusStyle = statusStyleOf(tone, LocalGraphiteColors.current)
 }
