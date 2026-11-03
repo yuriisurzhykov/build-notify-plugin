@@ -2,8 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>MaxLineLength:ConnectionToastMapper.kt$ConnectionToastMapper$else -&gt; emptyList()</ID>
-    <ID>MaxLineLength:ConnectionToastMapper.kt$ConnectionToastMapper$is ConnectionState.Connected</ID>
-    <ID>MaxLineLength:ConnectionToastMapper.kt$ConnectionToastMapper$is ConnectionState.Reconnecting</ID>
+    <ID>MaxLineLength:ConnectionToastMapper.kt:ConnectionToastMapper$else -&gt; emptyList()</ID>
+    <ID>MaxLineLength:ConnectionToastMapper.kt:ConnectionToastMapper$is ConnectionState.Connected</ID>
+    <ID>MaxLineLength:ConnectionToastMapper.kt:ConnectionToastMapper$is ConnectionState.Reconnecting</ID>
   </CurrentIssues>
 </SmellBaseline>

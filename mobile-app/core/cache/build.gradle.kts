@@ -4,10 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.core.cache"
-}
-
 sqldelight {
     databases {
         create("CacheDatabase") {
@@ -17,6 +13,10 @@ sqldelight {
 }
 
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.core.cache"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)

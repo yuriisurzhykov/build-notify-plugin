@@ -18,7 +18,8 @@ object MobileSources {
     val styled: List<SourceFile> by lazy {
         production.filter {
             (it.path.startsWith("feature/") && !it.path.startsWith("feature/ui-catalog/")) ||
-                it.path.startsWith("app/")
+                it.path.startsWith("app/") ||
+                it.path.startsWith("androidApp/")
         }
     }
 

@@ -2,11 +2,11 @@ plugins {
     id("cmp-library")
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.core.ui"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.core.ui"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.jetbrains.compose.material)

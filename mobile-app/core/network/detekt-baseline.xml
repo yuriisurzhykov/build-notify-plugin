@@ -2,14 +2,12 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongMethod:ConnectionOrchestrator.kt$ConnectionOrchestrator$private suspend fun FlowCollector&lt;ConnectionState&gt;.pairingGate( host: DiscoveredHost, ): Boolean</ID>
-    <ID>LongParameterList:ConnectionOrchestrator.kt$ConnectionOrchestrator$( private val transport: Transport, private val reconnection: ReconnectionStrategy, private val errorMapping: Mapper&lt;Throwable, ConnectionErrorReason&gt;, private val pairingCoordinator: PairingCoordinator?, private val session: SecureSession, private val serverCertCapture: ServerCertificateCapture, private val helloPayload: HelloPayload, private val heartbeatTimeout: Duration, dispatchers: AppDispatchers, )</ID>
-    <ID>MagicNumber:PinCalculator.kt$0xFF</ID>
-    <ID>MagicNumber:PinCalculator.kt$256</ID>
-    <ID>ReturnCount:ConnectionOrchestrator.kt$ConnectionOrchestrator$private suspend fun FlowCollector&lt;ConnectionState&gt;.pairingGate( host: DiscoveredHost, ): Boolean</ID>
-    <ID>TooGenericExceptionCaught:ConnectionOrchestrator.kt$ConnectionOrchestrator$e: Exception</ID>
-    <ID>TooGenericExceptionThrown:ManagedConnectionTest.kt$ManagedConnectionTest$throw RuntimeException("connection lost")</ID>
-    <ID>TooGenericExceptionThrown:ManagedConnectionTest.kt$ManagedConnectionTest$throw RuntimeException("fail #$attempts")</ID>
-    <ID>UnusedPrivateProperty:PinCalculatorTest.kt$PinCalculatorTest$val zeroHash = ByteArray(32)</ID>
+    <ID>LongMethod:ConnectionOrchestrator.kt:ConnectionOrchestrator$private suspend fun FlowCollector&lt;ConnectionState&gt;.pairingGate: Boolean</ID>
+    <ID>MagicNumber:PinCalculator.kt:0xFF</ID>
+    <ID>MagicNumber:PinCalculator.kt:256</ID>
+    <ID>ReturnCount:ConnectionOrchestrator.kt:ConnectionOrchestrator$private suspend fun FlowCollector&lt;ConnectionState&gt;.pairingGate: Boolean</ID>
+    <ID>TooGenericExceptionCaught:ConnectionOrchestrator.kt:ConnectionOrchestrator$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:ManagedConnectionTest.kt:ManagedConnectionTest$throw RuntimeException("connection lost")</ID>
+    <ID>TooGenericExceptionThrown:ManagedConnectionTest.kt:ManagedConnectionTest$throw RuntimeException("fail #$attempts")</ID>
   </CurrentIssues>
 </SmellBaseline>

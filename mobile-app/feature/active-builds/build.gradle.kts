@@ -5,10 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.feature.activebuilds"
-}
-
 sqldelight {
     databases {
         create("ActiveBuildsDatabase") {
@@ -22,6 +18,10 @@ compose.resources {
 }
 
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.feature.activebuilds"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:common"))

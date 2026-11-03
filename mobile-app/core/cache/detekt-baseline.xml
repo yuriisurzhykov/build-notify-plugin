@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>TooGenericExceptionThrown:CachedReadableDataSourceTest.kt$CachedReadableDataSourceTest.&lt;no name provided&gt;$throw RuntimeException("network error")</ID>
+    <ID>TooGenericExceptionThrown:CachedReadableDataSourceTest.kt:CachedReadableDataSourceTest.&lt;no name provided&gt;$throw RuntimeException("network error")</ID>
   </CurrentIssues>
 </SmellBaseline>

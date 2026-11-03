@@ -3,11 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.core.data"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.core.data"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)

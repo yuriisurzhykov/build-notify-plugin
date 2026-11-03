@@ -2,11 +2,11 @@ plugins {
     id("cmp-library")
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.feature.networkstatus"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.feature.networkstatus"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.toast)

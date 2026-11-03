@@ -2,14 +2,9 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongMethod:FlatRow.kt$FlatRowMeasurePolicy$override fun MeasureScope.measure( measurables: List&lt;Measurable&gt;, constraints: Constraints, ): MeasureResult</ID>
-    <ID>LongMethod:Type.kt$fun buildTypography( sansSerif: FontFamily = FontFamily.Default, monospace: FontFamily = FontFamily.Monospace, ): BuildNotifyTypography</ID>
-    <ID>MagicNumber:GradientSpec.kt$GradientSpec.Linear$180f</ID>
-    <ID>MagicNumber:LinearProgressMode.kt$0.001f</ID>
-    <ID>MagicNumber:LinearProgressMode.kt$0.5f</ID>
-    <ID>MagicNumber:LinearProgressMode.kt$180.0</ID>
-    <ID>MatchingDeclarationName:Dimensions.kt$BuildNotifyDimensions</ID>
-    <ID>MatchingDeclarationName:Shape.kt$BuildNotifyShapes</ID>
-    <ID>SpreadOperator:TextResource.kt$TextResource.ResText$(resource, *args.toTypedArray())</ID>
+    <ID>LongMethod:FlatRow.kt:FlatRowMeasurePolicy$override fun MeasureScope.measure: MeasureResult</ID>
+    <ID>LongMethod:Type.kt:fun buildTypography: BuildNotifyTypography</ID>
+    <ID>MatchingDeclarationName:Dimensions.kt:BuildNotifyDimensions</ID>
+    <ID>MatchingDeclarationName:Shape.kt:BuildNotifyShapes</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -2,11 +2,11 @@ plugins {
     id("cmp-library")
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.core.toast"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.core.toast"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.ui)

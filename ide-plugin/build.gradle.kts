@@ -1,7 +1,7 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.date
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.getSupportedKotlinVersion
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.plugin.getSupportedKotlinVersion
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -135,10 +135,9 @@ tasks.withType<Detekt>().configureEach {
     exclude("**/build/**")
     reports {
         html.required.set(true)
-        xml.required.set(true)
-        txt.required.set(false)
+        checkstyle.required.set(true)
         sarif.required.set(false)
-        md.required.set(false)
+        markdown.required.set(false)
     }
 }
 

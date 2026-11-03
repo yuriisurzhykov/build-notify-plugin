@@ -2,7 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongMethod:CatalogContent.kt$@Composable private fun ButtonsSection()</ID>
-    <ID>StringLiteralDuplication:CatalogContent.kt$"Disabled"</ID>
+    <ID>LongMethod:CatalogContent.kt:@Composable private fun ButtonsSection</ID>
+    <ID>StringLiteralDuplication:CatalogContent.kt:"Disabled"</ID>
   </CurrentIssues>
 </SmellBaseline>

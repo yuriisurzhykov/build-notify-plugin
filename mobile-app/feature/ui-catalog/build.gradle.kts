@@ -3,11 +3,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.feature.catalog"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.feature.catalog"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:common"))

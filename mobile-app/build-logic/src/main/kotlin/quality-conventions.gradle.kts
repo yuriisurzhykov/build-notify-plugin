@@ -1,5 +1,5 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.getSupportedKotlinVersion
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.plugin.getSupportedKotlinVersion
 
 /*
  * Static analysis for every module: detekt (structure, complexity, naming) and ktlint
@@ -10,7 +10,7 @@ import io.gitlab.arturbosch.detekt.getSupportedKotlinVersion
  * `detekt-baseline.xml` / `ktlint-baseline.xml`; new code must be clean.
  */
 plugins {
-    id("io.gitlab.arturbosch.detekt")
+    id("dev.detekt")
     id("org.jlleitschuh.gradle.ktlint")
 }
 
@@ -30,10 +30,9 @@ tasks.withType<Detekt>().configureEach {
     exclude("**/build/**", "**/generated/**")
     reports {
         html.required.set(true)
-        xml.required.set(true)
-        txt.required.set(false)
+        checkstyle.required.set(true)
         sarif.required.set(false)
-        md.required.set(false)
+        markdown.required.set(false)
     }
 }
 

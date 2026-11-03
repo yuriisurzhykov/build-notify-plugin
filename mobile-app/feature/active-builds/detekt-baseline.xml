@@ -2,8 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LargeClass:BuildEventMapperTest.kt$BuildEventMapperTest</ID>
-    <ID>SwallowedException:ActiveBuildsViewModel.kt$ActiveBuildsViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ActiveBuildsViewModel.kt$ActiveBuildsViewModel$e: Exception</ID>
+    <ID>LargeClass:BuildEventMapperTest.kt:BuildEventMapperTest</ID>
+    <ID>SwallowedException:ActiveBuildsViewModel.kt:ActiveBuildsViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ActiveBuildsViewModel.kt:ActiveBuildsViewModel$e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

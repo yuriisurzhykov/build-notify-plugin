@@ -17,7 +17,7 @@ javaMDns = "3.5.9"
 mockk = "1.13.12"
 
 # Code quality — shared rules live in /config at the repository root.
-detekt = "1.23.8"
+detekt = "2.0.0-alpha.6"
 ktlint = "1.8.0"
 ktlintGradle = "14.2.0"
 konsist = "0.18.1"
@@ -50,5 +50,5 @@ jetbrains-kotlin-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "ko
 jetbrains-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 jetbrains-qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
 jetbrains-changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }

@@ -2,11 +2,11 @@ plugins {
     id("kmp-library")
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.core.testing"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.core.testing"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.common)

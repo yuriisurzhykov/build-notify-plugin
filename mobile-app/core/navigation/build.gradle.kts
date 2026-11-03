@@ -2,11 +2,11 @@ plugins {
     id("cmp-library")
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.core.navigation"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.core.navigation"
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(libs.jetbrains.compose.navigation)

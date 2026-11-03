@@ -12,11 +12,11 @@ plugins {
     id("cmp-library")
 }
 
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile.designsystem"
-}
-
 kotlin {
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.designsystem"
+    }
+
     jvm("desktop")
 
     @OptIn(ExperimentalWasmDsl::class)

@@ -1,18 +1,17 @@
+/*
+ * The shared application module: dependency graph (AppComponent), navigation and the
+ * root UI for every platform, plus each platform's implementations of the core
+ * interfaces. It is a Kotlin Multiplatform library; the Android entry points live in
+ * `:androidApp`, the iOS app consumes this module's framework.
+ */
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.compose.multiplatform)
-    alias(libs.plugins.compose.compiler)
+    id("cmp-library")
     alias(libs.plugins.ksp)
-    alias(libs.plugins.android.application)
-    id("apple-ios-targets")
-    id("quality-conventions")
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-        }
+    android {
+        namespace = "me.yuriisoft.buildnotify.mobile.shared"
     }
 
     sourceSets {
@@ -45,37 +44,12 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.jetbrains.compose.tooling.preview)
-            implementation(libs.activity.compose)
             implementation(libs.ktor.client.okhttp)
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
-    }
-}
-
-android {
-    namespace = "me.yuriisoft.buildnotify.mobile"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    defaultConfig {
-        applicationId = "me.yuriisoft.buildnotify.mobile"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0.0"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    buildFeatures {
-        compose = true
-        buildConfig = true
     }
 }
 

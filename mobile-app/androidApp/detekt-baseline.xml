@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LateinitUsage:BuildNotifyApp.kt:BuildNotifyApp$lateinit var component: AppComponent private set</ID>
+    <ID>MaxLineLength:NotificationHelper.kt:NotificationHelper$append(context.resources.getQuantityString(R.plurals.notification_errors, result.errorCount, result.errorCount))</ID>
+    <ID>MaxLineLength:NotificationHelper.kt:NotificationHelper$append(context.resources.getQuantityString(R.plurals.notification_warnings, result.warningCount, result.warningCount))</ID>
+  </CurrentIssues>
+</SmellBaseline>
