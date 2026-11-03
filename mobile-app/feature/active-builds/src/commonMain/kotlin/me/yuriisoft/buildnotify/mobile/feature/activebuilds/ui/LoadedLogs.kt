@@ -17,11 +17,15 @@ internal fun LoadedLogs(
     onIntent: (BuildLogsIntent) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    val atBottom by rememberTailFollow(listState, lineCount = state.lines.size)
+    val atBottom by rememberTailFollow(listState, lastLineId = state.lines.lastOrNull()?.id)
 
     LogFilterBar(selected = state.filter, counts = state.filterCounts, onIntent = onIntent)
     Box(Modifier.fillMaxSize()) {
-        LogsList(state = state, listState = listState)
+        LogsList(
+            state = state,
+            listState = listState,
+            onLoadOlder = { onIntent(BuildLogsIntent.LoadOlder) },
+        )
         JumpToEndButton(
             visible = !atBottom,
             listState = listState,

@@ -5,4 +5,5 @@ data class BuildLogRecord(
     val timestamp: Long,
     val message: String,
     val kind: LogRecordKind,
+    val id: Long = 0L,
 )

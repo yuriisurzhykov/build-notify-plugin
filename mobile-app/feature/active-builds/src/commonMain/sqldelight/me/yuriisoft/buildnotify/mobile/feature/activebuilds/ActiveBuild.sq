@@ -12,13 +12,33 @@ CREATE INDEX idx_active_build_status ON active_build(status);
 selectAll:
 SELECT * FROM active_build ORDER BY started_at DESC;
 
-selectById:
-SELECT * FROM active_build WHERE build_id = ?;
+selectStatus:
+SELECT status FROM active_build WHERE build_id = ?;
 
-upsert:
-INSERT OR REPLACE INTO active_build
+selectActiveIds:
+SELECT build_id FROM active_build WHERE status = 'ACTIVE';
+
+-- Finished builds past the newest :keep, oldest last. Used to cap the history.
+selectFinishedOverflow:
+SELECT build_id FROM active_build
+WHERE status != 'ACTIVE'
+ORDER BY started_at DESC
+LIMIT -1 OFFSET :keep;
+
+-- Plain INSERT on purpose: `INSERT OR REPLACE` deletes the row first, and with
+-- foreign keys on that cascades into the build's logs and issues.
+insertIfAbsent:
+INSERT OR IGNORE INTO active_build
     (build_id, project_name, status, started_at, current_task, duration_ms)
 VALUES (?, ?, ?, ?, ?, ?);
+
+updateCurrentTask:
+UPDATE active_build SET current_task = :task
+WHERE build_id = :buildId AND status = 'ACTIVE';
+
+finish:
+UPDATE active_build SET status = :status, duration_ms = :durationMs, current_task = NULL
+WHERE build_id = :buildId AND status = 'ACTIVE';
 
 deleteAll:
 DELETE FROM active_build;

@@ -31,7 +31,6 @@ object KnownViolations {
 
     val longTestFiles = listOf(
         "feature/active-builds/src/commonTest/kotlin/me/yuriisoft/buildnotify/mobile/feature/activebuilds/data/mapper/BuildEventMapperTest.kt",
-        "feature/active-builds/src/commonTest/kotlin/me/yuriisoft/buildnotify/mobile/feature/activebuilds/domain/model/BuildEventFoldTest.kt",
     )
 
     val legacyUiImports = listOf(

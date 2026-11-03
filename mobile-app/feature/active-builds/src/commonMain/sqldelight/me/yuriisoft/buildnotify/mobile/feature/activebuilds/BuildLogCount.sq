@@ -1,0 +1,23 @@
+-- Running line counts per build and kind, kept by the store as lines are appended,
+-- so the log screen's counters cost one tiny read instead of a scan of the log.
+CREATE TABLE build_log_count (
+    build_id        TEXT NOT NULL REFERENCES active_build(build_id) ON DELETE CASCADE,
+    kind            TEXT NOT NULL,
+    line_count      INTEGER NOT NULL,
+    first_timestamp INTEGER NOT NULL,
+    PRIMARY KEY (build_id, kind)
+);
+
+selectByBuildId:
+SELECT kind, line_count, first_timestamp FROM build_log_count WHERE build_id = ?;
+
+ensure:
+INSERT OR IGNORE INTO build_log_count (build_id, kind, line_count, first_timestamp)
+VALUES (:buildId, :kind, 0, :firstTimestamp);
+
+add:
+UPDATE build_log_count SET line_count = line_count + :added
+WHERE build_id = :buildId AND kind = :kind;
+
+deleteByBuildId:
+DELETE FROM build_log_count WHERE build_id = ?;

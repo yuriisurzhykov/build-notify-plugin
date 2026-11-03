@@ -10,7 +10,8 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSn
  * Running builds come first; both groups are ordered newest first.
  */
 class ActiveBuildsUiMapper(
-    private val recentLogLines: Int = RECENT_LOG_LINES,
+    /** How many of a running build's newest lines its card shows; the only lines read. */
+    val recentLogLines: Int = RECENT_LOG_LINES,
     private val topErrors: Int = TOP_ERRORS,
 ) {
 
@@ -43,9 +44,13 @@ class ActiveBuildsUiMapper(
                             buildId = build.buildId,
                             projectName = build.projectName,
                             errorCount = build.outcome.errors.size,
-                            prompt = HandoffPrompt.build(build, request.logs.takeIf { request.includeLog }),
+                            prompt = HandoffPrompt.build(
+                                build = build,
+                                logs = request.logs.takeIf { request.includeLog },
+                                totalLines = request.totalLines,
+                            ),
                             includeLog = request.includeLog,
-                            logLineCount = request.logs.size,
+                            logLineCount = request.totalLines,
                         )
                     }
             },

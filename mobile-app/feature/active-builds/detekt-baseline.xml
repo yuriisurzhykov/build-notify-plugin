@@ -2,11 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LargeClass:BuildEventFoldTest.kt$BuildEventFoldTest</ID>
     <ID>LargeClass:BuildEventMapperTest.kt$BuildEventMapperTest</ID>
-    <ID>SpreadOperator:ActiveBuildsCacheSync.kt$ActiveBuildsCacheSync$(*buildIds.map(repository::observeLogs).toTypedArray())</ID>
     <ID>SwallowedException:ActiveBuildsViewModel.kt$ActiveBuildsViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ActiveBuildsViewModel.kt$ActiveBuildsViewModel$e: Exception</ID>
-    <ID>TooManyFunctions:ActiveBuildsComponent.kt$ActiveBuildsComponent</ID>
   </CurrentIssues>
 </SmellBaseline>

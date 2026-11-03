@@ -21,8 +21,8 @@ import me.yuriisoft.buildnotify.mobile.core.platform.INetworkMonitor
 import me.yuriisoft.buildnotify.mobile.crypto.platformSha256
 import me.yuriisoft.buildnotify.mobile.data.protocol.HelloPayload
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.ActiveBuildsDatabaseFactory
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.ActiveBuildsCacheSync
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.BuildCacheInvalidator
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.BuildEventJournal
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.di.ActiveBuildsComponent
 import me.yuriisoft.buildnotify.mobile.feature.discovery.data.discovery.INsdDiscovery
 import me.yuriisoft.buildnotify.mobile.feature.discovery.di.DiscoveryComponent
@@ -86,7 +86,7 @@ abstract class AppComponent(
      * start-up so that kotlin-inject creates them (they work from their `init`).
      */
     abstract val buildCacheInvalidator: BuildCacheInvalidator
-    abstract val activeBuildsCacheSync: ActiveBuildsCacheSync
+    abstract val buildEventJournal: BuildEventJournal
 
     // --- App-level bindings only ---
 

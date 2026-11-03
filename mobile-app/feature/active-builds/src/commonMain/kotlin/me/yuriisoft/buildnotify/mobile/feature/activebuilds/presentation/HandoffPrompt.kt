@@ -14,7 +14,15 @@ object HandoffPrompt {
     /** Upper bound on attached log lines; keeps the message shareable. */
     const val MAX_LOG_LINES: Int = 200
 
-    fun build(build: BuildSnapshot.Finished, logs: List<BuildLogEntry>?): String = buildString {
+    /**
+     * @param logs the tail of the log to attach, or `null` to attach none
+     * @param totalLines how long the whole log is; only the tail is ever loaded
+     */
+    fun build(
+        build: BuildSnapshot.Finished,
+        logs: List<BuildLogEntry>?,
+        totalLines: Int = logs?.size ?: 0,
+    ): String = buildString {
         val outcome = build.outcome
         append("The Gradle build of `${build.projectName}` failed after ${formatDuration(outcome.durationMs)}.\n")
         if (outcome.errors.isEmpty()) {
@@ -36,7 +44,8 @@ object HandoffPrompt {
         if (!logs.isNullOrEmpty()) {
             val tail = logs.takeLast(MAX_LOG_LINES)
             append("\nBuild log")
-            if (tail.size < logs.size) append(" (last ${tail.size} of ${logs.size} lines)")
+            val total = maxOf(totalLines, logs.size)
+            if (tail.size < total) append(" (last ${tail.size} of $total lines)")
             append(":\n```\n")
             tail.forEach { append(it.message).append('\n') }
             append("```\n")

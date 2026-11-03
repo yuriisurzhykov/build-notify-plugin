@@ -11,7 +11,6 @@ import me.yuriisoft.buildnotify.mobile.data.protocol.BuildResult
 import me.yuriisoft.buildnotify.mobile.data.protocol.BuildResultPayload
 import me.yuriisoft.buildnotify.mobile.data.protocol.BuildSnapshotPayload
 import me.yuriisoft.buildnotify.mobile.data.protocol.BuildStartedPayload
-import me.yuriisoft.buildnotify.mobile.data.protocol.TaskFinishedPayload
 import me.yuriisoft.buildnotify.mobile.data.protocol.TaskStartedPayload
 import me.yuriisoft.buildnotify.mobile.data.protocol.TaskStatus
 import me.yuriisoft.buildnotify.mobile.network.connection.ActiveSession
@@ -30,7 +29,10 @@ import kotlin.time.Clock
  * ```
  *
  * [BuildSnapshotPayload] replaces the entire map (server-authoritative sync
- * point on connect). All other `build.*` events are merged incrementally.
+ * point on connect). Started, task-started and result events are merged in; per-task
+ * history is not kept here (the build cache owns the log), so each event is O(1) in
+ * the number of tasks. Unchanged events return the same map, and the [StateFlow]
+ * does not emit for them.
  *
  * **Immutability:** every fold iteration produces a new [Map]; no mutable
  * fields, no `_state` backing properties.
@@ -49,18 +51,7 @@ class BuildStateSync(
             when (payload) {
                 is BuildSnapshotPayload -> payload.toStateMap()
                 is BuildStartedPayload  -> builds.withActiveBuild(payload)
-                is TaskStartedPayload   -> builds.withTask(
-                    payload.buildId,
-                    payload.taskPath,
-                    TaskStatus.RUNNING
-                )
-
-                is TaskFinishedPayload  -> builds.withTask(
-                    payload.buildId,
-                    payload.taskPath,
-                    payload.status
-                )
-
+                is TaskStartedPayload   -> builds.withCurrentTask(payload.buildId, payload.taskPath)
                 is BuildResultPayload   -> builds.withCompleted(payload.result)
                 else                    -> builds
             }
@@ -74,7 +65,7 @@ private fun BuildSnapshotPayload.toStateMap(): Map<String, BuildState> =
             buildId = info.buildId,
             projectName = info.projectName,
             startedAt = info.startedAt,
-            tasks = info.tasks.associate { it.taskPath to it.status },
+            currentTask = info.tasks.lastOrNull { it.status == TaskStatus.RUNNING }?.taskPath,
         )
     }
 
@@ -87,16 +78,27 @@ private fun Map<String, BuildState>.withActiveBuild(
         startedAt = Clock.System.now().toEpochMilliseconds(),
     ))
 
-private fun Map<String, BuildState>.withTask(
+private fun Map<String, BuildState>.withCurrentTask(
     buildId: String,
     taskPath: String,
-    status: TaskStatus,
 ): Map<String, BuildState> {
     val active = this[buildId] as? BuildState.Active ?: return this
-    return this + (buildId to active.copy(tasks = active.tasks + (taskPath to status)))
+    if (active.currentTask == taskPath) return this
+    return this + (buildId to active.copy(currentTask = taskPath))
 }
 
+/** Completed builds are kept only up to [MAX_COMPLETED]; the map must not grow forever. */
 private fun Map<String, BuildState>.withCompleted(
     result: BuildResult,
-): Map<String, BuildState> =
-    this + (result.buildId to BuildState.Completed(result))
+): Map<String, BuildState> {
+    val updated = this + (result.buildId to BuildState.Completed(result))
+    val completed = updated.values.filterIsInstance<BuildState.Completed>()
+    if (completed.size <= MAX_COMPLETED) return updated
+    val evicted = completed
+        .sortedBy { it.result.finishedAt }
+        .take(completed.size - MAX_COMPLETED)
+        .mapTo(HashSet()) { it.buildId }
+    return updated - evicted
+}
+
+private const val MAX_COMPLETED = 10

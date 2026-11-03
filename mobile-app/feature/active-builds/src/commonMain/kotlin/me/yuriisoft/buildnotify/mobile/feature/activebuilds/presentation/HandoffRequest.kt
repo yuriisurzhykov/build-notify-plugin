@@ -6,5 +6,7 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLo
 data class HandoffRequest(
     val buildId: String,
     val includeLog: Boolean,
+    /** The tail of the log, at most [HandoffPrompt.MAX_LOG_LINES] lines. */
     val logs: List<BuildLogEntry>,
+    val totalLines: Int = logs.size,
 )

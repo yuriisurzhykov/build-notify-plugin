@@ -13,7 +13,7 @@ import androidx.compose.runtime.withFrameNanos
  * Returns whether the list is currently at the bottom.
  */
 @Composable
-internal fun rememberTailFollow(listState: LazyListState, lineCount: Int): State<Boolean> {
+internal fun rememberTailFollow(listState: LazyListState, lastLineId: Long?): State<Boolean> {
     val atBottom = remember(listState) {
         derivedStateOf {
             val info = listState.layoutInfo
@@ -21,7 +21,8 @@ internal fun rememberTailFollow(listState: LazyListState, lineCount: Int): State
             last == null || last.index >= info.totalItemsCount - BOTTOM_SLACK_ITEMS
         }
     }
-    LaunchedEffect(lineCount) {
+    // Keyed by the newest line, not the count: a full window slides without growing.
+    LaunchedEffect(lastLineId) {
         val follow = atBottom.value
         withFrameNanos { } // let the list lay out the new lines first
         if (follow) listState.scrollToEnd()

@@ -20,6 +20,7 @@ import me.yuriisoft.buildnotify.mobile.feature.activebuilds.logs.BuildLogsUiStat
 internal fun LogsList(
     state: BuildLogsUiState.Loaded,
     listState: LazyListState,
+    onLoadOlder: () -> Unit,
 ) {
     val spacing = GraphiteTheme.spacing
     LazyColumn(
@@ -33,7 +34,7 @@ internal fun LogsList(
         if (state.filter.accepts(LogKind.WARNING)) {
             issueSection(Res.string.logs_section_warnings, state.warnings, BuildTone.Warning)
         }
-        outputSection(state)
+        outputSection(state, onLoadOlder)
     }
 }
 

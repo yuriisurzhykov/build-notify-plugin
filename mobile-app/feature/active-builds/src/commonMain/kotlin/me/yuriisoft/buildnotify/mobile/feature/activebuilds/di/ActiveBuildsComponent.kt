@@ -6,19 +6,18 @@ import me.tatarka.inject.annotations.Provides
 import me.yuriisoft.buildnotify.mobile.core.di.AppScope
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.ActiveBuildCachedSource
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.ActiveBuildRepository
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.BuildLogCachedSource
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.ActiveBuildsDatabaseFactory
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.BuildEventStore
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.LocalActiveBuildSource
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.LocalBuildLogSource
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.LocalLogStatsSource
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local.SqlBuildEventStore
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.mapper.BuildEventMapper
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.mapper.BuildSnapshotMapper
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.mapper.LogRecordMapper
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.remote.RemoteActiveBuildSource
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.remote.RemoteBuildLogSource
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.ActiveBuildsCacheSync
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.BuildCacheInvalidator
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.BuildEventJournal
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.sync.DefaultCancelBuildUseCase
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.db.ActiveBuildsDatabase
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.repository.IActiveBuildRepository
@@ -36,8 +35,9 @@ import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionManager
  * Needs from the parent graph: [ActiveBuildsDatabaseFactory], [ActiveSession],
  * [ConnectionManager], [AppDispatchers] and an app-lifetime [CoroutineScope].
  *
- * Sources are bound by concrete type on purpose: remote, local and cached sources share
- * the same generic interfaces, so interface bindings would be ambiguous.
+ * Network events flow one way: [BuildEventJournal] writes them in batches to the
+ * [BuildEventStore], and the repository reads only from the store. Sources are bound
+ * by concrete type: they share generic interfaces, so interface bindings would clash.
  */
 interface ActiveBuildsComponent {
 
@@ -48,29 +48,10 @@ interface ActiveBuildsComponent {
 
     @AppScope
     @Provides
-    fun remoteActiveBuildSource(
-        session: ActiveSession,
+    fun buildEventStore(
+        db: ActiveBuildsDatabase,
         dispatchers: AppDispatchers,
-        scope: CoroutineScope,
-    ): RemoteActiveBuildSource = RemoteActiveBuildSource(
-        session = session,
-        mapper = BuildEventMapper(clock = ::currentTimeMillis),
-        dispatchers = dispatchers,
-        scope = scope,
-    )
-
-    @AppScope
-    @Provides
-    fun remoteBuildLogSource(
-        session: ActiveSession,
-        dispatchers: AppDispatchers,
-        scope: CoroutineScope,
-    ): RemoteBuildLogSource = RemoteBuildLogSource(
-        session = session,
-        mapper = BuildEventMapper(clock = ::currentTimeMillis),
-        dispatchers = dispatchers,
-        scope = scope,
-    )
+    ): BuildEventStore = SqlBuildEventStore(db, dispatchers)
 
     @AppScope
     @Provides
@@ -86,43 +67,39 @@ interface ActiveBuildsComponent {
 
     @AppScope
     @Provides
-    fun localBuildLogSource(
+    fun activeBuildRepository(
         db: ActiveBuildsDatabase,
+        localBuilds: LocalActiveBuildSource,
         dispatchers: AppDispatchers,
-    ): LocalBuildLogSource = LocalBuildLogSource(
-        queries = db.buildLogQueries,
-        logMapper = LogRecordMapper(),
-        dispatchers = dispatchers,
+    ): IActiveBuildRepository = ActiveBuildRepository(
+        builds = localBuilds,
+        logs = LocalBuildLogSource(db.buildLogQueries, LogRecordMapper(), dispatchers),
+        logStats = LocalLogStatsSource(db.buildLogCountQueries, dispatchers),
     )
 
     @AppScope
     @Provides
-    fun activeBuildRepository(
-        remoteBuilds: RemoteActiveBuildSource,
-        localBuilds: LocalActiveBuildSource,
-        remoteLogs: RemoteBuildLogSource,
-        localLogs: LocalBuildLogSource,
-    ): IActiveBuildRepository = ActiveBuildRepository(
-        buildsCached = ActiveBuildCachedSource(remoteBuilds, localBuilds),
-        logsCached = BuildLogCachedSource(remoteLogs, localLogs),
+    fun buildEventJournal(
+        session: ActiveSession,
+        store: BuildEventStore,
+        dispatchers: AppDispatchers,
+        scope: CoroutineScope,
+    ): BuildEventJournal = BuildEventJournal(
+        session = session,
+        mapper = BuildEventMapper(clock = ::currentTimeMillis),
+        store = store,
+        dispatchers = dispatchers,
+        scope = scope,
     )
 
     @AppScope
     @Provides
     fun buildCacheInvalidator(
         connectionManager: ConnectionManager,
-        localBuilds: LocalActiveBuildSource,
+        store: BuildEventStore,
         dispatchers: AppDispatchers,
         scope: CoroutineScope,
-    ): BuildCacheInvalidator = BuildCacheInvalidator(connectionManager, localBuilds, dispatchers, scope)
-
-    @AppScope
-    @Provides
-    fun activeBuildsCacheSync(
-        repository: IActiveBuildRepository,
-        dispatchers: AppDispatchers,
-        scope: CoroutineScope,
-    ): ActiveBuildsCacheSync = ActiveBuildsCacheSync(repository, dispatchers, scope)
+    ): BuildCacheInvalidator = BuildCacheInvalidator(connectionManager, store, dispatchers, scope)
 
     @Provides
     fun cancelBuildUseCase(session: ActiveSession): CancelBuildUseCase =

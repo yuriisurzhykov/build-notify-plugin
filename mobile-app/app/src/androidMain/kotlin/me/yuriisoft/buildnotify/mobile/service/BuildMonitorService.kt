@@ -7,20 +7,23 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import me.yuriisoft.buildnotify.mobile.AppComponent
 import me.yuriisoft.buildnotify.mobile.BuildNotifyApp
 import me.yuriisoft.buildnotify.mobile.R
 import me.yuriisoft.buildnotify.mobile.data.protocol.BuildResultPayload
-import me.yuriisoft.buildnotify.mobile.data.protocol.TaskStatus
 import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionState
 import me.yuriisoft.buildnotify.mobile.network.sync.BuildState
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Foreground service that keeps the WebSocket connection alive and turns build events
@@ -65,6 +68,7 @@ class BuildMonitorService : Service() {
         super.onDestroy()
     }
 
+    @OptIn(FlowPreview::class)
     private fun observeOngoingStatus(component: AppComponent) {
         serviceScope.launch {
             combine(
@@ -75,6 +79,9 @@ class BuildMonitorService : Service() {
                 else runningBuildText(builds) ?: connectionText(connection)
             }
                 .distinctUntilChanged()
+                // A build starts a task every few milliseconds; the system throttles
+                // notification updates anyway, so post at most one per interval.
+                .sample(NOTIFICATION_UPDATE_INTERVAL)
                 .collect { text ->
                     if (text == null) stopSelf() else notificationHelper.updatePersistent(text)
                 }
@@ -94,7 +101,7 @@ class BuildMonitorService : Service() {
             .filterIsInstance<BuildState.Active>()
             .maxByOrNull { it.startedAt }
             ?: return null
-        val task = running.tasks.entries.lastOrNull { it.value == TaskStatus.RUNNING }?.key
+        val task = running.currentTask
         return if (task != null) {
             getString(R.string.notification_building_task, running.projectName, task)
         } else {
@@ -112,3 +119,5 @@ class BuildMonitorService : Service() {
         is ConnectionState.Idle               -> getString(R.string.notification_waiting)
     }
 }
+
+private val NOTIFICATION_UPDATE_INTERVAL: Duration = 1.seconds

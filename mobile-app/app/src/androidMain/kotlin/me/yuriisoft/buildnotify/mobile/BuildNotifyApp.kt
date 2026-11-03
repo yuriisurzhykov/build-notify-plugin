@@ -56,6 +56,6 @@ class BuildNotifyApp : Application() {
 
         // Start the process-lifetime build-cache workers (they run from their init blocks).
         component.buildCacheInvalidator
-        component.activeBuildsCacheSync
+        component.buildEventJournal
     }
 }

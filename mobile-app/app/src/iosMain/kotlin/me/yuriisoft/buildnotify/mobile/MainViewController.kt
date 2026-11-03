@@ -49,7 +49,7 @@ fun MainViewController(): UIViewController {
 
     // Start the process-lifetime build-cache workers (they run from their init blocks).
     component.buildCacheInvalidator
-    component.activeBuildsCacheSync
+    component.buildEventJournal
 
     return ComposeUIViewController {
         App(

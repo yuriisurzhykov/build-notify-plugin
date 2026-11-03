@@ -6,8 +6,7 @@ import me.yuriisoft.buildnotify.mobile.data.protocol.TaskStatus
 /**
  * Domain-level representation of a single build's lifecycle.
  *
- * [Active] describes a build that is currently executing — tasks may still
- * be starting or finishing. [Completed] wraps the final [BuildResult] once
+ * [Active] describes a build that is currently executing. [Completed] wraps the final [BuildResult] once
  * the server sends `build.result`.
  *
  * Used as the value type in [BuildStateSync.builds], keyed by [buildId].
@@ -21,7 +20,8 @@ sealed interface BuildState {
         override val buildId: String,
         override val projectName: String,
         val startedAt: Long,
-        val tasks: Map<String, TaskStatus> = emptyMap(),
+        /** The most recently started task; a build runs thousands, only this one is kept. */
+        val currentTask: String? = null,
     ) : BuildState
 
     data class Completed(val result: BuildResult) : BuildState {

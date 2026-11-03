@@ -2,10 +2,13 @@ package me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -17,6 +20,7 @@ import me.yuriisoft.buildnotify.mobile.designsystem.components.LogLine
 import me.yuriisoft.buildnotify.mobile.designsystem.components.SectionHeader
 import me.yuriisoft.buildnotify.mobile.designsystem.components.StatusPill
 import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.motion.BouncingDots
 import me.yuriisoft.buildnotify.mobile.designsystem.motion.Reveal
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
@@ -36,7 +40,9 @@ import org.jetbrains.compose.resources.stringResource
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal fun LazyListScope.consoleLines(lines: ImmutableList<BuildLogLineUi>) {
-    itemsIndexed(lines, key = { index, _ -> "line_$index" }, contentType = { _, _ -> "line" }) { index, line ->
+    // Keyed by the line's id, not its index: loading older lines prepends items, and
+    // index keys would make every visible line look new (and the list jump).
+    itemsIndexed(lines, key = { _, line -> "line_${line.id}" }, contentType = { _, _ -> "line" }) { index, line ->
         ConsoleSegment(
             position = ConsoleSegmentPosition.of(index, lines.size),
             modifier = Modifier.animateItem(),
@@ -72,13 +78,14 @@ internal fun LazyListScope.issueSection(
 
 /** "Log" header, then the lines — or a hint when nothing is logged or the filter hides all. */
 @OptIn(ExperimentalFoundationApi::class)
-internal fun LazyListScope.outputSection(state: BuildLogsUiState.Loaded) {
+internal fun LazyListScope.outputSection(state: BuildLogsUiState.Loaded, onLoadOlder: () -> Unit) {
     item(key = "output_header") {
         SectionHeader(
             stringResource(Res.string.logs_section_output),
             Modifier.animateItem().padding(top = GraphiteTheme.spacing.l),
         )
     }
+    if (state.hasOlder) olderLinesTrigger(state.lines.firstOrNull()?.id, onLoadOlder)
     if (state.lines.isNotEmpty()) {
         consoleLines(state.lines)
         return
@@ -90,6 +97,21 @@ internal fun LazyListScope.outputSection(state: BuildLogsUiState.Loaded) {
             style = GraphiteTheme.typography.bodySmall,
             color = GraphiteTheme.colors.contentTertiary,
         )
+    }
+}
+
+/**
+ * Sits above the oldest loaded line. A lazy list composes it only once it scrolls into
+ * view, so composing it is the signal to load the page before; [oldestId] restarts the
+ * request after each page arrives, in case the new page is still shorter than the screen.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.olderLinesTrigger(oldestId: Long?, onLoadOlder: () -> Unit) {
+    item(key = "output_older", contentType = "older") {
+        LaunchedEffect(oldestId) { onLoadOlder() }
+        Box(Modifier.fillMaxWidth().animateItem().padding(vertical = GraphiteTheme.spacing.s)) {
+            BouncingDots(Modifier.align(Alignment.Center))
+        }
     }
 }
 

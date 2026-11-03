@@ -3,75 +3,50 @@ package me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.local
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import me.yuriisoft.buildnotify.mobile.core.cache.source.MutableDataSource
+import me.yuriisoft.buildnotify.mobile.core.cache.source.ReadableDataSource
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.core.mapper.Mapper
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.BuildLogQueries
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.mapper.toRecordKind
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.model.BuildLogRecord
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.data.model.LogRecordKind
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogKind
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogQuery
 
 /**
- * Append-only log cache per [buildId] — Scenario C from `core:cache` README.
- * Works directly with [BuildLogQueries] DAO; no intermediate abstraction.
- *
- * [save] is append-only: it counts existing rows for [params] and inserts only the
- * tail of [data] that has not yet been persisted. This is safe because log entries
- * are ordered and never modified after insertion.
+ * A window onto the tail of one build's log: at most [LogQuery.limit] rows are read per
+ * change, however long the log grows. Paging back means asking for a larger limit.
  */
 class LocalBuildLogSource(
     private val queries: BuildLogQueries,
     private val logMapper: Mapper<BuildLogRecord, BuildLogEntry>,
     private val dispatchers: AppDispatchers,
-) : MutableDataSource<String, List<BuildLogEntry>> {
+) : ReadableDataSource<LogQuery, List<BuildLogEntry>> {
 
-    override fun observe(params: String): Flow<List<BuildLogEntry>> =
-        queries.selectByBuildId(params)
+    override fun observe(params: LogQuery): Flow<List<BuildLogEntry>> =
+        queries.selectTail(
+            buildId = params.buildId,
+            kinds = params.kinds.map { it.toRecordKind().name },
+            limit = params.limit.toLong(),
+        )
             .asFlow()
             .mapToList(dispatchers.io)
-            .map { rows ->
-                rows.map { row ->
+            .map { newestFirst ->
+                newestFirst.asReversed().map { row ->
                     logMapper.map(
                         BuildLogRecord(
                             buildId = row.build_id,
                             timestamp = row.timestamp,
                             message = row.message,
                             kind = LogRecordKind.valueOf(row.kind),
+                            id = row.id,
                         ),
                     )
                 }
             }
-
-    override suspend fun save(params: String, data: List<BuildLogEntry>) {
-        dispatchers.withBackground {
-            // Count and insert in one transaction: several collectors (the screen and the
-            // app-wide cache sync) may save the same list concurrently, and a count read
-            // outside the transaction would let both append the same tail twice.
-            queries.transaction {
-                val existingCount = queries.logCount(params).executeAsOne().toInt()
-                data.drop(existingCount).forEach { entry ->
-                    queries.insert(
-                        build_id = params,
-                        timestamp = entry.timestamp,
-                        message = entry.message,
-                        kind = entry.kind.toRecordKind().name,
-                    )
-                }
-            }
-        }
-    }
-
-    override suspend fun delete(params: String) {
-        dispatchers.withBackground {
-            queries.deleteByBuildId(params)
-        }
-    }
-}
-
-private fun LogKind.toRecordKind(): LogRecordKind = when (this) {
-    LogKind.TASK    -> LogRecordKind.TASK
-    LogKind.WARNING -> LogRecordKind.WARNING
-    LogKind.ERROR   -> LogRecordKind.ERROR
+            .distinctUntilChanged()
+            .flowOn(dispatchers.io)
 }

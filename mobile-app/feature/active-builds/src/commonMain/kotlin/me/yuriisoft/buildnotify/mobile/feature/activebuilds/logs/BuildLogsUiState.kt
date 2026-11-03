@@ -19,8 +19,10 @@ sealed interface BuildLogsUiState {
         val projectName: String?,
         val status: BuildStatusUi,
         val filter: LogFilter,
-        /** Lines that pass [filter]. */
+        /** The newest lines that pass [filter]; older ones are loaded on demand. */
         val lines: ImmutableList<BuildLogLineUi>,
+        /** Whether lines passing [filter] exist before the first of [lines]. */
+        val hasOlder: Boolean,
         /** Number of lines before filtering — distinguishes "no logs" from "filtered out". */
         val totalLines: Int,
         /** How many lines each filter would show, for the chip counters. */

@@ -1,20 +1,9 @@
 package me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.events
 
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
-import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
-
-sealed interface BuildEvent {
-
-    fun foldBuilds(
-        builds: Map<String, BuildSnapshot>,
-    ): Map<String, BuildSnapshot>
-
-    fun foldLogs(
-        logs: Map<String, List<BuildLogEntry>>,
-    ): Map<String, List<BuildLogEntry>>
-}
-
-internal fun Map<String, List<BuildLogEntry>>.appendLog(
-    buildId: String,
-    entry: BuildLogEntry,
-): Map<String, List<BuildLogEntry>> = this + (buildId to (this[buildId].orEmpty() + entry))
+/**
+ * One build-related message from the IDE, already translated from the wire format.
+ *
+ * Events are plain data. They are applied to the local store in batches by the data
+ * layer; nothing folds them into ever-growing in-memory lists.
+ */
+sealed interface BuildEvent

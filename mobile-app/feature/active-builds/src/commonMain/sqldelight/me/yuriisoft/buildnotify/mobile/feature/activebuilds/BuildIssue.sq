@@ -9,6 +9,10 @@ CREATE TABLE build_issue (
 
 CREATE INDEX idx_build_issue_build ON build_issue(build_id);
 
+-- Every issue at once, so the build list is read with two queries instead of 1 + N.
+selectAll:
+SELECT * FROM build_issue ORDER BY id ASC;
+
 selectByBuildId:
 SELECT * FROM build_issue WHERE build_id = ? ORDER BY id ASC;
 

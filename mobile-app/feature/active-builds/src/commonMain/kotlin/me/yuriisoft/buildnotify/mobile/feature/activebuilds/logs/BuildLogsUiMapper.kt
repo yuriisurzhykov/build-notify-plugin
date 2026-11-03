@@ -4,19 +4,25 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogStats
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.TimeUnits
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.toUi
 
 class BuildLogsUiMapper {
 
+    /**
+     * @param logs the loaded window, oldest first
+     * @param stats the size of the whole log, of which [logs] is the newest part
+     */
     fun map(
         build: BuildSnapshot?,
         logs: List<BuildLogEntry>,
+        stats: LogStats,
         filter: LogFilter,
     ): BuildLogsUiState {
-        if (build == null && logs.isEmpty()) return BuildLogsUiState.NotFound
+        if (build == null && stats.total == 0) return BuildLogsUiState.NotFound
 
-        val origin = logs.firstOrNull()?.timestamp ?: 0L
+        val origin = stats.firstTimestamp ?: logs.firstOrNull()?.timestamp ?: 0L
         val finished = build as? BuildSnapshot.Finished
 
         return BuildLogsUiState.Loaded(
@@ -24,17 +30,18 @@ class BuildLogsUiMapper {
             status = build.toStatusUi(),
             filter = filter,
             lines = logs
-                .filter { filter.accepts(it.kind) }
                 .map { entry ->
                     BuildLogLineUi(
+                        id = entry.id,
                         offset = formatOffset(entry.timestamp - origin),
                         text = entry.message,
                         kind = entry.kind,
                     )
                 }
                 .toImmutableList(),
-            totalLines = logs.size,
-            filterCounts = LogFilter.entries.associateWith { f -> logs.count { f.accepts(it.kind) } },
+            hasOlder = logs.size < stats.count(filter.kinds),
+            totalLines = stats.total,
+            filterCounts = LogFilter.entries.associateWith { stats.count(it.kinds) },
             errors = finished?.outcome?.errors?.map { it.toUi() }?.toImmutableList()
                 ?: persistentListOf(),
             warnings = finished?.outcome?.warnings?.map { it.toUi() }?.toImmutableList()

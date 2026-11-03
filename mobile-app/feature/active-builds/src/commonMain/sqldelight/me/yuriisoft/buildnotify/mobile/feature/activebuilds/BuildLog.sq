@@ -6,10 +6,16 @@ CREATE TABLE build_log (
     kind      TEXT NOT NULL
 );
 
+-- `id` is the rowid, so this index is ordered by (build_id, id): the tail of one
+-- build is a short backwards index scan, however long the log is.
 CREATE INDEX idx_build_log_build ON build_log(build_id);
 
-selectByBuildId:
-SELECT * FROM build_log WHERE build_id = ? ORDER BY id ASC;
+-- The newest :limit lines of the given kinds, newest first (callers reverse).
+selectTail:
+SELECT * FROM build_log
+WHERE build_id = :buildId AND kind IN :kinds
+ORDER BY id DESC
+LIMIT :limit;
 
 insert:
 INSERT INTO build_log (build_id, timestamp, message, kind)

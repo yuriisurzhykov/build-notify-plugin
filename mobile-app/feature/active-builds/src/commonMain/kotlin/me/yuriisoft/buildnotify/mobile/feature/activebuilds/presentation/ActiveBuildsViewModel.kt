@@ -23,6 +23,8 @@ import me.yuriisoft.buildnotify.mobile.core.communication.StateCommunication
 import me.yuriisoft.buildnotify.mobile.core.dispatchers.AppDispatchers
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildLogEntry
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.BuildSnapshot
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogKind
+import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogQuery
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.repository.IActiveBuildRepository
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.usecase.CancelBuildUseCase
 import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionManager
@@ -84,8 +86,12 @@ class ActiveBuildsViewModel(
             if (buildId == null) {
                 flowOf(null)
             } else {
-                combine(repository.observeLogs(buildId), handoffIncludeLog) { logs, include ->
-                    HandoffRequest(buildId = buildId, includeLog = include, logs = logs)
+                combine(
+                    repository.observeLogs(LogQuery(buildId, ALL_KINDS, HandoffPrompt.MAX_LOG_LINES)),
+                    repository.observeLogStats(buildId),
+                    handoffIncludeLog,
+                ) { logs, stats, include ->
+                    HandoffRequest(buildId = buildId, includeLog = include, logs = logs, totalLines = stats.total)
                 }
             }
         }
@@ -113,7 +119,11 @@ class ActiveBuildsViewModel(
     ): Flow<Pair<List<BuildSnapshot>, Map<String, List<BuildLogEntry>>>> {
         val runningIds = snapshots.filterIsInstance<BuildSnapshot.Active>().map { it.buildId }
         if (runningIds.isEmpty()) return flowOf(snapshots to emptyMap())
-        return combine(runningIds.map { id -> repository.observeLogs(id).map { id to it } }) {
+        // Only the few lines each running card shows are read, never the whole log.
+        val tails = runningIds.map { id ->
+            repository.observeLogs(LogQuery(id, ALL_KINDS, mapper.recentLogLines)).map { id to it }
+        }
+        return combine(tails) {
             snapshots to it.toMap()
         }
     }
@@ -130,6 +140,8 @@ class ActiveBuildsViewModel(
         }
     }
 }
+
+private val ALL_KINDS: Set<LogKind> = LogKind.entries.toSet()
 
 private fun ConnectionState.toUi(): ConnectionUi = when (this) {
     is ConnectionState.Connected    -> ConnectionUi.Connected(host.name)
