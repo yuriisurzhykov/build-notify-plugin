@@ -52,6 +52,7 @@ class ManagedConnectionTest {
             host: String,
             port: Int,
             secure: Boolean,
+            fingerprint: String?,
             outgoing: ReceiveChannel<WsEnvelope>,
         ): Flow<WsPayload> = flow {
             openCount++
@@ -149,7 +150,7 @@ class ManagedConnectionTest {
 
     @Test
     fun transitionsToFailedWhenTransportErrorsAndNoRetry() = runTest(testDispatcher) {
-        val failingTransport = Transport { _, _, _, _ ->
+        val failingTransport = Transport { _, _, _, _, _ ->
             flow { throw RuntimeException("connection lost") }
         }
         val connection = createConnection(transport = failingTransport)
@@ -165,7 +166,7 @@ class ManagedConnectionTest {
     @Test
     fun reconnectsWhenStrategyReturnsTrue() = runTest(testDispatcher) {
         var attempts = 0
-        val transport = Transport { _, _, _, _ ->
+        val transport = Transport { _, _, _, _, _ ->
             flow {
                 attempts++
                 if (attempts <= 2) throw RuntimeException("fail #$attempts")

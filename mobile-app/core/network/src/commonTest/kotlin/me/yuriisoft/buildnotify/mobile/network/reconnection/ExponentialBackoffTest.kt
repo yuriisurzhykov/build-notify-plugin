@@ -1,6 +1,9 @@
 package me.yuriisoft.buildnotify.mobile.network.reconnection
 
 import kotlinx.coroutines.test.runTest
+import me.yuriisoft.buildnotify.mobile.network.error.ConnectionErrorReason
+import me.yuriisoft.buildnotify.mobile.network.error.ErrorMapping
+import me.yuriisoft.buildnotify.mobile.network.error.ErrorRecognizer
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -11,9 +14,13 @@ class ExponentialBackoffTest {
 
     private val cause = RuntimeException("test error")
 
+    /** Classifies every failure as [ConnectionErrorReason.Unknown], i.e. retriable. */
+    private val noRecognizers = ErrorMapping(recognizers = emptyList())
+
     @Test
     fun retriesWithinMaxAttempts() = runTest {
         val backoff = ExponentialBackoff(
+            errorMapping = noRecognizers,
             maxAttempts = 3,
             baseDelay = 1.milliseconds,
             maxDelay = 100.milliseconds,
@@ -27,6 +34,7 @@ class ExponentialBackoffTest {
     @Test
     fun stopsRetryingAtMaxAttempts() = runTest {
         val backoff = ExponentialBackoff(
+            errorMapping = noRecognizers,
             maxAttempts = 3,
             baseDelay = 1.milliseconds,
             maxDelay = 100.milliseconds,
@@ -38,6 +46,7 @@ class ExponentialBackoffTest {
     @Test
     fun stopsRetryingBeyondMaxAttempts() = runTest {
         val backoff = ExponentialBackoff(
+            errorMapping = noRecognizers,
             maxAttempts = 2,
             baseDelay = 1.milliseconds,
             maxDelay = 100.milliseconds,
@@ -49,6 +58,7 @@ class ExponentialBackoffTest {
     @Test
     fun zeroMaxAttemptsNeverRetries() = runTest {
         val backoff = ExponentialBackoff(
+            errorMapping = noRecognizers,
             maxAttempts = 0,
             baseDelay = 1.milliseconds,
             maxDelay = 100.milliseconds,
@@ -60,6 +70,7 @@ class ExponentialBackoffTest {
     @Test
     fun backoffDelayIsExponential() = runTest {
         val backoff = ExponentialBackoff(
+            errorMapping = noRecognizers,
             maxAttempts = 5,
             baseDelay = 100.milliseconds,
             maxDelay = 10.seconds,
@@ -86,6 +97,7 @@ class ExponentialBackoffTest {
     @Test
     fun backoffClampsToMaxDelay() = runTest {
         val backoff = ExponentialBackoff(
+            errorMapping = noRecognizers,
             maxAttempts = 10,
             baseDelay = 1.seconds,
             maxDelay = 5.seconds,
@@ -100,11 +112,21 @@ class ExponentialBackoffTest {
 
     @Test
     fun defaultConfigurationRetries5Times() = runTest {
-        val backoff = ExponentialBackoff()
+        val backoff = ExponentialBackoff(errorMapping = noRecognizers)
 
         for (attempt in 0L..4L) {
             assertTrue(backoff.shouldRetry(cause, attempt), "should retry at attempt $attempt")
         }
         assertFalse(backoff.shouldRetry(cause, attempt = 5), "should stop at attempt 5")
+    }
+
+    @Test
+    fun clientRejected_isNeverRetried() = runTest {
+        val rejected = ErrorMapping(
+            recognizers = listOf(ErrorRecognizer { ConnectionErrorReason.ClientRejected("rejected in the IDE") }),
+        )
+        val backoff = ExponentialBackoff(errorMapping = rejected, baseDelay = 1.milliseconds)
+
+        assertFalse(backoff.shouldRetry(cause, attempt = 0))
     }
 }
