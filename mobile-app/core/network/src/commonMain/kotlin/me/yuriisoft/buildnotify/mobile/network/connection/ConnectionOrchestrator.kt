@@ -141,6 +141,12 @@ class ConnectionOrchestrator(
      */
     private fun connectionFlow(host: DiscoveredHost): Flow<ConnectionState> = flow {
         emit(ConnectionState.Connecting(host))
+        // Plain ws:// would skip TLS pinning and pairing; anyone on the LAN could
+        // advertise a fake IDE via mDNS. The plugin never serves plaintext, so refuse it.
+        if (!host.isSecure) {
+            emit(ConnectionState.Failed(host, ConnectionErrorReason.HandshakeFailed(INSECURE_HOST_MESSAGE)))
+            return@flow
+        }
         if (!pairingGate(host)) return@flow
         emitAll(transportPipeline(host))
     }
@@ -317,5 +323,6 @@ class ConnectionOrchestrator(
     private companion object {
         val PROBE_TIMEOUT: Duration = 10.seconds
         val PAIRING_TIMEOUT: Duration = 120.seconds
+        const val INSECURE_HOST_MESSAGE = "The IDE does not offer an encrypted connection"
     }
 }

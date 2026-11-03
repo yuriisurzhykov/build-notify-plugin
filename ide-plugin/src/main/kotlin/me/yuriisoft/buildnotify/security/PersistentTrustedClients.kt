@@ -76,7 +76,7 @@ class PersistentTrustedClients : TrustedClients {
      * "pending" from "explicitly rejected".
      */
     @Synchronized
-    fun isRejected(clientFingerprint: String): Boolean =
+    override fun isRejected(clientFingerprint: String): Boolean =
         loadSet(KEY_REJECTED).contains(clientFingerprint)
 
     /** Must be called from a `@Synchronized` context. */

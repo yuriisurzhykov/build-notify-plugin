@@ -1,6 +1,5 @@
 package me.yuriisoft.buildnotify.security
 
-import java.security.MessageDigest
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
@@ -52,7 +51,7 @@ import javax.net.ssl.X509TrustManager
  *                           from the certificate's Subject CN field.
  */
 class ClientToFuTrustManager(
-    private val store: PersistentTrustedClients,
+    private val store: TrustedClients,
     private val serverFingerprint: String,
     private val onFirstSeen: (serverFingerprint: String, clientFingerprint: String, deviceName: String) -> Unit,
 ) : X509TrustManager {
@@ -67,12 +66,12 @@ class ClientToFuTrustManager(
     /**
      * Core TOFU logic. See class-level contract table.
      *
-     * An empty [chain] means the client chose not to present a certificate
-     * (valid when `wantClientAuth = true`). We allow this to maintain backward
-     * compatibility with iOS clients that don't yet implement mTLS (Phase 4).
+     * A client without a certificate is rejected: the certificate *is* the client's
+     * identity, so an anonymous client could otherwise read every build on the LAN
+     * without pairing. (Both mobile platforms present one since Phase 4.)
      */
     override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-        if (chain.isEmpty()) return  // no cert presented — non-mTLS client, allow through
+        if (chain.isEmpty()) throw CertificateException("Client certificate required")
 
         val cert = chain[0]
         val fingerprint = cert.sha256Fingerprint()
@@ -105,17 +104,6 @@ class ClientToFuTrustManager(
     override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
 
     // ── Extension ─────────────────────────────────────────────────────────────
-
-    /**
-     * Computes the SHA-256 fingerprint of [this] certificate's DER-encoded form,
-     * formatted as colon-separated uppercase hex pairs: `AB:CD:EF:...`
-     *
-     * Matches the format produced by the mobile's `ClientCertificateManager.fingerprint()`.
-     */
-    private fun X509Certificate.sha256Fingerprint(): String =
-        MessageDigest.getInstance("SHA-256")
-            .digest(encoded)
-            .joinToString(":") { byte -> "%02X".format(byte) }
 
     /**
      * Extracts the Common Name (CN) from the certificate's Subject DN.

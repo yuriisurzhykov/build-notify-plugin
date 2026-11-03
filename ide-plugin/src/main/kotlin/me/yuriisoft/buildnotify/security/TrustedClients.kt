@@ -28,6 +28,8 @@ interface TrustedClients {
      */
     fun isPending(clientFingerprint: String): Boolean
 
+    fun isRejected(clientFingerprint: String): Boolean
+
     /**
      * Marks the fingerprint as pending (first-seen).
      * No-op if already trusted or already pending.

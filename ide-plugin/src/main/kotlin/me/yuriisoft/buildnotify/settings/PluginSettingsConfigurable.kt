@@ -11,6 +11,7 @@ import me.yuriisoft.buildnotify.BuildNotifyBundle
 import me.yuriisoft.buildnotify.network.discovery.MdnsAdvertiser
 import me.yuriisoft.buildnotify.network.server.BuildWebSocketServer
 import me.yuriisoft.buildnotify.notification.PluginNotifier
+import me.yuriisoft.buildnotify.network.server.ClientRegistry
 import me.yuriisoft.buildnotify.security.CertificateManager
 import me.yuriisoft.buildnotify.security.PersistentTrustedClients
 import java.awt.Font
@@ -178,6 +179,8 @@ class PluginSettingsConfigurable : Configurable {
 
                             button(BuildNotifyBundle.message("settings.trusted_clients.action.revoke")) {
                                 trustedClients.revoke(fingerprint)
+                                // Revocation must take effect now, not at the device's next reconnect.
+                                service<ClientRegistry>().disconnectUnauthorized()
                                 revokePerformed = true
                                 // Force the IDE to re-render the panel by signalling a modification.
                                 panel?.isModified()
@@ -250,6 +253,7 @@ class PluginSettingsConfigurable : Configurable {
      */
     private fun revokeAll() {
         trustedClients.trustedFingerprints().forEach { trustedClients.revoke(it) }
+        service<ClientRegistry>().disconnectUnauthorized()
         revokePerformed = true
     }
 

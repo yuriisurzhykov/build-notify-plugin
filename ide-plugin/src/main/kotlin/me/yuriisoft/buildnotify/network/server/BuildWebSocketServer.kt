@@ -17,6 +17,7 @@ import me.yuriisoft.buildnotify.security.PersistentTrustedClients
 import me.yuriisoft.buildnotify.serialization.*
 import me.yuriisoft.buildnotify.settings.PluginSettingsState
 import org.java_websocket.WebSocket
+import org.java_websocket.framing.CloseFrame
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import java.net.InetSocketAddress
@@ -138,23 +139,26 @@ class BuildWebSocketServer : Disposable {
         }
 
         override fun onOpen(conn: WebSocket, handshake: ClientHandshake) {
-            val session = WebSocketSession(socket = conn)
+            val session = WebSocketSession(socket = conn, clientFingerprint = conn.peerCertificateFingerprint())
+            if (!registry.isAuthorized(session)) {
+                // Unreachable while needClientAuth holds; kept as defence in depth.
+                logger.warn("Refusing unpaired client ${conn.remoteSocketAddress}")
+                session.close(CloseFrame.POLICY_VALIDATION, ClientRegistry.REASON_NOT_PAIRED)
+                return
+            }
             conn.setAttachment(session.id)
             registry.register(session)
 
             val greeting = WsEnvelope(
                 payload = HandshakePayload(
                     instanceId = instanceId,
-                    capabilities = setOf(
-                        Capability.BUILD_MONITOR,
-                        Capability.BUILD_CONTROL,
-                    ),
+                    // BUILD_CONTROL is advertised only once cancel/run are implemented.
+                    capabilities = setOf(Capability.BUILD_MONITOR),
                     certFingerprint = service<CertificateManager>().fingerprint(),
                     deviceName = ApplicationNamesInfo.getInstance().fullProductName,
                 ),
             )
             session.send(MessageSerializer.encode(greeting))
-
             logger.info("Client connected: ${conn.remoteSocketAddress}, total=${registry.connectedCount}")
         }
 
@@ -167,19 +171,24 @@ class BuildWebSocketServer : Disposable {
 
         override fun onMessage(conn: WebSocket?, message: String?) {
             val raw = message.orEmpty()
-            val sessionId: String? = conn?.getAttachment()
+            val session = conn?.getAttachment<String>()?.let(registry::findSession)
+            if (session == null || !registry.isAuthorized(session)) {
+                conn?.close(CloseFrame.POLICY_VALIDATION, ClientRegistry.REASON_NOT_PAIRED)
+                return
+            }
+            if (raw.length > MAX_INBOUND_MESSAGE_CHARS) {
+                logger.warn("Dropping oversized message (${raw.length} chars) from ${conn?.remoteSocketAddress}")
+                session.close(CloseFrame.TOOBIG, "Message too large")
+                return
+            }
             runCatching {
-                val envelope = MessageSerializer.decode(raw)
-                handleClientMessage(envelope, sessionId)
+                handleClientMessage(MessageSerializer.decode(raw), session.id)
             }.onFailure { throwable ->
-                logger.warn("Failed to decode incoming message: '$raw'", throwable)
+                // Never log the payload itself: it is client-controlled and may be large.
+                logger.warn("Failed to decode incoming message (${raw.length} chars)", throwable)
             }
         }
 
-        /**
-         * Dispatch point for all client-initiated messages.
-         * Add new command handlers here as a new `is XxxCommand` branch — nothing else changes.
-         */
         private fun handleClientMessage(envelope: WsEnvelope, sessionId: String?) {
             if (sessionId == null) {
                 logger.warn("Received message from unknown session, ignoring")
@@ -189,17 +198,17 @@ class BuildWebSocketServer : Disposable {
             when (val payload = envelope.payload) {
                 is HelloPayload -> handleHello(payload, sessionId)
 
-                is CancelBuildCommand -> {
-                    // TODO: delegate to BuildMonitorService.cancelBuild(payload.buildId)
-                    replyTo(envelope, sessionId, CommandResultPayload(CommandStatus.ACCEPTED))
-                    logger.debug("CancelBuild requested for buildId=${payload.buildId}")
-                }
-
-                is RunBuildCommand -> {
-                    // TODO: delegate to GradleRunner / ExternalSystemManager
-                    replyTo(envelope, sessionId, CommandResultPayload(CommandStatus.ACCEPTED))
-                    logger.debug("RunBuild requested: project=${payload.projectName}, tasks=${payload.tasks}")
-                }
+                is CancelBuildCommand,
+                is RunBuildCommand -> replyTo(
+                    command = envelope,
+                    sessionId = sessionId,
+                    // Honest answer until build control exists: never ACCEPT a no-op.
+                    payload = CommandResultPayload(
+                        status = CommandStatus.REJECTED,
+                        errorCode = ERROR_NOT_SUPPORTED,
+                        message = "Build control is not supported by this plugin version yet",
+                    ),
+                )
 
                 else -> logger.warn(
                     "Received unexpected payload type from client: ${payload::class.simpleName}",
@@ -231,7 +240,8 @@ class BuildWebSocketServer : Disposable {
             val bundle = CertificateManager.getInstance().bundle()
 
             if (bundle == null) {
-                logger.warn("TLS unavailable; running plain WS on port $port")
+                // No plaintext fallback: an unencrypted server would expose builds to the
+                // whole LAN and bypass pairing. Fail start(); the user is notified there.
                 service<PluginNotifier>().warning(
                     BuildNotifyBundle.message("notification.ssl.failed.title"),
                     BuildNotifyBundle.message(
@@ -239,7 +249,7 @@ class BuildWebSocketServer : Disposable {
                         "All SSL providers failed. Check Event Log."
                     ),
                 )
-                return
+                error("TLS is unavailable; refusing to start an unencrypted server on port $port")
             }
 
             val clientTrustManager = ClientToFuTrustManager(
@@ -290,5 +300,11 @@ class BuildWebSocketServer : Disposable {
                 ).show()
             }
         }
+    }
+
+    private companion object {
+        /** Client messages are small commands; anything bigger is abuse or a bug. */
+        const val MAX_INBOUND_MESSAGE_CHARS = 64 * 1024
+        const val ERROR_NOT_SUPPORTED = "NOT_SUPPORTED"
     }
 }

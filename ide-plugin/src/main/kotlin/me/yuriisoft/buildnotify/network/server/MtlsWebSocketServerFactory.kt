@@ -14,7 +14,7 @@ import javax.net.ssl.X509TrustManager
 
 /**
  * [DefaultSSLWebSocketServerFactory] subclass that enables mutual TLS by
- * setting `wantClientAuth = true` on every accepted connection's [javax.net.ssl.SSLEngine].
+ * setting `needClientAuth = true` on every accepted connection's [javax.net.ssl.SSLEngine].
  *
  * ## Why we override [wrapChannel]
  *
@@ -37,12 +37,13 @@ import javax.net.ssl.X509TrustManager
  * [DefaultSSLWebSocketServerFactory] — see https://github.com/TooTallNate/Java-WebSocket/issues/466.
  * It must be preserved here because we bypass the parent's [wrapChannel].
  *
- * ## wantClientAuth vs needClientAuth
+ * ## Client certificates are mandatory
  *
- * `wantClientAuth = true` — the server requests a certificate but accepts connections
- * from clients that send none. [ClientToFuTrustManager.checkClientTrusted] is not
- * invoked for such clients, preserving backward compatibility with iOS (Phase 1–3).
- * Switch to `needClientAuth = true` in Phase 4 when all clients support mTLS.
+ * `needClientAuth = true`: a client that presents no certificate fails the TLS
+ * handshake, and an unknown certificate is held "pending" by
+ * [ClientToFuTrustManager.checkClientTrusted] until the user approves the PIN.
+ * Only paired devices ever complete a handshake. (The earlier `wantClientAuth`
+ * let anonymous LAN clients connect and read every build.)
  *
  * @param serverKeyManagers  Key material for the server certificate, taken from
  *                           [me.yuriisoft.buildnotify.security.CertificateBundle.keyManagers].
@@ -66,7 +67,8 @@ class MtlsWebSocketServerFactory(
             enabledCipherSuites = ciphers.toTypedArray()
 
             useClientMode = false
-            wantClientAuth = true   // ← the only behavioural delta vs the parent
+            // Required, not optional: a client without a certificate fails the handshake.
+            needClientAuth = true
         }
         return SSLSocketChannel2(channel, engine, exec, key)
     }
