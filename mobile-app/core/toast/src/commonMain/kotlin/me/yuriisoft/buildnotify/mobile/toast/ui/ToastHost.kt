@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import me.yuriisoft.buildnotify.mobile.toast.ToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastData
 import me.yuriisoft.buildnotify.mobile.toast.ui.animation.rememberPullRevealState
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 private val SwipeDismissThreshold = 56.dp
 private const val SwipeAlphaReduction = 0.5f

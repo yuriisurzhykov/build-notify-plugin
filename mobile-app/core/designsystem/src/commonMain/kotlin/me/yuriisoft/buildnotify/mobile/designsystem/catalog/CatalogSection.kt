@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SectionHeader
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 @Composable
 internal fun Section(

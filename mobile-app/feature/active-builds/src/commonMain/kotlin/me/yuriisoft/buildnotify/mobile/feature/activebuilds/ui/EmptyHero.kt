@@ -4,11 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.components.HeroPanel
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.Reveal
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Reveal
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.builds_empty_body
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.builds_empty_title

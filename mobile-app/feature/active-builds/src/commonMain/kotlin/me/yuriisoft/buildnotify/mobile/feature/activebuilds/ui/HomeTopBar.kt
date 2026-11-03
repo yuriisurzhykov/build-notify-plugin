@@ -3,10 +3,10 @@ package me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ConnectionBadge
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.crossfade
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.ConnectionBadge
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.crossfade
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.home_offline
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.home_reconnecting

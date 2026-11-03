@@ -7,21 +7,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Console
-import me.yuriisoft.buildnotify.mobile.designsystem.components.DangerButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.HeroPanel
-import me.yuriisoft.buildnotify.mobile.designsystem.components.InsetPanel
-import me.yuriisoft.buildnotify.mobile.designsystem.components.IssueText
-import me.yuriisoft.buildnotify.mobile.designsystem.components.LogLine
-import me.yuriisoft.buildnotify.mobile.designsystem.components.LogTone
-import me.yuriisoft.buildnotify.mobile.designsystem.components.PrimaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ProgressBar
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SecondaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.StatusLabel
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.feedback.ProgressBar
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.DangerButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.PrimaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.SecondaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogLine
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogTone
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusLabel
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.IssueText
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.Console
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.HeroPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.InsetPanel
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 @Composable
 internal fun FailedHeroSection() {

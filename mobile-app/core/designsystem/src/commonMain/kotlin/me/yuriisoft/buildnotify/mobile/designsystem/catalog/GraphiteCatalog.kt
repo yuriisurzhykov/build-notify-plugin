@@ -9,13 +9,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ScreenSurface
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.ScreenSurface
 
 /**
  * Living reference of every Graphite token and component, in the current theme.
- * Host it on any platform inside [GraphiteTheme][me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme]
+ * Host it on any platform inside [GraphiteTheme][me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme]
  * (e.g. a desktop `Window { GraphiteTheme { GraphiteCatalog() } }`).
  */
 @OptIn(ExperimentalLayoutApi::class)

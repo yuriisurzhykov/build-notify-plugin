@@ -1,8 +1,8 @@
 package me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui
 
 import androidx.compose.runtime.Composable
-import me.yuriisoft.buildnotify.mobile.designsystem.components.HistoryRow
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.lists.HistoryRow
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.build_issue_counts
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.history_running

@@ -19,7 +19,7 @@ import me.yuriisoft.buildnotify.mobile.network.connection.ConnectionState
 import me.yuriisoft.buildnotify.mobile.toast.LocalToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.ToastHostState
 import me.yuriisoft.buildnotify.mobile.toast.ui.ToastHost
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.ui.theme.BuildNotifyTheme
 
 @Composable

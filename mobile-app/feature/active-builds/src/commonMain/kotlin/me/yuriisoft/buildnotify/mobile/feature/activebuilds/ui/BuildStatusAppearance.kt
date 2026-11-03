@@ -2,9 +2,9 @@ package me.yuriisoft.buildnotify.mobile.feature.activebuilds.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.StatusStyle
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.StatusStyle
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.FinishStatus
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.build_status_cancelled

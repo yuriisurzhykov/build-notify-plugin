@@ -18,15 +18,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.action_cancel
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Button
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ButtonVariant
-import me.yuriisoft.buildnotify.mobile.designsystem.components.IconBadge
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.components.VSpace
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.PulseRings
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.Reveal
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.Button
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.ButtonVariant
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.IconBadge
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.layout.VSpace
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.feedback.PulseRings
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Reveal
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import org.jetbrains.compose.resources.stringResource
 
 internal val VisualSize: Dp = 168.dp

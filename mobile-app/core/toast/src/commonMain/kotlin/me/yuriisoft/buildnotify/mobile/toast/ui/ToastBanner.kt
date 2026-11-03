@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastData
 import me.yuriisoft.buildnotify.mobile.toast.model.ToastType
 import me.yuriisoft.buildnotify.mobile.toast.ui.animation.auroraBackground

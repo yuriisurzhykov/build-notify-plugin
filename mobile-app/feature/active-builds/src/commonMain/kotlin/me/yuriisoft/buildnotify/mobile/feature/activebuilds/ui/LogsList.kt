@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.LogKind
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.logs_section_errors

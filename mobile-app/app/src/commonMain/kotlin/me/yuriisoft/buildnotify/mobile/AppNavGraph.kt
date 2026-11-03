@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import me.yuriisoft.buildnotify.mobile.core.navigation.Screen
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ScreenSurface
+import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.ScreenSurface
 
 @Composable
 fun AppNavGraph(

@@ -9,8 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ModalSheetHost
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SheetSurface
+import me.yuriisoft.buildnotify.mobile.designsystem.templates.sheets.ModalSheetHost
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.SheetSurface
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.action_close
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ActiveBuildsIntent

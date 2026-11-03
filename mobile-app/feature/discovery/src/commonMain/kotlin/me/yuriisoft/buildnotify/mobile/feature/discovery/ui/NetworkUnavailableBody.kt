@@ -5,9 +5,9 @@ import androidx.compose.ui.Modifier
 import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.network_unavailable_body
 import build_notify_mobile.feature.discovery.generated.resources.network_unavailable_title
-import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.breathing
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.breathing
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

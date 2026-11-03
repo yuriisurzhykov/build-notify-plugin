@@ -10,14 +10,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ChoiceCard
-import me.yuriisoft.buildnotify.mobile.designsystem.components.PrimaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SettingRow
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SheetSurface
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Switch
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Text
-import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.texts.Text
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.PrimaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.ChoiceCard
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.Switch
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.lists.SettingRow
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.surfaces.SheetSurface
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 @Composable
 internal fun SheetSection() {

@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SectionHeader
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.Swap
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.morph
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.Swap
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.morph
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.domain.model.FinishStatus
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.Res
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.generated.resources.builds_section_recent

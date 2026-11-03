@@ -7,10 +7,10 @@ import build_notify_mobile.feature.discovery.generated.resources.Res
 import build_notify_mobile.feature.discovery.generated.resources.empty_body
 import build_notify_mobile.feature.discovery.generated.resources.empty_scan_again
 import build_notify_mobile.feature.discovery.generated.resources.empty_title
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Button
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ButtonVariant
-import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.Button
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.ButtonVariant
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

@@ -8,7 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavBackStackEntry
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.GraphiteMotion
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.motion.GraphiteMotion
 
 data class ScreenTransitions(
     val enter: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null,

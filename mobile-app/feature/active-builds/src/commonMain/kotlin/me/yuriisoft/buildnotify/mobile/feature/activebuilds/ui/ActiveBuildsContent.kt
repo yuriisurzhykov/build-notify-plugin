@@ -8,9 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ScreenSurface
-import me.yuriisoft.buildnotify.mobile.designsystem.motion.BouncingDots
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.templates.screens.ScreenSurface
+import me.yuriisoft.buildnotify.mobile.designsystem.atoms.feedback.BouncingDots
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ActiveBuildsIntent
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ActiveBuildsUiState
 import me.yuriisoft.buildnotify.mobile.feature.activebuilds.presentation.ConnectionUi

@@ -6,20 +6,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Button
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ButtonVariant
-import me.yuriisoft.buildnotify.mobile.designsystem.components.ConnectionBadge
-import me.yuriisoft.buildnotify.mobile.designsystem.components.DangerButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.IconButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.OutlineButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.PrimaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SecondaryButton
-import me.yuriisoft.buildnotify.mobile.designsystem.components.StatusBadge
-import me.yuriisoft.buildnotify.mobile.designsystem.components.StatusPill
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Tag
-import me.yuriisoft.buildnotify.mobile.designsystem.icons.GraphiteIcons
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.Button
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.ButtonVariant
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.DangerButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.IconButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.OutlineButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.PrimaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.buttons.SecondaryButton
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.ConnectionBadge
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusBadge
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.StatusPill
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.status.Tag
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.icons.GraphiteIcons
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 @Composable
 internal fun StatusSection() {

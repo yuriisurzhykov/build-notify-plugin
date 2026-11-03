@@ -8,15 +8,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import me.yuriisoft.buildnotify.mobile.designsystem.components.Console
-import me.yuriisoft.buildnotify.mobile.designsystem.components.FilterChip
-import me.yuriisoft.buildnotify.mobile.designsystem.components.HistoryRow
-import me.yuriisoft.buildnotify.mobile.designsystem.components.LogLine
-import me.yuriisoft.buildnotify.mobile.designsystem.components.LogTone
-import me.yuriisoft.buildnotify.mobile.designsystem.components.RunTaskRow
-import me.yuriisoft.buildnotify.mobile.designsystem.components.SectionHeader
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.BuildTone
-import me.yuriisoft.buildnotify.mobile.designsystem.theme.GraphiteTheme
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogLine
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.console.LogTone
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.fields.FilterChip
+import me.yuriisoft.buildnotify.mobile.designsystem.molecules.texts.SectionHeader
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.console.Console
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.lists.HistoryRow
+import me.yuriisoft.buildnotify.mobile.designsystem.organisms.lists.RunTaskRow
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.BuildTone
+import me.yuriisoft.buildnotify.mobile.designsystem.particles.theme.GraphiteTheme
 
 @Composable
 internal fun HistorySection() {
