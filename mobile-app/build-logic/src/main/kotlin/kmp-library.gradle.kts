@@ -1,11 +1,17 @@
+import com.android.build.api.dsl.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
-    id("com.android.library")
     id("apple-ios-targets")
     id("quality-conventions")
 }
+
+// AGP is applied here, not in `plugins {}`: Gradle generates accessors for precompiled
+// script plugins by applying that block to a synthetic project that does not read
+// gradle.properties, and AGP 9 rejects com.android.library next to Kotlin Multiplatform
+// there. Real modules still get the AGP 9 bridge flags from the root gradle.properties.
+apply(plugin = "com.android.library")
 
 kotlin {
     androidTarget {
@@ -21,7 +27,7 @@ kotlin {
     }
 }
 
-android {
+extensions.configure<LibraryExtension> {
     val catalog = the<VersionCatalogsExtension>().named("libs")
     compileSdk = catalog.findVersion("android-compileSdk").get().toString().toInt()
     defaultConfig {

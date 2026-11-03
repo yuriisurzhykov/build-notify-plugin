@@ -1,8 +1,11 @@
 plugins {
-    id("kmp-library")
+    id("org.jetbrains.kotlin.multiplatform")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+// Applied outside `plugins {}` because kmp-library applies AGP; see kmp-library.gradle.kts.
+apply(plugin = "kmp-library")
 
 val catalog = the<VersionCatalogsExtension>().named("libs")
 
